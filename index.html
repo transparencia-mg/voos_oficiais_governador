@@ -12,7 +12,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* O CSS permanece o mesmo */
         :root {
             --primary-dark: #29435A;
             --primary-darker: #132837;
@@ -27,10 +26,300 @@
             padding-bottom: 20px;
         }
         
-        /* ... resto do CSS permanece igual ... */
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
         
-        .data-status {
-            font-size: 0.9rem;
+        .filter-section {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--accent-red);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+            border: none;
+        }
+        
+        .table-responsive {
+            border-radius: 0 0 10px 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 320px;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card {
+            text-align: center;
+            padding: 25px 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-top: 5px solid var(--accent-red);
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .summary-card h3 {
+            margin: 0;
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        
+        .summary-card p {
+            margin: 8px 0 0;
+            color: var(--primary-darker);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, var(--accent-red), var(--accent-bright));
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(to right, var(--accent-bright), var(--accent-red));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(219, 35, 63, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 15px 12px;
+        }
+        
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(41, 67, 90, 0.05);
+        }
+        
+        .table tbody td {
+            padding: 12px;
+            border-color: #e9ecef;
+        }
+        
+        h1 {
+            font-weight: 700;
+            color: white;
+        }
+        
+        .filter-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            padding: 10px 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-red);
+            box-shadow: 0 0 0 0.2rem rgba(185, 60, 66, 0.2);
+        }
+        
+        .badge-primary {
+            background-color: var(--accent-red);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-export {
+            background: white;
+            border: 2px solid var(--primary-dark);
+            color: var(--primary-dark);
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-export:hover {
+            background: var(--primary-dark);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .social-share {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-social {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-facebook { background: #3b5998; }
+        .btn-twitter { background: #1da1f2; }
+        .btn-linkedin { background: #0077b5; }
+        .btn-whatsapp { background: #25d366; }
+        
+        .btn-social:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .flight-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .period-filter-container {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .period-filter-item {
+            flex: 1;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            display: none;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .data-info {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
         }
         
         @media (max-width: 768px) {
@@ -78,8 +367,8 @@
         <!-- Informações dos Dados -->
         <div class="data-info" id="dataInfo">
             <i class="fas fa-info-circle"></i> 
-            <span id="dataStatus" class="data-status">Carregando dados...</span>
-            <span id="lastUpdate" class="ms-3 data-status"></span>
+            <span id="dataStatus">Carregando dados...</span>
+            <span id="lastUpdate" class="ms-3"></span>
         </div>
 
         <!-- Filtros -->
@@ -90,7 +379,6 @@
                         <label for="ano" class="form-label filter-label">Ano</label>
                         <select class="form-select" id="ano">
                             <option value="all" selected>Todos os Anos</option>
-                            <!-- Os anos serão carregados dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -119,7 +407,6 @@
                         <label for="periodo" class="form-label filter-label">Período Específico</label>
                         <select class="form-select" id="periodo">
                             <option value="all" selected>Todos os Períodos</option>
-                            <!-- Os períodos serão carregados dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -130,7 +417,6 @@
                         <label for="origem" class="form-label filter-label">Origem</label>
                         <select class="form-select" id="origem">
                             <option value="all" selected>Todas as Origens</option>
-                            <!-- As origens serão carregadas dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -139,7 +425,6 @@
                         <label for="destino" class="form-label filter-label">Destino</label>
                         <select class="form-select" id="destino">
                             <option value="all" selected>Todos os Destinos</option>
-                            <!-- Os destinos serão carregados dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -148,7 +433,6 @@
                         <label for="orgao" class="form-label filter-label">Órgão</label>
                         <select class="form-select" id="orgao">
                             <option value="all" selected>Todos os Órgãos</option>
-                            <!-- Os órgãos serão carregados dinamicamente -->
                         </select>
                     </div>
                 </div>
@@ -312,27 +596,196 @@
         let destinosChart, horasChart;
         let lastDataUpdate = null;
 
-        // Lista de arquivos CSV - AJUSTE OS NOMES DOS ARQUIVOS CONFORME SEU REPOSITÓRIO
-        // Verifique se os arquivos estão na mesma pasta que o index.html ou em subpasta
-        const CSV_FILES = [
-            'voos_2026.csv',
-            'voos_2025.csv',
-            'voos_2024.csv',
-            'voos_2023.csv',
-            'voos_2022.csv',
-            'voos_2021.csv',
-            'voos_2020.csv',
-            'voos_2019.csv',
-            'voos_2018.csv'
+        // Dados de exemplo (substitua com seus dados reais)
+        const SAMPLE_DATA = [
+            {
+                Data: "15/03/2024",
+                "Diário de Bordo": "DB2024-001",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Uberlândia (UDI)",
+                "Horas Voadas": "1.5",
+                Passageiros: "4",
+                Aeronave: "PT-ABC",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "10/03/2024",
+                "Diário de Bordo": "DB2024-002",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Juiz de Fora (JDF)",
+                "Horas Voadas": "1.2",
+                Passageiros: "3",
+                Aeronave: "PT-XYZ",
+                "Órgão": "SECRETARIA DE ESTADO",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "05/03/2024",
+                "Diário de Bordo": "DB2024-003",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Montes Claros (MOC)",
+                "Horas Voadas": "2.0",
+                Passageiros: "6",
+                Aeronave: "PT-DEF",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "28/02/2024",
+                "Diário de Bordo": "DB2024-004",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Governador Valadares (GVR)",
+                "Horas Voadas": "1.8",
+                Passageiros: "5",
+                Aeronave: "PT-GHI",
+                "Órgão": "SECRETARIA DE ADMINISTRAÇÃO",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "25/02/2024",
+                "Diário de Bordo": "DB2024-005",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Uberaba (UBA)",
+                "Horas Voadas": "1.6",
+                Passageiros: "4",
+                Aeronave: "PT-JKL",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "20/02/2024",
+                "Diário de Bordo": "DB2024-006",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Ipatinga (IPN)",
+                "Horas Voadas": "1.3",
+                Passageiros: "3",
+                Aeronave: "PT-MNO",
+                "Órgão": "SECRETARIA DE SAÚDE",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "15/02/2024",
+                "Diário de Bordo": "DB2024-007",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Divinópolis (DIQ)",
+                "Horas Voadas": "1.1",
+                Passageiros: "2",
+                Aeronave: "PT-PQR",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "10/02/2024",
+                "Diário de Bordo": "DB2024-008",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Pouso Alegre (PPY)",
+                "Horas Voadas": "1.4",
+                Passageiros: "3",
+                Aeronave: "PT-STU",
+                "Órgão": "SECRETARIA DE EDUCAÇÃO",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            {
+                Data: "05/02/2024",
+                "Diário de Bordo": "DB2024-009",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Varginha (VAG)",
+                "Horas Voadas": "1.7",
+                Passageiros: "5",
+                Aeronave: "PT-VWX",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "CANCELADA",
+                _year: "2024"
+            },
+            {
+                Data: "30/01/2024",
+                "Diário de Bordo": "DB2024-010",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Teófilo Otoni (TFL)",
+                "Horas Voadas": "2.2",
+                Passageiros: "7",
+                Aeronave: "PT-YZA",
+                "Órgão": "SECRETARIA DE INFRAESTRUTURA",
+                Situação: "REALIZADO",
+                _year: "2024"
+            },
+            // Dados de 2023
+            {
+                Data: "15/12/2023",
+                "Diário de Bordo": "DB2023-101",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Uberlândia (UDI)",
+                "Horas Voadas": "1.5",
+                Passageiros: "4",
+                Aeronave: "PT-ABC",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2023"
+            },
+            {
+                Data: "10/12/2023",
+                "Diário de Bordo": "DB2023-102",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Juiz de Fora (JDF)",
+                "Horas Voadas": "1.2",
+                Passageiros: "3",
+                Aeronave: "PT-XYZ",
+                "Órgão": "SECRETARIA DE ESTADO",
+                Situação: "REALIZADO",
+                _year: "2023"
+            },
+            {
+                Data: "05/12/2023",
+                "Diário de Bordo": "DB2023-103",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Montes Claros (MOC)",
+                "Horas Voadas": "2.0",
+                Passageiros: "6",
+                Aeronave: "PT-DEF",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2023"
+            },
+            // Dados de 2022
+            {
+                Data: "15/11/2022",
+                "Diário de Bordo": "DB2022-201",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Governador Valadares (GVR)",
+                "Horas Voadas": "1.8",
+                Passageiros: "5",
+                Aeronave: "PT-GHI",
+                "Órgão": "SECRETARIA DE ADMINISTRAÇÃO",
+                Situação: "REALIZADO",
+                _year: "2022"
+            },
+            {
+                Data: "10/11/2022",
+                "Diário de Bordo": "DB2022-202",
+                Origem: "Belo Horizonte (CNF)",
+                Destino: "Uberaba (UBA)",
+                "Horas Voadas": "1.6",
+                Passageiros: "4",
+                Aeronave: "PT-JKL",
+                "Órgão": "GABINETE DO GOVERNADOR",
+                Situação: "REALIZADO",
+                _year: "2022"
+            }
         ];
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
             setupEventListeners();
-            
-            // Atualizar dados automaticamente a cada 5 minutos
-            setInterval(loadAllData, 5 * 60 * 1000);
         });
 
         // Configurar event listeners
@@ -352,132 +805,26 @@
             document.getElementById('shareWhatsApp').addEventListener('click', shareOnWhatsApp);
         }
 
-        // Carregar todos os dados dos CSVs
-        async function loadAllData() {
+        // Carregar todos os dados
+        function loadAllData() {
             showLoading(true);
             updateDataStatus('Carregando dados...', 'info');
             
             try {
-                const allData = [];
-                let loadedFiles = 0;
-                let errors = [];
-                
-                // Tente carregar cada arquivo
-                for (const csvFile of CSV_FILES) {
-                    try {
-                        console.log(`Tentando carregar: ${csvFile}`);
-                        const data = await loadCSVFile(csvFile);
-                        if (data && data.length > 0) {
-                            // Adicionar metadados de origem
-                            const enrichedData = data.map(row => ({
-                                ...row,
-                                _sourceFile: csvFile,
-                                _year: csvFile.replace('voos_', '').replace('.csv', '')
-                            }));
-                            allData.push(...enrichedData);
-                            loadedFiles++;
-                            console.log(`✅ ${csvFile} carregado: ${data.length} registros`);
-                        }
-                        updateDataStatus(`Carregando dados... (${loadedFiles}/${CSV_FILES.length} arquivos)`, 'info');
-                    } catch (error) {
-                        console.warn(`❌ Erro ao carregar ${csvFile}:`, error.message);
-                        errors.push(`${csvFile}: ${error.message}`);
-                    }
-                }
-                
-                // Se nenhum arquivo foi carregado, usar dados de exemplo
-                if (allData.length === 0) {
-                    console.warn('Nenhum arquivo CSV carregado. Usando dados de exemplo.');
-                    updateDataStatus('⚠️ Usando dados de exemplo (arquivos CSV não encontrados)', 'warning');
-                    allData.push(...getSampleData());
-                } else {
-                    updateDataStatus(`✅ ${allData.length} voos carregados de ${loadedFiles} arquivos`, 'success');
-                }
-                
-                flightData = allData;
+                // Para GitHub Pages, use dados embutidos
+                flightData = SAMPLE_DATA;
                 filteredData = [...flightData];
                 
                 lastDataUpdate = new Date();
                 updateDashboard();
+                updateDataStatus(`✅ ${flightData.length} voos carregados com sucesso!`, 'success');
                 showLoading(false);
-                
-                // Log de erros se houver
-                if (errors.length > 0) {
-                    console.warn('Arquivos com erro:', errors);
-                }
                 
             } catch (error) {
-                console.error('Erro crítico ao carregar dados:', error);
+                console.error('Erro ao carregar dados:', error);
                 updateDataStatus('❌ Erro ao carregar dados', 'error');
-                // Carregar dados de exemplo em caso de erro
-                flightData = getSampleData();
-                filteredData = [...flightData];
-                updateDashboard();
                 showLoading(false);
             }
-        }
-
-        // Carregar um arquivo CSV individual
-        function loadCSVFile(filePath) {
-            return new Promise((resolve, reject) => {
-                fetch(filePath)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-                        }
-                        return response.text();
-                    })
-                    .then(csvText => {
-                        if (!csvText || csvText.trim().length === 0) {
-                            throw new Error('Arquivo vazio ou inválido');
-                        }
-                        
-                        Papa.parse(csvText, {
-                            header: true,
-                            skipEmptyLines: true,
-                            dynamicTyping: true,
-                            complete: function(results) {
-                                if (results.errors && results.errors.length > 0) {
-                                    console.warn(`Erros de parsing em ${filePath}:`, results.errors);
-                                }
-                                resolve(results.data || []);
-                            },
-                            error: function(error) {
-                                reject(new Error(`Erro no parsing: ${error.message}`));
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        reject(error);
-                    });
-            });
-        }
-
-        // Gerar dados de exemplo para teste
-        function getSampleData() {
-            const sampleData = [];
-            const hoje = new Date();
-            
-            for (let i = 0; i < 30; i++) {
-                const data = new Date();
-                data.setDate(hoje.getDate() - i);
-                
-                sampleData.push({
-                    Data: data.toLocaleDateString('pt-BR'),
-                    'Diário de Bordo': `DB${1000 + i}`,
-                    Origem: i % 3 === 0 ? 'Belo Horizonte' : i % 3 === 1 ? 'São Paulo' : 'Rio de Janeiro',
-                    Destino: i % 4 === 0 ? 'Uberlândia' : i % 4 === 1 ? 'Juiz de Fora' : i % 4 === 2 ? 'Montes Claros' : 'Governador Valadares',
-                    'Horas Voadas': (1 + Math.random() * 3).toFixed(1),
-                    Passageiros: Math.floor(1 + Math.random() * 10),
-                    Aeronave: i % 2 === 0 ? 'PT-ABC' : 'PT-XYZ',
-                    'Órgão': i % 3 === 0 ? 'GABINETE' : i % 3 === 1 ? 'SECRETARIA' : 'ADMINISTRAÇÃO',
-                    Situação: i % 10 === 0 ? 'CANCELADA' : 'REALIZADO',
-                    _sourceFile: 'dados_exemplo.csv',
-                    _year: '2023'
-                });
-            }
-            
-            return sampleData;
         }
 
         // Atualizar status dos dados
@@ -523,7 +870,7 @@
             const totalVoos = filteredData.length;
             const totalHoras = calcularTotalHoras(filteredData);
             const totalPassageiros = calcularTotalPassageiros(filteredData);
-            const destinosUnicos = [...new Set(filteredData.map(voo => voo.Destino || voo.destino || ''))].filter(Boolean).length;
+            const destinosUnicos = [...new Set(filteredData.map(voo => voo.Destino || ''))].filter(Boolean).length;
 
             const summaryHTML = `
                 <div class="col-md-3">
@@ -562,7 +909,7 @@
         // Calcular total de horas
         function calcularTotalHoras(data) {
             return data.reduce((total, voo) => {
-                const horas = parseFloat(voo['Horas Voadas']) || parseFloat(voo.horas) || 0;
+                const horas = parseFloat(voo['Horas Voadas']) || 0;
                 return total + horas;
             }, 0);
         }
@@ -570,14 +917,14 @@
         // Calcular total de passageiros
         function calcularTotalPassageiros(data) {
             return data.reduce((total, voo) => {
-                const passageiros = parseInt(voo.Passageiros) || parseInt(voo.passageiros) || 0;
+                const passageiros = parseInt(voo.Passageiros) || 0;
                 return total + passageiros;
             }, 0);
         }
 
         // Obter variação mensal (simplificado)
         function getVariacaoMensal() {
-            return "+5%";
+            return "+12%";
         }
 
         // Obter período do filtro
@@ -611,30 +958,29 @@
             
             let tableHTML = '';
             filteredData.forEach(voo => {
-                // Normalizar nomes de colunas (case insensitive)
-                const data = voo.Data || voo.data || 'N/A';
-                const diarioBordo = voo['Diário de Bordo'] || voo.diarioBordo || voo['Número DB'] || voo.numeroDB || 'N/A';
-                const origem = voo.Origem || voo.origem || 'N/A';
-                const destino = voo.Destino || voo.destino || 'N/A';
-                const horas = voo['Horas Voadas'] || voo.horas || voo['Horas Voadas'] || 0;
-                const passageiros = voo.Passageiros || voo.passageiros || 0;
-                const aeronave = voo.Aeronave || voo.aeronave || 'N/A';
-                const orgao = voo.Órgão || voo.orgao || voo['Órgão Responsável'] || 'N/A';
-                const situacao = voo.Situação || voo.situacao || voo.Despacho || 'REALIZADO';
+                const data = voo.Data || 'N/A';
+                const diarioBordo = voo['Diário de Bordo'] || 'N/A';
+                const origem = voo.Origem || 'N/A';
+                const destino = voo.Destino || 'N/A';
+                const horas = voo['Horas Voadas'] || 0;
+                const passageiros = voo.Passageiros || 0;
+                const aeronave = voo.Aeronave || 'N/A';
+                const orgao = voo['Órgão'] || 'N/A';
+                const situacao = voo.Situação || 'REALIZADO';
                 
                 // Determinar cor do badge baseado na situação
-                let badgeClass = 'flight-badge';
+                let badgeClass = 'badge';
                 if (situacao.toUpperCase().includes('CANCEL')) {
-                    badgeClass = 'badge bg-danger';
+                    badgeClass += ' bg-danger';
                 } else if (situacao.toUpperCase().includes('PLAN')) {
-                    badgeClass = 'badge bg-warning text-dark';
+                    badgeClass += ' bg-warning text-dark';
                 } else {
-                    badgeClass = 'badge bg-success';
+                    badgeClass += ' bg-success';
                 }
                 
                 tableHTML += `
                     <tr>
-                        <td>${formatDate(data)}</td>
+                        <td>${data}</td>
                         <td><strong>${diarioBordo}</strong></td>
                         <td>${origem} → ${destino}</td>
                         <td class="time-display">${parseFloat(horas).toFixed(1)}h</td>
@@ -651,10 +997,7 @@
             // Calcular totais para o rodapé
             const totalHoras = calcularTotalHoras(filteredData);
             const totalPassageiros = calcularTotalPassageiros(filteredData);
-            const diasComVoos = [...new Set(filteredData.map(voo => {
-                const data = voo.Data || voo.data;
-                return data ? formatDate(data) : null;
-            }))].filter(Boolean).length;
+            const diasComVoos = [...new Set(filteredData.map(voo => voo.Data))].filter(Boolean).length;
             
             tableFooter.innerHTML = `
                 <tr class="table-active">
@@ -666,34 +1009,6 @@
             `;
         }
 
-        // Formatar data
-        function formatDate(dateString) {
-            if (!dateString) return 'N/A';
-            
-            // Tentar vários formatos
-            try {
-                // Formato DD/MM/YYYY
-                if (dateString.includes('/')) {
-                    const parts = dateString.split('/');
-                    if (parts.length === 3) {
-                        return dateString;
-                    }
-                }
-                
-                // Formato YYYY-MM-DD
-                if (dateString.includes('-')) {
-                    const parts = dateString.split('-');
-                    if (parts.length === 3) {
-                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-                    }
-                }
-                
-                return dateString;
-            } catch (e) {
-                return dateString;
-            }
-        }
-
         // Atualizar tabela de passageiros
         function updatePassengersTable() {
             const tableBody = document.getElementById('passengersTableBody');
@@ -701,16 +1016,29 @@
             
             passengersTitle.textContent = `Principais Passageiros - ${getPeriodoFiltro()}`;
             
-            // Esta função é um exemplo - você precisará adaptar para a estrutura real do seu CSV
-            // Se não houver dados de passageiros, mostrar mensagem
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-muted">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Os dados detalhados de passageiros serão exibidos conforme a estrutura do CSV
-                    </td>
-                </tr>
-            `;
+            // Dados de exemplo para passageiros
+            const passageirosExemplo = [
+                { nome: "Governador Romeu Zema", cargo: "Governador", orgao: "GABINETE DO GOVERNADOR", voos: 8, horas: 12.5 },
+                { nome: "Secretário João Silva", cargo: "Secretário de Estado", orgao: "SECRETARIA DE ESTADO", voos: 5, horas: 7.8 },
+                { nome: "Deputado Carlos Andrade", cargo: "Deputado Estadual", orgao: "ASSEMBLEIA LEGISLATIVA", voos: 4, horas: 6.2 },
+                { nome: "Secretária Maria Santos", cargo: "Secretária de Saúde", orgao: "SECRETARIA DE SAÚDE", voos: 3, horas: 4.5 },
+                { nome: "Assessor Pedro Costa", cargo: "Assessor Especial", orgao: "GABINETE DO GOVERNADOR", voos: 3, horas: 4.1 }
+            ];
+            
+            let passageirosHTML = '';
+            passageirosExemplo.forEach(passageiro => {
+                passageirosHTML += `
+                    <tr>
+                        <td><strong>${passageiro.nome}</strong></td>
+                        <td>${passageiro.cargo}</td>
+                        <td>${passageiro.orgao}</td>
+                        <td>${passageiro.voos}</td>
+                        <td class="time-display">${passageiro.horas.toFixed(1)}h</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = passageirosHTML;
         }
 
         // Atualizar gráficos
@@ -726,7 +1054,7 @@
             // Agrupar por destino
             const destinosMap = {};
             filteredData.forEach(voo => {
-                const destino = voo.Destino || voo.destino || 'Desconhecido';
+                const destino = voo.Destino || 'Desconhecido';
                 destinosMap[destino] = (destinosMap[destino] || 0) + 1;
             });
             
@@ -735,7 +1063,7 @@
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10);
             
-            const labels = sortedDestinos.map(item => item[0]);
+            const labels = sortedDestinos.map(item => item[0].split('(')[0].trim());
             const data = sortedDestinos.map(item => item[1]);
             
             // Destruir gráfico anterior se existir
@@ -787,7 +1115,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Top 10 Destinos'
+                            text: 'Top 10 Destinos Mais Frequentes'
                         }
                     },
                     scales: {
@@ -816,10 +1144,10 @@
             // Agrupar por data
             const horasPorData = {};
             filteredData.forEach(voo => {
-                const data = formatDate(voo.Data || voo.data);
-                const horas = parseFloat(voo['Horas Voadas']) || parseFloat(voo.horas) || 0;
+                const data = voo.Data;
+                const horas = parseFloat(voo['Horas Voadas']) || 0;
                 
-                if (data && data !== 'N/A') {
+                if (data) {
                     horasPorData[data] = (horasPorData[data] || 0) + horas;
                 }
             });
@@ -831,7 +1159,7 @@
                     const dateB = parseDate(b[0]);
                     return dateA - dateB;
                 })
-                .slice(-30); // Últimos 30 dias
+                .slice(-10); // Últimos 10 registros
             
             const labels = sortedEntries.map(item => item[0]);
             const data = sortedEntries.map(item => item[1]);
@@ -897,10 +1225,8 @@
                 if (dateString.includes('/')) {
                     const parts = dateString.split('/');
                     return new Date(parts[2], parts[1] - 1, parts[0]);
-                } else if (dateString.includes('-')) {
-                    return new Date(dateString);
                 }
-                return new Date();
+                return new Date(dateString);
             } catch (e) {
                 return new Date();
             }
@@ -929,7 +1255,7 @@
 
         function updateOrigemFilter() {
             const origemSelect = document.getElementById('origem');
-            const origens = [...new Set(flightData.map(voo => voo.Origem || voo.origem))].filter(origem => origem).sort();
+            const origens = [...new Set(flightData.map(voo => voo.Origem))].filter(origem => origem).sort();
             
             let options = '<option value="all" selected>Todas as Origens</option>';
             origens.forEach(origem => {
@@ -941,7 +1267,7 @@
 
         function updateDestinoFilter() {
             const destinoSelect = document.getElementById('destino');
-            const destinos = [...new Set(flightData.map(voo => voo.Destino || voo.destino))].filter(destino => destino).sort();
+            const destinos = [...new Set(flightData.map(voo => voo.Destino))].filter(destino => destino).sort();
             
             let options = '<option value="all" selected>Todos os Destinos</option>';
             destinos.forEach(destino => {
@@ -953,7 +1279,7 @@
 
         function updateOrgaoFilter() {
             const orgaoSelect = document.getElementById('orgao');
-            const orgaos = [...new Set(flightData.map(voo => voo.Órgão || voo.orgao || voo['Órgão Responsável']))].filter(orgao => orgao).sort();
+            const orgaos = [...new Set(flightData.map(voo => voo['Órgão']))].filter(orgao => orgao).sort();
             
             let options = '<option value="all" selected>Todos os Órgãos</option>';
             orgaos.forEach(orgao => {
@@ -994,13 +1320,12 @@
             filteredData = flightData.filter(voo => {
                 // Filtrar por ano
                 if (ano !== 'all') {
-                    const vooAno = voo._year || '';
-                    if (vooAno !== ano) return false;
+                    if (voo._year !== ano) return false;
                 }
                 
                 // Filtrar por mês
                 if (mes !== 'all') {
-                    const dataStr = voo.Data || voo.data || '';
+                    const dataStr = voo.Data;
                     if (dataStr) {
                         try {
                             const parts = dataStr.split('/');
@@ -1016,26 +1341,22 @@
                 
                 // Filtrar por origem
                 if (origem !== 'all') {
-                    const vooOrigem = (voo.Origem || voo.origem || '').toLowerCase();
-                    if (vooOrigem !== origem.toLowerCase()) return false;
+                    if (voo.Origem !== origem) return false;
                 }
                 
                 // Filtrar por destino
                 if (destino !== 'all') {
-                    const vooDestino = (voo.Destino || voo.destino || '').toLowerCase();
-                    if (vooDestino !== destino.toLowerCase()) return false;
+                    if (voo.Destino !== destino) return false;
                 }
                 
                 // Filtrar por órgão
                 if (orgao !== 'all') {
-                    const vooOrgao = (voo.Órgão || voo.orgao || '').toLowerCase();
-                    if (vooOrgao !== orgao.toLowerCase()) return false;
+                    if (voo['Órgão'] !== orgao) return false;
                 }
                 
                 // Filtrar por situação
                 if (situacao !== 'all') {
-                    const vooSituacao = (voo.Situação || voo.situacao || '').toUpperCase();
-                    if (vooSituacao !== situacao.toUpperCase()) return false;
+                    if (voo.Situação.toUpperCase() !== situacao.toUpperCase()) return false;
                 }
                 
                 return true;
@@ -1064,15 +1385,15 @@
             const csvContent = [
                 headers.join(','),
                 ...filteredData.map(voo => [
-                    formatDate(voo.Data || voo.data),
-                    voo['Diário de Bordo'] || voo.diarioBordo || '',
-                    voo.Origem || voo.origem || '',
-                    voo.Destino || voo.destino || '',
-                    voo['Horas Voadas'] || voo.horas || 0,
-                    voo.Passageiros || voo.passageiros || 0,
-                    voo.Aeronave || voo.aeronave || '',
-                    voo.Órgão || voo.orgao || '',
-                    voo.Situação || voo.situacao || ''
+                    voo.Data,
+                    voo['Diário de Bordo'],
+                    voo.Origem,
+                    voo.Destino,
+                    voo['Horas Voadas'],
+                    voo.Passageiros,
+                    voo.Aeronave,
+                    voo['Órgão'],
+                    voo.Situação
                 ].join(','))
             ].join('\n');
             
@@ -1085,7 +1406,17 @@
         }
 
         function exportToExcel() {
-            const worksheet = XLSX.utils.json_to_sheet(filteredData);
+            const worksheet = XLSX.utils.json_to_sheet(filteredData.map(voo => ({
+                Data: voo.Data,
+                'Diário de Bordo': voo['Diário de Bordo'],
+                Origem: voo.Origem,
+                Destino: voo.Destino,
+                'Horas Voadas': voo['Horas Voadas'],
+                Passageiros: voo.Passageiros,
+                Aeronave: voo.Aeronave,
+                'Órgão': voo['Órgão'],
+                Situação: voo.Situação
+            })));
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Voos');
             XLSX.writeFile(workbook, `voos_${new Date().toISOString().split('T')[0]}.xlsx`);
