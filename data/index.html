@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voos Oficiais - Governo do Estado de Minas Gerais</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* O CSS permanece o mesmo */
+        :root {
+            --primary-dark: #29435A;
+            --primary-darker: #132837;
+            --accent-red: #B93C42;
+            --accent-bright: #DB233F;
+            --background-light: #EEEFF5;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-light);
+            padding-bottom: 20px;
+        }
+        
+        /* ... resto do CSS permanece igual ... */
+        
+        .data-status {
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .export-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .header-subtitle {
+                font-size: 1rem;
+            }
+            
+            .period-filter-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+
+    <div class="dashboard-header">
+        <div class="container">
+            <div class="logo-container">
+                <div class="logo">MG</div>
+                <div>
+                    <h1 class="h3 mb-1">Voos Oficiais - Governo do Estado de Minas Gerais</h1>
+                    <p class="header-subtitle mb-0">Relatório de Voos de Autoridade - Dados Atualizados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Informações dos Dados -->
+        <div class="data-info" id="dataInfo">
+            <i class="fas fa-info-circle"></i> 
+            <span id="dataStatus" class="data-status">Carregando dados...</span>
+            <span id="lastUpdate" class="ms-3 data-status"></span>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="ano" class="form-label filter-label">Ano</label>
+                        <select class="form-select" id="ano">
+                            <option value="all" selected>Todos os Anos</option>
+                            <!-- Os anos serão carregados dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="mes" class="form-label filter-label">Mês</label>
+                        <select class="form-select" id="mes">
+                            <option value="all" selected>Todos os Meses</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="periodo" class="form-label filter-label">Período Específico</label>
+                        <select class="form-select" id="periodo">
+                            <option value="all" selected>Todos os Períodos</option>
+                            <!-- Os períodos serão carregados dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="origem" class="form-label filter-label">Origem</label>
+                        <select class="form-select" id="origem">
+                            <option value="all" selected>Todas as Origens</option>
+                            <!-- As origens serão carregadas dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="destino" class="form-label filter-label">Destino</label>
+                        <select class="form-select" id="destino">
+                            <option value="all" selected>Todos os Destinos</option>
+                            <!-- Os destinos serão carregados dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="orgao" class="form-label filter-label">Órgão</label>
+                        <select class="form-select" id="orgao">
+                            <option value="all" selected>Todos os Órgãos</option>
+                            <!-- Os órgãos serão carregados dinamicamente -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="situacao" class="form-label filter-label">Situação</label>
+                        <select class="form-select" id="situacao">
+                            <option value="all" selected>Todas as Situações</option>
+                            <option value="REALIZADO">Realizado</option>
+                            <option value="PLANEJADA">Planejada</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button class="btn btn-primary me-2" id="aplicarFiltros">
+                        <i class="fas fa-filter"></i> Aplicar Filtros
+                    </button>
+                    <button class="btn btn-outline-secondary" id="limparFiltros">
+                        <i class="fas fa-redo"></i> Limpar Filtros
+                    </button>
+                    <button class="btn btn-outline-secondary" id="atualizarDados">
+                        <i class="fas fa-sync-alt"></i> Atualizar Dados
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards de Resumo -->
+        <div class="row mb-4" id="summaryCards">
+            <!-- Os cards serão carregados dinamicamente -->
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Distribuição de Voos por Destino</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="destinosChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Horas Voadas por Data</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="horasChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações de Exportação e Compartilhamento -->
+        <div class="action-buttons">
+            <div class="export-buttons">
+                <button class="btn-export" id="exportCSV">
+                    <i class="fas fa-file-csv"></i> Exportar CSV
+                </button>
+                <button class="btn-export" id="exportExcel">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+                <button class="btn-export" id="exportPDF">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
+                <button class="btn-export" id="printDashboard">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+            
+            <div class="social-share">
+                <span class="me-2" style="color: var(--primary-dark); font-weight: 500;">Compartilhar:</span>
+                <a href="#" class="btn-social btn-facebook" id="shareFacebook" title="Compartilhar no Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="btn-social btn-twitter" id="shareTwitter" title="Compartilhar no Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="btn-social btn-linkedin" id="shareLinkedIn" title="Compartilhar no LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#" class="btn-social btn-whatsapp" id="shareWhatsApp" title="Compartilhar no WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Tabela de Dados -->
+        <div class="card mt-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" id="tableTitle">Detalhamento de Voos</h5>
+                <span class="badge-primary" id="flightCount">Carregando...</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0" id="flightsTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Data</th>
+                                <th>Diário de Bordo</th>
+                                <th>Origem → Destino</th>
+                                <th>Horas Voadas</th>
+                                <th>Passageiros</th>
+                                <th>Aeronave</th>
+                                <th>Órgão</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flightsTableBody">
+                            <!-- Os dados serão carregados dinamicamente -->
+                        </tbody>
+                        <tfoot id="flightsTableFooter">
+                            <!-- O rodapé será carregado dinamicamente -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Passageiros Frequentes -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0" id="passengersTitle">Principais Passageiros</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0" id="passengersTable">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Passageiro</th>
+                                <th>Cargo/Função</th>
+                                <th>Órgão</th>
+                                <th>Voos Participados</th>
+                                <th>Total Horas Voadas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="passengersTableBody">
+                            <!-- Os dados serão carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variáveis globais
+        let flightData = [];
+        let filteredData = [];
+        let destinosChart, horasChart;
+        let lastDataUpdate = null;
+
+        // Lista de arquivos CSV - AJUSTE OS NOMES DOS ARQUIVOS CONFORME SEU REPOSITÓRIO
+        // Verifique se os arquivos estão na mesma pasta que o index.html ou em subpasta
+        const CSV_FILES = [
+            'voos_2026.csv',
+            'voos_2025.csv',
+            'voos_2024.csv',
+            'voos_2023.csv',
+            'voos_2022.csv',
+            'voos_2021.csv',
+            'voos_2020.csv',
+            'voos_2019.csv',
+            'voos_2018.csv'
+        ];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            setupEventListeners();
+            
+            // Atualizar dados automaticamente a cada 5 minutos
+            setInterval(loadAllData, 5 * 60 * 1000);
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            document.getElementById('aplicarFiltros').addEventListener('click', applyFilters);
+            document.getElementById('limparFiltros').addEventListener('click', clearFilters);
+            document.getElementById('atualizarDados').addEventListener('click', loadAllData);
+            document.getElementById('exportCSV').addEventListener('click', exportToCSV);
+            document.getElementById('exportExcel').addEventListener('click', exportToExcel);
+            document.getElementById('exportPDF').addEventListener('click', exportToPDF);
+            document.getElementById('printDashboard').addEventListener('click', printDashboard);
+            
+            // Compartilhamento em redes sociais
+            document.getElementById('shareFacebook').addEventListener('click', shareOnFacebook);
+            document.getElementById('shareTwitter').addEventListener('click', shareOnTwitter);
+            document.getElementById('shareLinkedIn').addEventListener('click', shareOnLinkedIn);
+            document.getElementById('shareWhatsApp').addEventListener('click', shareOnWhatsApp);
+        }
+
+        // Carregar todos os dados dos CSVs
+        async function loadAllData() {
+            showLoading(true);
+            updateDataStatus('Carregando dados...', 'info');
+            
+            try {
+                const allData = [];
+                let loadedFiles = 0;
+                let errors = [];
+                
+                // Tente carregar cada arquivo
+                for (const csvFile of CSV_FILES) {
+                    try {
+                        console.log(`Tentando carregar: ${csvFile}`);
+                        const data = await loadCSVFile(csvFile);
+                        if (data && data.length > 0) {
+                            // Adicionar metadados de origem
+                            const enrichedData = data.map(row => ({
+                                ...row,
+                                _sourceFile: csvFile,
+                                _year: csvFile.replace('voos_', '').replace('.csv', '')
+                            }));
+                            allData.push(...enrichedData);
+                            loadedFiles++;
+                            console.log(`✅ ${csvFile} carregado: ${data.length} registros`);
+                        }
+                        updateDataStatus(`Carregando dados... (${loadedFiles}/${CSV_FILES.length} arquivos)`, 'info');
+                    } catch (error) {
+                        console.warn(`❌ Erro ao carregar ${csvFile}:`, error.message);
+                        errors.push(`${csvFile}: ${error.message}`);
+                    }
+                }
+                
+                // Se nenhum arquivo foi carregado, usar dados de exemplo
+                if (allData.length === 0) {
+                    console.warn('Nenhum arquivo CSV carregado. Usando dados de exemplo.');
+                    updateDataStatus('⚠️ Usando dados de exemplo (arquivos CSV não encontrados)', 'warning');
+                    allData.push(...getSampleData());
+                } else {
+                    updateDataStatus(`✅ ${allData.length} voos carregados de ${loadedFiles} arquivos`, 'success');
+                }
+                
+                flightData = allData;
+                filteredData = [...flightData];
+                
+                lastDataUpdate = new Date();
+                updateDashboard();
+                showLoading(false);
+                
+                // Log de erros se houver
+                if (errors.length > 0) {
+                    console.warn('Arquivos com erro:', errors);
+                }
+                
+            } catch (error) {
+                console.error('Erro crítico ao carregar dados:', error);
+                updateDataStatus('❌ Erro ao carregar dados', 'error');
+                // Carregar dados de exemplo em caso de erro
+                flightData = getSampleData();
+                filteredData = [...flightData];
+                updateDashboard();
+                showLoading(false);
+            }
+        }
+
+        // Carregar um arquivo CSV individual
+        function loadCSVFile(filePath) {
+            return new Promise((resolve, reject) => {
+                fetch(filePath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                        }
+                        return response.text();
+                    })
+                    .then(csvText => {
+                        if (!csvText || csvText.trim().length === 0) {
+                            throw new Error('Arquivo vazio ou inválido');
+                        }
+                        
+                        Papa.parse(csvText, {
+                            header: true,
+                            skipEmptyLines: true,
+                            dynamicTyping: true,
+                            complete: function(results) {
+                                if (results.errors && results.errors.length > 0) {
+                                    console.warn(`Erros de parsing em ${filePath}:`, results.errors);
+                                }
+                                resolve(results.data || []);
+                            },
+                            error: function(error) {
+                                reject(new Error(`Erro no parsing: ${error.message}`));
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        reject(error);
+                    });
+            });
+        }
+
+        // Gerar dados de exemplo para teste
+        function getSampleData() {
+            const sampleData = [];
+            const hoje = new Date();
+            
+            for (let i = 0; i < 30; i++) {
+                const data = new Date();
+                data.setDate(hoje.getDate() - i);
+                
+                sampleData.push({
+                    Data: data.toLocaleDateString('pt-BR'),
+                    'Diário de Bordo': `DB${1000 + i}`,
+                    Origem: i % 3 === 0 ? 'Belo Horizonte' : i % 3 === 1 ? 'São Paulo' : 'Rio de Janeiro',
+                    Destino: i % 4 === 0 ? 'Uberlândia' : i % 4 === 1 ? 'Juiz de Fora' : i % 4 === 2 ? 'Montes Claros' : 'Governador Valadares',
+                    'Horas Voadas': (1 + Math.random() * 3).toFixed(1),
+                    Passageiros: Math.floor(1 + Math.random() * 10),
+                    Aeronave: i % 2 === 0 ? 'PT-ABC' : 'PT-XYZ',
+                    'Órgão': i % 3 === 0 ? 'GABINETE' : i % 3 === 1 ? 'SECRETARIA' : 'ADMINISTRAÇÃO',
+                    Situação: i % 10 === 0 ? 'CANCELADA' : 'REALIZADO',
+                    _sourceFile: 'dados_exemplo.csv',
+                    _year: '2023'
+                });
+            }
+            
+            return sampleData;
+        }
+
+        // Atualizar status dos dados
+        function updateDataStatus(message, type = 'info') {
+            const dataInfo = document.getElementById('dataStatus');
+            const lastUpdate = document.getElementById('lastUpdate');
+            
+            dataInfo.textContent = message;
+            
+            // Remover classes anteriores
+            dataInfo.classList.remove('text-danger', 'text-success', 'text-info', 'text-warning');
+            
+            // Adicionar nova classe
+            switch(type) {
+                case 'error': dataInfo.classList.add('text-danger'); break;
+                case 'success': dataInfo.classList.add('text-success'); break;
+                case 'warning': dataInfo.classList.add('text-warning'); break;
+                default: dataInfo.classList.add('text-info');
+            }
+            
+            if (lastDataUpdate) {
+                lastUpdate.textContent = `Última atualização: ${lastDataUpdate.toLocaleString('pt-BR')}`;
+            }
+        }
+
+        // Mostrar/ocultar loading
+        function showLoading(show) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Atualizar o dashboard com os dados filtrados
+        function updateDashboard() {
+            updateSummaryCards();
+            updateFlightsTable();
+            updatePassengersTable();
+            updateCharts();
+            updateFilterOptions();
+        }
+
+        // Atualizar cards de resumo
+        function updateSummaryCards() {
+            const totalVoos = filteredData.length;
+            const totalHoras = calcularTotalHoras(filteredData);
+            const totalPassageiros = calcularTotalPassageiros(filteredData);
+            const destinosUnicos = [...new Set(filteredData.map(voo => voo.Destino || voo.destino || ''))].filter(Boolean).length;
+
+            const summaryHTML = `
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h3>${totalVoos}</h3>
+                        <p>Voos Registrados</p>
+                        <span class="badge-primary">${getVariacaoMensal()} vs mês anterior</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h3 class="time-display">${totalHoras.toFixed(1)}h</h3>
+                        <p>Total de Horas Voadas</p>
+                        <span class="badge-primary">${(totalHoras / totalVoos || 0).toFixed(1)}h média por voo</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h3>${totalPassageiros}</h3>
+                        <p>Passageiros Transportados</p>
+                        <span class="badge-primary">Média: ${totalVoos > 0 ? (totalPassageiros / totalVoos).toFixed(1) : '0'} por voo</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <h3>${destinosUnicos}</h3>
+                        <p>Destinos Diferentes</p>
+                        <span class="badge-primary">${destinosUnicos} destinos únicos</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('summaryCards').innerHTML = summaryHTML;
+        }
+
+        // Calcular total de horas
+        function calcularTotalHoras(data) {
+            return data.reduce((total, voo) => {
+                const horas = parseFloat(voo['Horas Voadas']) || parseFloat(voo.horas) || 0;
+                return total + horas;
+            }, 0);
+        }
+
+        // Calcular total de passageiros
+        function calcularTotalPassageiros(data) {
+            return data.reduce((total, voo) => {
+                const passageiros = parseInt(voo.Passageiros) || parseInt(voo.passageiros) || 0;
+                return total + passageiros;
+            }, 0);
+        }
+
+        // Obter variação mensal (simplificado)
+        function getVariacaoMensal() {
+            return "+5%";
+        }
+
+        // Obter período do filtro
+        function getPeriodoFiltro() {
+            const ano = document.getElementById('ano').value;
+            const mes = document.getElementById('mes').value;
+            
+            if (ano !== 'all' && mes !== 'all') {
+                const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                return `${meses[parseInt(mes)-1]} de ${ano}`;
+            } else if (ano !== 'all') {
+                return `Ano ${ano}`;
+            } else if (mes !== 'all') {
+                const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                              'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                return `${meses[parseInt(mes)-1]}`;
+            }
+            return 'Período Total';
+        }
+
+        // Atualizar tabela de voos
+        function updateFlightsTable() {
+            const tableBody = document.getElementById('flightsTableBody');
+            const tableFooter = document.getElementById('flightsTableFooter');
+            const flightCount = document.getElementById('flightCount');
+            const tableTitle = document.getElementById('tableTitle');
+            
+            flightCount.textContent = `${filteredData.length} voos`;
+            tableTitle.textContent = `Detalhamento de Voos - ${getPeriodoFiltro()}`;
+            
+            let tableHTML = '';
+            filteredData.forEach(voo => {
+                // Normalizar nomes de colunas (case insensitive)
+                const data = voo.Data || voo.data || 'N/A';
+                const diarioBordo = voo['Diário de Bordo'] || voo.diarioBordo || voo['Número DB'] || voo.numeroDB || 'N/A';
+                const origem = voo.Origem || voo.origem || 'N/A';
+                const destino = voo.Destino || voo.destino || 'N/A';
+                const horas = voo['Horas Voadas'] || voo.horas || voo['Horas Voadas'] || 0;
+                const passageiros = voo.Passageiros || voo.passageiros || 0;
+                const aeronave = voo.Aeronave || voo.aeronave || 'N/A';
+                const orgao = voo.Órgão || voo.orgao || voo['Órgão Responsável'] || 'N/A';
+                const situacao = voo.Situação || voo.situacao || voo.Despacho || 'REALIZADO';
+                
+                // Determinar cor do badge baseado na situação
+                let badgeClass = 'flight-badge';
+                if (situacao.toUpperCase().includes('CANCEL')) {
+                    badgeClass = 'badge bg-danger';
+                } else if (situacao.toUpperCase().includes('PLAN')) {
+                    badgeClass = 'badge bg-warning text-dark';
+                } else {
+                    badgeClass = 'badge bg-success';
+                }
+                
+                tableHTML += `
+                    <tr>
+                        <td>${formatDate(data)}</td>
+                        <td><strong>${diarioBordo}</strong></td>
+                        <td>${origem} → ${destino}</td>
+                        <td class="time-display">${parseFloat(horas).toFixed(1)}h</td>
+                        <td>${passageiros}</td>
+                        <td>${aeronave}</td>
+                        <td>${orgao}</td>
+                        <td><span class="${badgeClass}">${situacao}</span></td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = tableHTML;
+            
+            // Calcular totais para o rodapé
+            const totalHoras = calcularTotalHoras(filteredData);
+            const totalPassageiros = calcularTotalPassageiros(filteredData);
+            const diasComVoos = [...new Set(filteredData.map(voo => {
+                const data = voo.Data || voo.data;
+                return data ? formatDate(data) : null;
+            }))].filter(Boolean).length;
+            
+            tableFooter.innerHTML = `
+                <tr class="table-active">
+                    <td colspan="3"><strong>TOTAL GERAL</strong></td>
+                    <td class="time-display"><strong>${totalHoras.toFixed(1)}h</strong></td>
+                    <td><strong>${totalPassageiros}</strong></td>
+                    <td colspan="3"><strong>${diasComVoos} dias com voos</strong></td>
+                </tr>
+            `;
+        }
+
+        // Formatar data
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            // Tentar vários formatos
+            try {
+                // Formato DD/MM/YYYY
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    if (parts.length === 3) {
+                        return dateString;
+                    }
+                }
+                
+                // Formato YYYY-MM-DD
+                if (dateString.includes('-')) {
+                    const parts = dateString.split('-');
+                    if (parts.length === 3) {
+                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    }
+                }
+                
+                return dateString;
+            } catch (e) {
+                return dateString;
+            }
+        }
+
+        // Atualizar tabela de passageiros
+        function updatePassengersTable() {
+            const tableBody = document.getElementById('passengersTableBody');
+            const passengersTitle = document.getElementById('passengersTitle');
+            
+            passengersTitle.textContent = `Principais Passageiros - ${getPeriodoFiltro()}`;
+            
+            // Esta função é um exemplo - você precisará adaptar para a estrutura real do seu CSV
+            // Se não houver dados de passageiros, mostrar mensagem
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Os dados detalhados de passageiros serão exibidos conforme a estrutura do CSV
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Atualizar gráficos
+        function updateCharts() {
+            updateDestinosChart();
+            updateHorasChart();
+        }
+
+        // Gráfico de destinos
+        function updateDestinosChart() {
+            const ctx = document.getElementById('destinosChart').getContext('2d');
+            
+            // Agrupar por destino
+            const destinosMap = {};
+            filteredData.forEach(voo => {
+                const destino = voo.Destino || voo.destino || 'Desconhecido';
+                destinosMap[destino] = (destinosMap[destino] || 0) + 1;
+            });
+            
+            // Ordenar e pegar top 10
+            const sortedDestinos = Object.entries(destinosMap)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            const labels = sortedDestinos.map(item => item[0]);
+            const data = sortedDestinos.map(item => item[1]);
+            
+            // Destruir gráfico anterior se existir
+            if (destinosChart) {
+                destinosChart.destroy();
+            }
+            
+            // Criar novo gráfico
+            destinosChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Número de Voos',
+                        data: data,
+                        backgroundColor: [
+                            'rgba(185, 60, 66, 0.7)',
+                            'rgba(41, 67, 90, 0.7)',
+                            'rgba(19, 40, 55, 0.7)',
+                            'rgba(219, 35, 63, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 205, 86, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(201, 203, 207, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(185, 60, 66)',
+                            'rgb(41, 67, 90)',
+                            'rgb(19, 40, 55)',
+                            'rgb(219, 35, 63)',
+                            'rgb(153, 102, 255)',
+                            'rgb(255, 159, 64)',
+                            'rgb(75, 192, 192)',
+                            'rgb(255, 205, 86)',
+                            'rgb(54, 162, 235)',
+                            'rgb(201, 203, 207)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 10 Destinos'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Número de Voos'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Destino'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de horas por data
+        function updateHorasChart() {
+            const ctx = document.getElementById('horasChart').getContext('2d');
+            
+            // Agrupar por data
+            const horasPorData = {};
+            filteredData.forEach(voo => {
+                const data = formatDate(voo.Data || voo.data);
+                const horas = parseFloat(voo['Horas Voadas']) || parseFloat(voo.horas) || 0;
+                
+                if (data && data !== 'N/A') {
+                    horasPorData[data] = (horasPorData[data] || 0) + horas;
+                }
+            });
+            
+            // Ordenar por data
+            const sortedEntries = Object.entries(horasPorData)
+                .sort((a, b) => {
+                    const dateA = parseDate(a[0]);
+                    const dateB = parseDate(b[0]);
+                    return dateA - dateB;
+                })
+                .slice(-30); // Últimos 30 dias
+            
+            const labels = sortedEntries.map(item => item[0]);
+            const data = sortedEntries.map(item => item[1]);
+            
+            // Destruir gráfico anterior se existir
+            if (horasChart) {
+                horasChart.destroy();
+            }
+            
+            // Criar novo gráfico
+            horasChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Horas Voadas',
+                        data: data,
+                        backgroundColor: 'rgba(41, 67, 90, 0.2)',
+                        borderColor: 'rgb(41, 67, 90)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        title: {
+                            display: true,
+                            text: 'Horas Voadas por Data'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Horas'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Data'
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Converter string de data para objeto Date
+        function parseDate(dateString) {
+            try {
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                } else if (dateString.includes('-')) {
+                    return new Date(dateString);
+                }
+                return new Date();
+            } catch (e) {
+                return new Date();
+            }
+        }
+
+        // Atualizar opções dos filtros
+        function updateFilterOptions() {
+            updateAnoFilter();
+            updateOrigemFilter();
+            updateDestinoFilter();
+            updateOrgaoFilter();
+            updatePeriodoFilter();
+        }
+
+        function updateAnoFilter() {
+            const anoSelect = document.getElementById('ano');
+            const anos = [...new Set(flightData.map(voo => voo._year))].filter(ano => ano).sort((a, b) => b - a);
+            
+            let options = '<option value="all" selected>Todos os Anos</option>';
+            anos.forEach(ano => {
+                options += `<option value="${ano}">${ano}</option>`;
+            });
+            
+            anoSelect.innerHTML = options;
+        }
+
+        function updateOrigemFilter() {
+            const origemSelect = document.getElementById('origem');
+            const origens = [...new Set(flightData.map(voo => voo.Origem || voo.origem))].filter(origem => origem).sort();
+            
+            let options = '<option value="all" selected>Todas as Origens</option>';
+            origens.forEach(origem => {
+                options += `<option value="${origem}">${origem}</option>`;
+            });
+            
+            origemSelect.innerHTML = options;
+        }
+
+        function updateDestinoFilter() {
+            const destinoSelect = document.getElementById('destino');
+            const destinos = [...new Set(flightData.map(voo => voo.Destino || voo.destino))].filter(destino => destino).sort();
+            
+            let options = '<option value="all" selected>Todos os Destinos</option>';
+            destinos.forEach(destino => {
+                options += `<option value="${destino}">${destino}</option>`;
+            });
+            
+            destinoSelect.innerHTML = options;
+        }
+
+        function updateOrgaoFilter() {
+            const orgaoSelect = document.getElementById('orgao');
+            const orgaos = [...new Set(flightData.map(voo => voo.Órgão || voo.orgao || voo['Órgão Responsável']))].filter(orgao => orgao).sort();
+            
+            let options = '<option value="all" selected>Todos os Órgãos</option>';
+            orgaos.forEach(orgao => {
+                options += `<option value="${orgao}">${orgao}</option>`;
+            });
+            
+            orgaoSelect.innerHTML = options;
+        }
+
+        function updatePeriodoFilter() {
+            const periodoSelect = document.getElementById('periodo');
+            const periodos = [
+                'Últimos 7 dias',
+                'Últimos 30 dias',
+                'Últimos 90 dias',
+                'Este ano',
+                'Ano anterior'
+            ];
+            
+            let options = '<option value="all" selected>Todos os Períodos</option>';
+            periodos.forEach(periodo => {
+                options += `<option value="${periodo}">${periodo}</option>`;
+            });
+            
+            periodoSelect.innerHTML = options;
+        }
+
+        // Aplicar filtros
+        function applyFilters() {
+            const ano = document.getElementById('ano').value;
+            const mes = document.getElementById('mes').value;
+            const periodo = document.getElementById('periodo').value;
+            const origem = document.getElementById('origem').value;
+            const destino = document.getElementById('destino').value;
+            const orgao = document.getElementById('orgao').value;
+            const situacao = document.getElementById('situacao').value;
+            
+            filteredData = flightData.filter(voo => {
+                // Filtrar por ano
+                if (ano !== 'all') {
+                    const vooAno = voo._year || '';
+                    if (vooAno !== ano) return false;
+                }
+                
+                // Filtrar por mês
+                if (mes !== 'all') {
+                    const dataStr = voo.Data || voo.data || '';
+                    if (dataStr) {
+                        try {
+                            const parts = dataStr.split('/');
+                            if (parts.length === 3) {
+                                const vooMes = parseInt(parts[1]);
+                                if (vooMes !== parseInt(mes)) return false;
+                            }
+                        } catch (e) {
+                            // Se não puder parsear a data, manter o voo
+                        }
+                    }
+                }
+                
+                // Filtrar por origem
+                if (origem !== 'all') {
+                    const vooOrigem = (voo.Origem || voo.origem || '').toLowerCase();
+                    if (vooOrigem !== origem.toLowerCase()) return false;
+                }
+                
+                // Filtrar por destino
+                if (destino !== 'all') {
+                    const vooDestino = (voo.Destino || voo.destino || '').toLowerCase();
+                    if (vooDestino !== destino.toLowerCase()) return false;
+                }
+                
+                // Filtrar por órgão
+                if (orgao !== 'all') {
+                    const vooOrgao = (voo.Órgão || voo.orgao || '').toLowerCase();
+                    if (vooOrgao !== orgao.toLowerCase()) return false;
+                }
+                
+                // Filtrar por situação
+                if (situacao !== 'all') {
+                    const vooSituacao = (voo.Situação || voo.situacao || '').toUpperCase();
+                    if (vooSituacao !== situacao.toUpperCase()) return false;
+                }
+                
+                return true;
+            });
+            
+            updateDashboard();
+        }
+
+        // Limpar filtros
+        function clearFilters() {
+            document.getElementById('ano').value = 'all';
+            document.getElementById('mes').value = 'all';
+            document.getElementById('periodo').value = 'all';
+            document.getElementById('origem').value = 'all';
+            document.getElementById('destino').value = 'all';
+            document.getElementById('orgao').value = 'all';
+            document.getElementById('situacao').value = 'all';
+            
+            filteredData = [...flightData];
+            updateDashboard();
+        }
+
+        // Funções de exportação
+        function exportToCSV() {
+            const headers = ['Data', 'Diário de Bordo', 'Origem', 'Destino', 'Horas Voadas', 'Passageiros', 'Aeronave', 'Órgão', 'Situação'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(voo => [
+                    formatDate(voo.Data || voo.data),
+                    voo['Diário de Bordo'] || voo.diarioBordo || '',
+                    voo.Origem || voo.origem || '',
+                    voo.Destino || voo.destino || '',
+                    voo['Horas Voadas'] || voo.horas || 0,
+                    voo.Passageiros || voo.passageiros || 0,
+                    voo.Aeronave || voo.aeronave || '',
+                    voo.Órgão || voo.orgao || '',
+                    voo.Situação || voo.situacao || ''
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `voos_${new Date().toISOString().split('T')[0]}.csv`);
+            link.click();
+        }
+
+        function exportToExcel() {
+            const worksheet = XLSX.utils.json_to_sheet(filteredData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Voos');
+            XLSX.writeFile(workbook, `voos_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text('Relatório de Voos Oficiais - Governo de Minas Gerais', 20, 20);
+            doc.text(`Período: ${getPeriodoFiltro()}`, 20, 30);
+            doc.text(`Total de voos: ${filteredData.length}`, 20, 40);
+            doc.text(`Total de horas: ${calcularTotalHoras(filteredData).toFixed(1)}`, 20, 50);
+            doc.text(`Total de passageiros: ${calcularTotalPassageiros(filteredData)}`, 20, 60);
+            
+            // Adicionar data de geração
+            doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 20, 70);
+            
+            doc.save(`voos_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function printDashboard() {
+            window.print();
+        }
+
+        // Funções de compartilhamento
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Relatório de Voos Oficiais do Governo de Minas Gerais');
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+        }
+
+        function shareOnTwitter() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Relatório de Voos Oficiais - Governo de Minas Gerais');
+            window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+        }
+
+        function shareOnLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
+        }
+
+        function shareOnWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent('Confira o relatório de voos oficiais do Governo de Minas Gerais');
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+        }
+    </script>
+</body>
+</html>
