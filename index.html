@@ -276,8 +276,6 @@
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
-            background-color: #e3f2fd;
-            color: #1565c0;
         }
         
         .time-display {
@@ -596,194 +594,56 @@
         let destinosChart, horasChart;
         let lastDataUpdate = null;
 
-        // Dados de exemplo (substitua com seus dados reais)
-        const SAMPLE_DATA = [
-            {
-                Data: "15/03/2024",
-                "Diário de Bordo": "DB2024-001",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Uberlândia (UDI)",
-                "Horas Voadas": "1.5",
-                Passageiros: "4",
-                Aeronave: "PT-ABC",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "10/03/2024",
-                "Diário de Bordo": "DB2024-002",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Juiz de Fora (JDF)",
-                "Horas Voadas": "1.2",
-                Passageiros: "3",
-                Aeronave: "PT-XYZ",
-                "Órgão": "SECRETARIA DE ESTADO",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "05/03/2024",
-                "Diário de Bordo": "DB2024-003",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Montes Claros (MOC)",
-                "Horas Voadas": "2.0",
-                Passageiros: "6",
-                Aeronave: "PT-DEF",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "28/02/2024",
-                "Diário de Bordo": "DB2024-004",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Governador Valadares (GVR)",
-                "Horas Voadas": "1.8",
-                Passageiros: "5",
-                Aeronave: "PT-GHI",
-                "Órgão": "SECRETARIA DE ADMINISTRAÇÃO",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "25/02/2024",
-                "Diário de Bordo": "DB2024-005",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Uberaba (UBA)",
-                "Horas Voadas": "1.6",
-                Passageiros: "4",
-                Aeronave: "PT-JKL",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "20/02/2024",
-                "Diário de Bordo": "DB2024-006",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Ipatinga (IPN)",
-                "Horas Voadas": "1.3",
-                Passageiros: "3",
-                Aeronave: "PT-MNO",
-                "Órgão": "SECRETARIA DE SAÚDE",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "15/02/2024",
-                "Diário de Bordo": "DB2024-007",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Divinópolis (DIQ)",
-                "Horas Voadas": "1.1",
-                Passageiros: "2",
-                Aeronave: "PT-PQR",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "10/02/2024",
-                "Diário de Bordo": "DB2024-008",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Pouso Alegre (PPY)",
-                "Horas Voadas": "1.4",
-                Passageiros: "3",
-                Aeronave: "PT-STU",
-                "Órgão": "SECRETARIA DE EDUCAÇÃO",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            {
-                Data: "05/02/2024",
-                "Diário de Bordo": "DB2024-009",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Varginha (VAG)",
-                "Horas Voadas": "1.7",
-                Passageiros: "5",
-                Aeronave: "PT-VWX",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "CANCELADA",
-                _year: "2024"
-            },
-            {
-                Data: "30/01/2024",
-                "Diário de Bordo": "DB2024-010",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Teófilo Otoni (TFL)",
-                "Horas Voadas": "2.2",
-                Passageiros: "7",
-                Aeronave: "PT-YZA",
-                "Órgão": "SECRETARIA DE INFRAESTRUTURA",
-                Situação: "REALIZADO",
-                _year: "2024"
-            },
-            // Dados de 2023
-            {
-                Data: "15/12/2023",
-                "Diário de Bordo": "DB2023-101",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Uberlândia (UDI)",
-                "Horas Voadas": "1.5",
-                Passageiros: "4",
-                Aeronave: "PT-ABC",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2023"
-            },
-            {
-                Data: "10/12/2023",
-                "Diário de Bordo": "DB2023-102",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Juiz de Fora (JDF)",
-                "Horas Voadas": "1.2",
-                Passageiros: "3",
-                Aeronave: "PT-XYZ",
-                "Órgão": "SECRETARIA DE ESTADO",
-                Situação: "REALIZADO",
-                _year: "2023"
-            },
-            {
-                Data: "05/12/2023",
-                "Diário de Bordo": "DB2023-103",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Montes Claros (MOC)",
-                "Horas Voadas": "2.0",
-                Passageiros: "6",
-                Aeronave: "PT-DEF",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2023"
-            },
-            // Dados de 2022
-            {
-                Data: "15/11/2022",
-                "Diário de Bordo": "DB2022-201",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Governador Valadares (GVR)",
-                "Horas Voadas": "1.8",
-                Passageiros: "5",
-                Aeronave: "PT-GHI",
-                "Órgão": "SECRETARIA DE ADMINISTRAÇÃO",
-                Situação: "REALIZADO",
-                _year: "2022"
-            },
-            {
-                Data: "10/11/2022",
-                "Diário de Bordo": "DB2022-202",
-                Origem: "Belo Horizonte (CNF)",
-                Destino: "Uberaba (UBA)",
-                "Horas Voadas": "1.6",
-                Passageiros: "4",
-                Aeronave: "PT-JKL",
-                "Órgão": "GABINETE DO GOVERNADOR",
-                Situação: "REALIZADO",
-                _year: "2022"
-            }
+        // Dados completos de todos os anos (exemplo expandido)
+        const COMPLETE_DATA = [
+            // 2026
+            { Data: "15/01/2026", "Diário de Bordo": "DB2026-001", Origem: "Belo Horizonte (CNF)", Destino: "Uberlândia (UDI)", "Horas Voadas": "1.5", Passageiros: "4", Aeronave: "PT-ABC", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2026" },
+            { Data: "10/01/2026", "Diário de Bordo": "DB2026-002", Origem: "Belo Horizonte (CNF)", Destino: "Juiz de Fora (JDF)", "Horas Voadas": "1.2", Passageiros: "3", Aeronave: "PT-XYZ", "Órgão": "SECRETARIA DE ESTADO", Situação: "REALIZADO", _year: "2026" },
+            
+            // 2025
+            { Data: "15/03/2025", "Diário de Bordo": "DB2025-001", Origem: "Belo Horizonte (CNF)", Destino: "Montes Claros (MOC)", "Horas Voadas": "2.0", Passageiros: "6", Aeronave: "PT-DEF", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2025" },
+            { Data: "10/03/2025", "Diário de Bordo": "DB2025-002", Origem: "Belo Horizonte (CNF)", Destino: "Governador Valadares (GVR)", "Horas Voadas": "1.8", Passageiros: "5", Aeronave: "PT-GHI", "Órgão": "SECRETARIA DE ADMINISTRAÇÃO", Situação: "REALIZADO", _year: "2025" },
+            { Data: "05/03/2025", "Diário de Bordo": "DB2025-003", Origem: "Belo Horizonte (CNF)", Destino: "Uberaba (UBA)", "Horas Voadas": "1.6", Passageiros: "4", Aeronave: "PT-JKL", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2025" },
+            
+            // 2024
+            { Data: "20/02/2024", "Diário de Bordo": "DB2024-001", Origem: "Belo Horizonte (CNF)", Destino: "Ipatinga (IPN)", "Horas Voadas": "1.3", Passageiros: "3", Aeronave: "PT-MNO", "Órgão": "SECRETARIA DE SAÚDE", Situação: "REALIZADO", _year: "2024" },
+            { Data: "15/02/2024", "Diário de Bordo": "DB2024-002", Origem: "Belo Horizonte (CNF)", Destino: "Divinópolis (DIQ)", "Horas Voadas": "1.1", Passageiros: "2", Aeronave: "PT-PQR", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2024" },
+            { Data: "10/02/2024", "Diário de Bordo": "DB2024-003", Origem: "Belo Horizonte (CNF)", Destino: "Pouso Alegre (PPY)", "Horas Voadas": "1.4", Passageiros: "3", Aeronave: "PT-STU", "Órgão": "SECRETARIA DE EDUCAÇÃO", Situação: "REALIZADO", _year: "2024" },
+            { Data: "05/02/2024", "Diário de Bordo": "DB2024-004", Origem: "Belo Horizonte (CNF)", Destino: "Varginha (VAG)", "Horas Voadas": "1.7", Passageiros: "5", Aeronave: "PT-VWX", "Órgão": "GABINETE DO GOVERNADOR", Situação: "CANCELADA", _year: "2024" },
+            { Data: "30/01/2024", "Diário de Bordo": "DB2024-005", Origem: "Belo Horizonte (CNF)", Destino: "Teófilo Otoni (TFL)", "Horas Voadas": "2.2", Passageiros: "7", Aeronave: "PT-YZA", "Órgão": "SECRETARIA DE INFRAESTRUTURA", Situação: "REALIZADO", _year: "2024" },
+            
+            // 2023
+            { Data: "15/12/2023", "Diário de Bordo": "DB2023-101", Origem: "Belo Horizonte (CNF)", Destino: "Uberlândia (UDI)", "Horas Voadas": "1.5", Passageiros: "4", Aeronave: "PT-ABC", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2023" },
+            { Data: "10/12/2023", "Diário de Bordo": "DB2023-102", Origem: "Belo Horizonte (CNF)", Destino: "Juiz de Fora (JDF)", "Horas Voadas": "1.2", Passageiros: "3", Aeronave: "PT-XYZ", "Órgão": "SECRETARIA DE ESTADO", Situação: "REALIZADO", _year: "2023" },
+            { Data: "05/12/2023", "Diário de Bordo": "DB2023-103", Origem: "Belo Horizonte (CNF)", Destino: "Montes Claros (MOC)", "Horas Voadas": "2.0", Passageiros: "6", Aeronave: "PT-DEF", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2023" },
+            { Data: "30/11/2023", "Diário de Bordo": "DB2023-104", Origem: "Belo Horizonte (CNF)", Destino: "Governador Valadares (GVR)", "Horas Voadas": "1.8", Passageiros: "5", Aeronave: "PT-GHI", "Órgão": "SECRETARIA DE ADMINISTRAÇÃO", Situação: "REALIZADO", _year: "2023" },
+            
+            // 2022
+            { Data: "15/11/2022", "Diário de Bordo": "DB2022-201", Origem: "Belo Horizonte (CNF)", Destino: "Uberaba (UBA)", "Horas Voadas": "1.6", Passageiros: "4", Aeronave: "PT-JKL", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2022" },
+            { Data: "10/11/2022", "Diário de Bordo": "DB2022-202", Origem: "Belo Horizonte (CNF)", Destino: "Ipatinga (IPN)", "Horas Voadas": "1.3", Passageiros: "3", Aeronave: "PT-MNO", "Órgão": "SECRETARIA DE SAÚDE", Situação: "REALIZADO", _year: "2022" },
+            { Data: "05/11/2022", "Diário de Bordo": "DB2022-203", Origem: "Belo Horizonte (CNF)", Destino: "Divinópolis (DIQ)", "Horas Voadas": "1.1", Passageiros: "2", Aeronave: "PT-PQR", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2022" },
+            
+            // 2021
+            { Data: "20/10/2021", "Diário de Bordo": "DB2021-301", Origem: "Belo Horizonte (CNF)", Destino: "Pouso Alegre (PPY)", "Horas Voadas": "1.4", Passageiros: "3", Aeronave: "PT-STU", "Órgão": "SECRETARIA DE EDUCAÇÃO", Situação: "REALIZADO", _year: "2021" },
+            { Data: "15/10/2021", "Diário de Bordo": "DB2021-302", Origem: "Belo Horizonte (CNF)", Destino: "Varginha (VAG)", "Horas Voadas": "1.7", Passageiros: "5", Aeronave: "PT-VWX", "Órgão": "GABINETE DO GOVERNADOR", Situação: "CANCELADA", _year: "2021" },
+            { Data: "10/10/2021", "Diário de Bordo": "DB2021-303", Origem: "Belo Horizonte (CNF)", Destino: "Teófilo Otoni (TFL)", "Horas Voadas": "2.2", Passageiros: "7", Aeronave: "PT-YZA", "Órgão": "SECRETARIA DE INFRAESTRUTURA", Situação: "REALIZADO", _year: "2021" },
+            
+            // 2020
+            { Data: "05/09/2020", "Diário de Bordo": "DB2020-401", Origem: "Belo Horizonte (CNF)", Destino: "Uberlândia (UDI)", "Horas Voadas": "1.5", Passageiros: "4", Aeronave: "PT-ABC", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2020" },
+            { Data: "01/09/2020", "Diário de Bordo": "DB2020-402", Origem: "Belo Horizonte (CNF)", Destino: "Juiz de Fora (JDF)", "Horas Voadas": "1.2", Passageiros: "3", Aeronave: "PT-XYZ", "Órgão": "SECRETARIA DE ESTADO", Situação: "REALIZADO", _year: "2020" },
+            
+            // 2019
+            { Data: "25/08/2019", "Diário de Bordo": "DB2019-501", Origem: "Belo Horizonte (CNF)", Destino: "Montes Claros (MOC)", "Horas Voadas": "2.0", Passageiros: "6", Aeronave: "PT-DEF", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2019" },
+            { Data: "20/08/2019", "Diário de Bordo": "DB2019-502", Origem: "Belo Horizonte (CNF)", Destino: "Governador Valadares (GVR)", "Horas Voadas": "1.8", Passageiros: "5", Aeronave: "PT-GHI", "Órgão": "SECRETARIA DE ADMINISTRAÇÃO", Situação: "REALIZADO", _year: "2019" },
+            
+            // 2018
+            { Data: "15/07/2018", "Diário de Bordo": "DB2018-601", Origem: "Belo Horizonte (CNF)", Destino: "Uberaba (UBA)", "Horas Voadas": "1.6", Passageiros: "4", Aeronave: "PT-JKL", "Órgão": "GABINETE DO GOVERNADOR", Situação: "REALIZADO", _year: "2018" },
+            { Data: "10/07/2018", "Diário de Bordo": "DB2018-602", Origem: "Belo Horizonte (CNF)", Destino: "Ipatinga (IPN)", "Horas Voadas": "1.3", Passageiros: "3", Aeronave: "PT-MNO", "Órgão": "SECRETARIA DE SAÚDE", Situação: "REALIZADO", _year: "2018" }
         ];
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Página carregada. Iniciando carregamento de dados...');
             loadAllData();
             setupEventListeners();
         });
@@ -807,15 +667,18 @@
 
         // Carregar todos os dados
         function loadAllData() {
+            console.log('Iniciando carregamento de dados...');
             showLoading(true);
             updateDataStatus('Carregando dados...', 'info');
             
             try {
-                // Para GitHub Pages, use dados embutidos
-                flightData = SAMPLE_DATA;
+                // Usar dados completos embutidos
+                flightData = COMPLETE_DATA;
                 filteredData = [...flightData];
                 
                 lastDataUpdate = new Date();
+                console.log(`Dados carregados: ${flightData.length} registros`);
+                
                 updateDashboard();
                 updateDataStatus(`✅ ${flightData.length} voos carregados com sucesso!`, 'success');
                 showLoading(false);
@@ -858,6 +721,7 @@
 
         // Atualizar o dashboard com os dados filtrados
         function updateDashboard() {
+            console.log('Atualizando dashboard...');
             updateSummaryCards();
             updateFlightsTable();
             updatePassengersTable();
@@ -871,20 +735,21 @@
             const totalHoras = calcularTotalHoras(filteredData);
             const totalPassageiros = calcularTotalPassageiros(filteredData);
             const destinosUnicos = [...new Set(filteredData.map(voo => voo.Destino || ''))].filter(Boolean).length;
+            const anosUnicos = [...new Set(filteredData.map(voo => voo._year || ''))].filter(Boolean).length;
 
             const summaryHTML = `
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h3>${totalVoos}</h3>
                         <p>Voos Registrados</p>
-                        <span class="badge-primary">${getVariacaoMensal()} vs mês anterior</span>
+                        <span class="badge-primary">${anosUnicos} anos</span>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="summary-card">
                         <h3 class="time-display">${totalHoras.toFixed(1)}h</h3>
                         <p>Total de Horas Voadas</p>
-                        <span class="badge-primary">${(totalHoras / totalVoos || 0).toFixed(1)}h média por voo</span>
+                        <span class="badge-primary">${(totalHoras / totalVoos || 0).toFixed(1)}h média</span>
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -904,6 +769,7 @@
             `;
 
             document.getElementById('summaryCards').innerHTML = summaryHTML;
+            console.log('Cards de resumo atualizados');
         }
 
         // Calcular total de horas
@@ -922,11 +788,6 @@
             }, 0);
         }
 
-        // Obter variação mensal (simplificado)
-        function getVariacaoMensal() {
-            return "+12%";
-        }
-
         // Obter período do filtro
         function getPeriodoFiltro() {
             const ano = document.getElementById('ano').value;
@@ -943,7 +804,7 @@
                               'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
                 return `${meses[parseInt(mes)-1]}`;
             }
-            return 'Período Total';
+            return 'Período Total (2018-2026)';
         }
 
         // Atualizar tabela de voos
@@ -957,7 +818,15 @@
             tableTitle.textContent = `Detalhamento de Voos - ${getPeriodoFiltro()}`;
             
             let tableHTML = '';
-            filteredData.forEach(voo => {
+            
+            // Ordenar por data (mais recente primeiro)
+            const dadosOrdenados = [...filteredData].sort((a, b) => {
+                const dataA = parseDate(a.Data);
+                const dataB = parseDate(b.Data);
+                return dataB - dataA;
+            });
+            
+            dadosOrdenados.forEach(voo => {
                 const data = voo.Data || 'N/A';
                 const diarioBordo = voo['Diário de Bordo'] || 'N/A';
                 const origem = voo.Origem || 'N/A';
@@ -969,23 +838,23 @@
                 const situacao = voo.Situação || 'REALIZADO';
                 
                 // Determinar cor do badge baseado na situação
-                let badgeClass = 'badge';
+                let badgeClass = 'flight-badge';
                 if (situacao.toUpperCase().includes('CANCEL')) {
-                    badgeClass += ' bg-danger';
+                    badgeClass += ' bg-danger text-white';
                 } else if (situacao.toUpperCase().includes('PLAN')) {
                     badgeClass += ' bg-warning text-dark';
                 } else {
-                    badgeClass += ' bg-success';
+                    badgeClass += ' bg-success text-white';
                 }
                 
                 tableHTML += `
                     <tr>
-                        <td>${data}</td>
+                        <td><strong>${data}</strong></td>
                         <td><strong>${diarioBordo}</strong></td>
                         <td>${origem} → ${destino}</td>
                         <td class="time-display">${parseFloat(horas).toFixed(1)}h</td>
                         <td>${passageiros}</td>
-                        <td>${aeronave}</td>
+                        <td><span class="badge bg-secondary">${aeronave}</span></td>
                         <td>${orgao}</td>
                         <td><span class="${badgeClass}">${situacao}</span></td>
                     </tr>
@@ -1007,6 +876,21 @@
                     <td colspan="3"><strong>${diasComVoos} dias com voos</strong></td>
                 </tr>
             `;
+            
+            console.log('Tabela de voos atualizada:', filteredData.length, 'registros');
+        }
+
+        // Converter string de data para objeto Date
+        function parseDate(dateString) {
+            try {
+                if (dateString.includes('/')) {
+                    const parts = dateString.split('/');
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+                return new Date(dateString);
+            } catch (e) {
+                return new Date();
+            }
         }
 
         // Atualizar tabela de passageiros
@@ -1016,27 +900,51 @@
             
             passengersTitle.textContent = `Principais Passageiros - ${getPeriodoFiltro()}`;
             
-            // Dados de exemplo para passageiros
+            // Dados de exemplo para passageiros (baseados nos órgãos)
             const passageirosExemplo = [
-                { nome: "Governador Romeu Zema", cargo: "Governador", orgao: "GABINETE DO GOVERNADOR", voos: 8, horas: 12.5 },
-                { nome: "Secretário João Silva", cargo: "Secretário de Estado", orgao: "SECRETARIA DE ESTADO", voos: 5, horas: 7.8 },
-                { nome: "Deputado Carlos Andrade", cargo: "Deputado Estadual", orgao: "ASSEMBLEIA LEGISLATIVA", voos: 4, horas: 6.2 },
-                { nome: "Secretária Maria Santos", cargo: "Secretária de Saúde", orgao: "SECRETARIA DE SAÚDE", voos: 3, horas: 4.5 },
-                { nome: "Assessor Pedro Costa", cargo: "Assessor Especial", orgao: "GABINETE DO GOVERNADOR", voos: 3, horas: 4.1 }
+                { nome: "Governador Romeu Zema", cargo: "Governador", orgao: "GABINETE DO GOVERNADOR", voos: 15, horas: 24.5 },
+                { nome: "Secretário João Silva", cargo: "Secretário de Estado", orgao: "SECRETARIA DE ESTADO", voos: 8, horas: 12.8 },
+                { nome: "Secretária Maria Santos", cargo: "Secretária de Saúde", orgao: "SECRETARIA DE SAÚDE", voos: 6, horas: 9.5 },
+                { nome: "Secretário Pedro Costa", cargo: "Secretário de Educação", orgao: "SECRETARIA DE EDUCAÇÃO", voos: 5, horas: 8.2 },
+                { nome: "Secretário Carlos Andrade", cargo: "Secretário de Infraestrutura", orgao: "SECRETARIA DE INFRAESTRUTURA", voos: 4, horas: 6.8 },
+                { nome: "Deputada Ana Oliveira", cargo: "Deputada Estadual", orgao: "ASSEMBLEIA LEGISLATIVA", voos: 4, horas: 6.2 },
+                { nome: "Secretário José Almeida", cargo: "Secretário de Administração", orgao: "SECRETARIA DE ADMINISTRAÇÃO", voos: 3, horas: 4.5 },
+                { nome: "Assessor Marco Antônio", cargo: "Assessor Especial", orgao: "GABINETE DO GOVERNADOR", voos: 3, horas: 4.1 }
             ];
             
+            // Filtrar passageiros baseado nos dados filtrados
+            const passageirosFiltrados = passageirosExemplo
+                .filter(p => {
+                    // Verificar se há voos deste órgão nos dados filtrados
+                    const orgaoFiltrado = filteredData.some(voo => voo['Órgão'] === p.orgao);
+                    return orgaoFiltrado;
+                })
+                .slice(0, 8); // Limitar a 8 passageiros
+            
             let passageirosHTML = '';
-            passageirosExemplo.forEach(passageiro => {
-                passageirosHTML += `
+            
+            if (passageirosFiltrados.length > 0) {
+                passageirosFiltrados.forEach(passageiro => {
+                    passageirosHTML += `
+                        <tr>
+                            <td><strong>${passageiro.nome}</strong></td>
+                            <td>${passageiro.cargo}</td>
+                            <td>${passageiro.orgao}</td>
+                            <td><span class="badge bg-primary">${passageiro.voos} voos</span></td>
+                            <td class="time-display">${passageiro.horas.toFixed(1)}h</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                passageirosHTML = `
                     <tr>
-                        <td><strong>${passageiro.nome}</strong></td>
-                        <td>${passageiro.cargo}</td>
-                        <td>${passageiro.orgao}</td>
-                        <td>${passageiro.voos}</td>
-                        <td class="time-display">${passageiro.horas.toFixed(1)}h</td>
+                        <td colspan="5" class="text-center text-muted">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Selecione um filtro para visualizar os passageiros
+                        </td>
                     </tr>
                 `;
-            });
+            }
             
             tableBody.innerHTML = passageirosHTML;
         }
@@ -1049,21 +957,23 @@
 
         // Gráfico de destinos
         function updateDestinosChart() {
-            const ctx = document.getElementById('destinosChart').getContext('2d');
+            const ctx = document.getElementById('destinosChart');
+            if (!ctx) return;
             
             // Agrupar por destino
             const destinosMap = {};
             filteredData.forEach(voo => {
                 const destino = voo.Destino || 'Desconhecido';
-                destinosMap[destino] = (destinosMap[destino] || 0) + 1;
+                const destinoSimples = destino.split('(')[0].trim();
+                destinosMap[destinoSimples] = (destinosMap[destinoSimples] || 0) + 1;
             });
             
             // Ordenar e pegar top 10
             const sortedDestinos = Object.entries(destinosMap)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 10);
+                .slice(0, 8);
             
-            const labels = sortedDestinos.map(item => item[0].split('(')[0].trim());
+            const labels = sortedDestinos.map(item => item[0]);
             const data = sortedDestinos.map(item => item[1]);
             
             // Destruir gráfico anterior se existir
@@ -1087,9 +997,7 @@
                             'rgba(153, 102, 255, 0.7)',
                             'rgba(255, 159, 64, 0.7)',
                             'rgba(75, 192, 192, 0.7)',
-                            'rgba(255, 205, 86, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(201, 203, 207, 0.7)'
+                            'rgba(255, 205, 86, 0.7)'
                         ],
                         borderColor: [
                             'rgb(185, 60, 66)',
@@ -1099,9 +1007,7 @@
                             'rgb(153, 102, 255)',
                             'rgb(255, 159, 64)',
                             'rgb(75, 192, 192)',
-                            'rgb(255, 205, 86)',
-                            'rgb(54, 162, 235)',
-                            'rgb(201, 203, 207)'
+                            'rgb(255, 205, 86)'
                         ],
                         borderWidth: 1
                     }]
@@ -1115,7 +1021,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Top 10 Destinos Mais Frequentes'
+                            text: 'Destinos Mais Frequentes'
                         }
                     },
                     scales: {
@@ -1137,29 +1043,22 @@
             });
         }
 
-        // Gráfico de horas por data
+        // Gráfico de horas por ano
         function updateHorasChart() {
-            const ctx = document.getElementById('horasChart').getContext('2d');
+            const ctx = document.getElementById('horasChart');
+            if (!ctx) return;
             
-            // Agrupar por data
-            const horasPorData = {};
+            // Agrupar por ano
+            const horasPorAno = {};
             filteredData.forEach(voo => {
-                const data = voo.Data;
+                const ano = voo._year || 'Desconhecido';
                 const horas = parseFloat(voo['Horas Voadas']) || 0;
-                
-                if (data) {
-                    horasPorData[data] = (horasPorData[data] || 0) + horas;
-                }
+                horasPorAno[ano] = (horasPorAno[ano] || 0) + horas;
             });
             
-            // Ordenar por data
-            const sortedEntries = Object.entries(horasPorData)
-                .sort((a, b) => {
-                    const dateA = parseDate(a[0]);
-                    const dateB = parseDate(b[0]);
-                    return dateA - dateB;
-                })
-                .slice(-10); // Últimos 10 registros
+            // Ordenar por ano
+            const sortedEntries = Object.entries(horasPorAno)
+                .sort((a, b) => a[0] - b[0]);
             
             const labels = sortedEntries.map(item => item[0]);
             const data = sortedEntries.map(item => item[1]);
@@ -1179,9 +1078,13 @@
                         data: data,
                         backgroundColor: 'rgba(41, 67, 90, 0.2)',
                         borderColor: 'rgb(41, 67, 90)',
-                        borderWidth: 2,
-                        tension: 0.1,
-                        fill: true
+                        borderWidth: 3,
+                        tension: 0.2,
+                        fill: true,
+                        pointBackgroundColor: 'rgb(219, 35, 63)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
                     }]
                 },
                 options: {
@@ -1189,11 +1092,12 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: true
+                            display: true,
+                            position: 'top'
                         },
                         title: {
                             display: true,
-                            text: 'Horas Voadas por Data'
+                            text: 'Horas Voadas por Ano'
                         }
                     },
                     scales: {
@@ -1201,35 +1105,24 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Horas'
+                                text: 'Horas Voadas'
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
                             }
                         },
                         x: {
                             title: {
                                 display: true,
-                                text: 'Data'
+                                text: 'Ano'
                             },
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
                             }
                         }
                     }
                 }
             });
-        }
-
-        // Converter string de data para objeto Date
-        function parseDate(dateString) {
-            try {
-                if (dateString.includes('/')) {
-                    const parts = dateString.split('/');
-                    return new Date(parts[2], parts[1] - 1, parts[0]);
-                }
-                return new Date(dateString);
-            } catch (e) {
-                return new Date();
-            }
         }
 
         // Atualizar opções dos filtros
@@ -1251,6 +1144,7 @@
             });
             
             anoSelect.innerHTML = options;
+            console.log('Filtro de anos atualizado:', anos);
         }
 
         function updateOrigemFilter() {
@@ -1296,7 +1190,9 @@
                 'Últimos 30 dias',
                 'Últimos 90 dias',
                 'Este ano',
-                'Ano anterior'
+                'Ano anterior',
+                'Últimos 2 anos',
+                'Últimos 5 anos'
             ];
             
             let options = '<option value="all" selected>Todos os Períodos</option>';
@@ -1309,6 +1205,7 @@
 
         // Aplicar filtros
         function applyFilters() {
+            console.log('Aplicando filtros...');
             const ano = document.getElementById('ano').value;
             const mes = document.getElementById('mes').value;
             const periodo = document.getElementById('periodo').value;
@@ -1339,6 +1236,33 @@
                     }
                 }
                 
+                // Filtrar por período específico
+                if (periodo !== 'all') {
+                    const hoje = new Date();
+                    const dataVoo = parseDate(voo.Data);
+                    
+                    switch(periodo) {
+                        case 'Últimos 7 dias':
+                            const seteDiasAtras = new Date(hoje);
+                            seteDiasAtras.setDate(hoje.getDate() - 7);
+                            if (dataVoo < seteDiasAtras) return false;
+                            break;
+                        case 'Últimos 30 dias':
+                            const trintaDiasAtras = new Date(hoje);
+                            trintaDiasAtras.setDate(hoje.getDate() - 30);
+                            if (dataVoo < trintaDiasAtras) return false;
+                            break;
+                        case 'Este ano':
+                            const anoAtual = hoje.getFullYear().toString();
+                            if (voo._year !== anoAtual) return false;
+                            break;
+                        case 'Ano anterior':
+                            const anoAnterior = (hoje.getFullYear() - 1).toString();
+                            if (voo._year !== anoAnterior) return false;
+                            break;
+                    }
+                }
+                
                 // Filtrar por origem
                 if (origem !== 'all') {
                     if (voo.Origem !== origem) return false;
@@ -1362,11 +1286,13 @@
                 return true;
             });
             
+            console.log('Filtros aplicados. Registros:', filteredData.length);
             updateDashboard();
         }
 
         // Limpar filtros
         function clearFilters() {
+            console.log('Limpando filtros...');
             document.getElementById('ano').value = 'all';
             document.getElementById('mes').value = 'all';
             document.getElementById('periodo').value = 'all';
@@ -1376,12 +1302,13 @@
             document.getElementById('situacao').value = 'all';
             
             filteredData = [...flightData];
+            console.log('Filtros limpos. Registros:', filteredData.length);
             updateDashboard();
         }
 
         // Funções de exportação
         function exportToCSV() {
-            const headers = ['Data', 'Diário de Bordo', 'Origem', 'Destino', 'Horas Voadas', 'Passageiros', 'Aeronave', 'Órgão', 'Situação'];
+            const headers = ['Data', 'Diário de Bordo', 'Origem', 'Destino', 'Horas Voadas', 'Passageiros', 'Aeronave', 'Órgão', 'Situação', 'Ano'];
             const csvContent = [
                 headers.join(','),
                 ...filteredData.map(voo => [
@@ -1393,7 +1320,8 @@
                     voo.Passageiros,
                     voo.Aeronave,
                     voo['Órgão'],
-                    voo.Situação
+                    voo.Situação,
+                    voo._year
                 ].join(','))
             ].join('\n');
             
@@ -1401,7 +1329,7 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', `voos_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute('download', `voos_oficiais_mg_${new Date().toISOString().split('T')[0]}.csv`);
             link.click();
         }
 
@@ -1415,27 +1343,44 @@
                 Passageiros: voo.Passageiros,
                 Aeronave: voo.Aeronave,
                 'Órgão': voo['Órgão'],
-                Situação: voo.Situação
+                Situação: voo.Situação,
+                Ano: voo._year
             })));
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Voos');
-            XLSX.writeFile(workbook, `voos_${new Date().toISOString().split('T')[0]}.xlsx`);
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Voos Oficiais MG');
+            XLSX.writeFile(workbook, `voos_oficiais_mg_${new Date().toISOString().split('T')[0]}.xlsx`);
         }
 
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
+            doc.setFontSize(16);
             doc.text('Relatório de Voos Oficiais - Governo de Minas Gerais', 20, 20);
+            
+            doc.setFontSize(12);
             doc.text(`Período: ${getPeriodoFiltro()}`, 20, 30);
             doc.text(`Total de voos: ${filteredData.length}`, 20, 40);
-            doc.text(`Total de horas: ${calcularTotalHoras(filteredData).toFixed(1)}`, 20, 50);
+            doc.text(`Total de horas voadas: ${calcularTotalHoras(filteredData).toFixed(1)}h`, 20, 50);
             doc.text(`Total de passageiros: ${calcularTotalPassageiros(filteredData)}`, 20, 60);
             
             // Adicionar data de geração
             doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 20, 70);
             
-            doc.save(`voos_${new Date().toISOString().split('T')[0]}.pdf`);
+            // Adicionar alguns dados da tabela
+            doc.setFontSize(10);
+            let yPos = 90;
+            doc.text('Principais Voos:', 20, yPos);
+            yPos += 10;
+            
+            // Pegar os 10 primeiros voos
+            filteredData.slice(0, 10).forEach((voo, index) => {
+                if (yPos > 280) return; // Evitar sair da página
+                doc.text(`${voo.Data} - ${voo.Origem} → ${voo.Destino} - ${voo['Horas Voadas']}h`, 25, yPos);
+                yPos += 7;
+            });
+            
+            doc.save(`voos_oficiais_mg_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function printDashboard() {
@@ -1451,7 +1396,7 @@
 
         function shareOnTwitter() {
             const url = encodeURIComponent(window.location.href);
-            const text = encodeURIComponent('Relatório de Voos Oficiais - Governo de Minas Gerais');
+            const text = encodeURIComponent('Relatório de Voos Oficiais - Governo de Minas Gerais - Transparência em dados de voos oficiais');
             window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
         }
 
@@ -1465,6 +1410,9 @@
             const text = encodeURIComponent('Confira o relatório de voos oficiais do Governo de Minas Gerais');
             window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
         }
+
+        // Inicializar automaticamente
+        console.log('Script inicializado. Aguardando DOM...');
     </script>
 </body>
 </html>
