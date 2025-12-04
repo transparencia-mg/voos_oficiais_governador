@@ -1,4 +1,4 @@
-historico;solicitante;orgão_solicitante;status_voo;horas_voadas;Aeronave;n_db;base;data;orgao_responsável;origem;destino;passageiro;cargo_funcao_;orgao_passageiro
+historico;solicitante;orgao_solicitante;situacao_voo;horas_voadas;aeronave;n_db;base;data;orgao_responsavel;origem;destino;passageiro;cargo_funcao_;orgao_passageiro
 Traslado do Exmo Sr. Governador do Estado de Minas Gerais e comitiva para as cidades de Ponte Nova,  Viçosa e Araxá.;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;02:10:00;PR-OSO - PEGASUS 16;0009-2025;EsAF;30/01/2025;Secretaria-Geral;BELO HORIZONTE;PONTE NOVA;Adriano de Almeida Alvarenga;Deputado Estadual;Assembleia Legislativa do Estado de Minas Gerais;
 Traslado do Exmo Sr. Governador do Estado de Minas Gerais e comitiva para as cidades de Ubá (agenda Cataguases) e Araxá.;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;01:06:00;PP-LCE - PÉGASUS 24;0047-2025;DTA;27/02/2025 00:00;Secretaria-Geral;UBA;ARAXA;Alexander Duarte Marinho;Ajudante de Ordens do Governador;GABINETE MILITAR DO GOVERNADOR;
 Traslado do Exmo. Sr. Governador do Estado de Minas Gerais e comitiva para a cidade de Brasília/DF.;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;02:48:00;PT-MGS - PT-MGS;0008-2025;DTA;20/05/2025;Secretaria-Geral;BRASILIA;BELO HORIZONTE;Alexander Duarte Marinho;Ajudante de Ordens do Governador;GABINETE MILITAR DO GOVERNADOR;
@@ -624,5 +624,6 @@ Traslado do Exmo. Governador de Minas Gerais e comitiva para a cidade de Mariana
 Traslado do Exmo. Governador de Minas Gerais e comitiva para a cidade de Mariana/MG;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;01:05:00;PR-DTG - N19;0071-2025;DTA;16/07/2025;Secretaria-Geral;BELO HORIZONTE;MARIANA;Vicente de Oliveira Silva;Desembargador;Tribunal de Justiça do Estado de Minas Gerais;
 Traslado do Exmo. Sr. Governador do Estado de Minas Gerais e comitiva para a cidade de Brasília/DF.;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;02:48:00;PT-MGS - PT-MGS;0008-2025;DTA;20/05/2025;Secretaria-Geral;BRASILIA;BELO HORIZONTE;Wallace Conegundes;Cerimonial;Secretaria de Estado de Comunicação Social;
 Traslado do Exmo. Governador de Minas e comitiva até as cidades de Uberaba,  Araxá x Ribeirão Preto e São Paulo(Congonhas).;Romeu Zema Neto;Secretaria-Geral do Estado de Minas Gerais;PLANEJADA;05:54:00;PP-LCE - PÉGASUS 24;0078-2025;DTA;29/04/2025;Secretaria-Geral;RIBEIRAO PRETO;BELO HORIZONTE;Wallace Conegundes;Cerimonial;Secretaria de Estado de Comunicação Social;
+
 
 
