@@ -16,7 +16,6 @@ function fetchCSV(path){
     Papa.parse(path, {
       download: true, header: true, skipEmptyLines: true,
       dynamicTyping: false,
-      encoding: "UTF-8",
       complete: (res)=> resolve(res.data),
       error: (err)=> reject(err)
     });
@@ -25,7 +24,7 @@ function fetchCSV(path){
 
 // Normalize column names (map from your CSV to expected)
 function normalizeRow(r){
-  // exemplo: campos com acentos/variações, trate aqui
+  // map column keys to normalized keys
   const map = {};
   for(let k in r){
     let k2 = k.trim()
@@ -33,13 +32,12 @@ function normalizeRow(r){
       .normalize("NFD").replace(/[\u0300-\u036f]/g,""); // remove accents
     map[k2] = r[k];
   }
-  // create object with canonical names
   return {
     Data: map["Data"] || map["data"] || map["DATA"] || "",
-    Diario_de_Bordo: map["Numero_DB"] || map["NumeroDB"] || map["Numero_DB"] || map["Número_DB"] || map["Numero"] || map["NumeroDB"] || map["NúmeroDB"] || map["Numero_DB"] || map["Diario_de_Bordo"] || map["Diário_de_Bordo"] || (map["Número_DB"]?map["Número_DB"]:""),
+    Diario_de_Bordo: map["Numero_DB"] || map["NumeroDB"] || map["Numero_DB"] || map["Número_DB"] || map["Diario_de_Bordo"] || "",
     Origem: map["Origem"] || "",
     Destino: map["Destino"] || "",
-    Horas_Voadas: (map["Horas_Voadas"] || map["HorasVoadas"] || map["Horas_Voadas "] || map["Horas Voadas"] || "").replace(",","."),
+    Horas_Voadas: (map["Horas_Voadas"] || map["HorasVoadas"] || map["Horas Voadas"] || "").toString().replace(",","."),
     Aeronave: map["Aeronave"] || "",
     Orgao: map["Orgao"] || map["Orgao1"] || map["Orgao"] || "",
     Situacao: map["Historico"] || map["Situacao"] || "",
@@ -100,7 +98,6 @@ function drawDestinos(dfVoos){
 
 // draw horas line by year
 function drawHoras(dfVoos){
-  // aggregate by Ano (Data's year)
   const byAno = {};
   dfVoos.forEach(r=>{
     const ano = r.Data ? (r.Data.slice(-4)) : (r.Ano || "");
