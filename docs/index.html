@@ -3,1217 +3,1248 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Voos Oficiais — Dashboard</title>
-
+  <title>Voos Oficiais — Governo de Minas Gerais</title>
+  
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <!-- Plotly -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <!-- PapaParse para CSV robusto -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <!-- SheetJS para Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Font Awesome para ícones -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- estilo -->
+  <!-- Tippy.js para tooltips -->
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
+  
   <style>
     :root {
-      --primary: #1a73e8;
-      --primary-dark: #0d62d9;
-      --secondary: #34a853;
-      --danger: #ea4335;
-      --warning: #fbbc04;
-      --dark: #202124;
-      --light: #f8f9fa;
-      --gray: #5f6368;
-      --gray-light: #dadce0;
-      --border: #e8eaed;
-      --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-      --card-shadow-hover: 0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08);
-    }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      --primary-dark: #29435A;
+      --primary-darker: #132837;
+      --accent-red: #B93C42;
+      --accent-bright: #DB233F;
+      --background-light: #EEEFF5;
+      --success-green: #28a745;
+      --warning-yellow: #ffc107;
+      --info-blue: #17a2b8;
+      --secondary-blue: #2E5984;
+      --secondary-green: #2E8B57;
+      --secondary-purple: #6A5ACD;
     }
     
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      color: var(--dark);
-      background-color: #f5f7fa;
-      line-height: 1.6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      padding-bottom: 30px;
     }
     
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 20px;
-    }
-    
-    /* Header e Navegação */
-    .dashboard-header {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    .main-header {
+      background: linear-gradient(135deg, var(--primary-darker) 0%, var(--primary-dark) 100%);
       color: white;
-      padding: 0;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px 0;
+      margin-bottom: 30px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      border-bottom: 4px solid var(--accent-red);
     }
     
-    .header-inner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-    }
-    
-    .brand {
+    .logo-container {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 20px;
     }
     
     .logo {
-      width: 50px;
-      height: 50px;
-      background-color: white;
-      color: var(--primary);
-      border-radius: 10px;
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-bright) 100%);
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: white;
       font-weight: bold;
       font-size: 24px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(219, 35, 63, 0.3);
     }
     
-    .brand h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+    .header-title {
+      font-weight: 800;
+      font-size: 28px;
+      margin: 0;
+      letter-spacing: -0.5px;
     }
     
-    .subtitle {
-      font-size: 0.9rem;
+    .header-subtitle {
+      font-size: 16px;
       opacity: 0.9;
+      margin: 5px 0 0 0;
     }
     
-    /* Navegação */
-    .nav-container {
-      background-color: rgba(255,255,255,0.1);
-      border-top: 1px solid rgba(255,255,255,0.2);
+    .filter-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 30px;
+      border-left: 5px solid var(--accent-red);
+      border-top: 1px solid #e9ecef;
     }
     
-    .nav-tabs {
+    .filter-label {
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-control, .form-select {
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      height: 48px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 0 3px rgba(185, 60, 66, 0.15);
+    }
+    
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+      height: 100%;
+      min-height: 320px;
+    }
+    
+    .chart-header {
       display: flex;
-      list-style: none;
-      padding: 0;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid var(--background-light);
+    }
+    
+    .chart-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary-dark);
       margin: 0;
     }
     
-    .nav-tab {
-      padding: 16px 24px;
+    .chart-wrapper {
+      position: relative;
+      height: 250px;
+      width: 100%;
+    }
+    
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+    }
+    
+    .table-header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+      color: white;
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .table-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .table-badge {
+      background: var(--accent-red);
+      color: white;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .table {
+      margin: 0;
+      width: 100%;
+    }
+    
+    .table thead th {
+      background-color: #f8f9fa;
+      color: var(--primary-dark);
+      font-weight: 700;
+      border: none;
+      padding: 18px 15px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       cursor: pointer;
-      font-weight: 500;
-      border-bottom: 3px solid transparent;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+    
+    .table thead th:hover {
+      background-color: rgba(41, 67, 90, 0.05);
+    }
+    
+    .table tbody tr {
+      transition: background-color 0.2s ease;
+      border-bottom: 1px solid #f1f1f1;
+    }
+    
+    .table tbody tr:hover {
+      background-color: rgba(41, 67, 90, 0.04);
+    }
+    
+    .table tbody td {
+      padding: 16px 15px;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+    
+    .btn-primary-custom {
+      background: linear-gradient(to right, var(--accent-red), var(--accent-bright));
+      border: none;
+      padding: 12px 30px;
+      font-weight: 700;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 15px;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary-custom:hover {
+      background: linear-gradient(to right, var(--accent-bright), var(--accent-red));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(219, 35, 63, 0.25);
+      color: white;
+    }
+    
+    .btn-secondary-custom {
+      background: white;
+      border: 2px solid var(--primary-dark);
+      color: var(--primary-dark);
+      padding: 12px 30px;
+      font-weight: 700;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-secondary-custom:hover {
+      background-color: var(--primary-dark);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(41, 67, 90, 0.2);
+    }
+    
+    .nav-tabs-container {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .nav-tabs {
+      border: none;
+      gap: 5px;
+    }
+    
+    .nav-tabs .nav-link {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 25px;
+      font-weight: 600;
+      color: var(--primary-dark);
+      transition: all 0.3s ease;
+      font-size: 15px;
+    }
+    
+    .nav-tabs .nav-link:hover {
+      background-color: rgba(41, 67, 90, 0.05);
+      color: var(--accent-red);
+    }
+    
+    .nav-tabs .nav-link.active {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+      color: white;
+    }
+    
+    .actions-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn-export {
+      background: white;
+      border: 2px solid var(--primary-dark);
+      color: var(--primary-dark);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      text-decoration: none;
     }
     
-    .nav-tab:hover {
-      background-color: rgba(255,255,255,0.1);
-    }
-    
-    .nav-tab.active {
-      background-color: rgba(255,255,255,0.15);
-      border-bottom-color: white;
-    }
-    
-    /* Main Content */
-    .main-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 20px;
-      padding: 20px;
-    }
-    
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: var(--card-shadow);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .card:hover {
-      box-shadow: var(--card-shadow-hover);
+    .btn-export:hover {
+      background: var(--primary-dark);
+      color: white;
       transform: translateY(-2px);
     }
     
-    /* Filtros */
-    .filters {
-      grid-column: 1 / span 12;
-      margin-bottom: 0;
+    .social-share {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
     
-    .filters-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      align-items: end;
-    }
-    
-    select, input {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background-color: white;
+    .social-share-label {
+      font-weight: 600;
+      color: var(--primary-dark);
       font-size: 14px;
-      color: var(--dark);
-      width: 100%;
     }
     
-    select:focus, input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      font-size: 0.9rem;
-      color: var(--gray);
-    }
-    
-    /* Botões */
-    .btn-primary {
-      background-color: var(--primary);
+    .btn-social {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: center;
-    }
-    
-    .btn-primary:hover {
-      background-color: var(--primary-dark);
-    }
-    
-    .btn-ghost {
-      background-color: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
       transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: center;
+      text-decoration: none;
     }
     
-    .btn-ghost:hover {
-      background-color: rgba(26, 115, 232, 0.05);
+    .btn-social:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      color: white;
     }
     
-    /* Summary Cards */
-    .summary-row {
-      grid-column: 1 / span 12;
+    .card-stats {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    
+    .card-stats .value {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--accent-red);
+      margin: 10px 0;
+    }
+    
+    .card-stats .label {
+      font-size: 14px;
+      color: var(--primary-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .card-stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
-      padding: 20px;
+      margin-bottom: 30px;
     }
     
-    .summary-card {
-      text-align: center;
-      padding: 20px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-    }
-    
-    .summary-card .big {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 8px;
-    }
-    
-    .summary-card .label {
-      font-size: 0.9rem;
-      color: var(--gray);
-      font-weight: 500;
-    }
-    
-    /* Tabela */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 20px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 1000px;
-    }
-    
-    th {
-      background-color: #f8f9fa;
-      padding: 14px 16px;
-      text-align: left;
-      font-weight: 600;
-      color: var(--dark);
-      border-bottom: 2px solid var(--border);
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-    }
-    
-    th.sortable:hover {
-      background-color: #eef1f5;
-    }
-    
-    th.sort-asc::after {
-      content: " ↑";
-      font-weight: bold;
-      color: var(--primary);
-    }
-    
-    th.sort-desc::after {
-      content: " ↓";
-      font-weight: bold;
-      color: var(--primary);
-    }
-    
-    td {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    tr:hover {
-      background-color: #f8f9fa;
-    }
-    
-    .table-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      justify-content: flex-end;
-    }
-    
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 20px;
-      color: var(--gray);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border);
-      margin-top: 40px;
-    }
-    
-    /* Badges */
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    
-    .badge-success {
-      background-color: rgba(52, 168, 83, 0.1);
-      color: var(--secondary);
-    }
-    
-    .badge-danger {
-      background-color: rgba(234, 67, 53, 0.1);
-      color: var(--danger);
-    }
-    
-    /* Download Section */
-    .download-section {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 12px;
-      padding: 24px;
-      margin-top: 20px;
-    }
-    
-    .download-options {
+    .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
     }
     
-    .download-card {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: var(--card-shadow);
-      transition: transform 0.3s ease;
+    .dashboard-full {
+      grid-column: 1 / -1;
     }
     
-    .download-card:hover {
-      transform: translateY(-5px);
+    .link-clicavel {
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+      padding: 2px 4px;
+      border-radius: 4px;
     }
     
-    .download-card i {
-      font-size: 2.5rem;
-      color: var(--primary);
-      margin-bottom: 15px;
+    .link-clicavel:hover {
+      color: var(--accent-red);
+      background-color: rgba(185, 60, 66, 0.05);
+      transform: translateY(-1px);
     }
     
-    .download-card h4 {
-      margin-bottom: 10px;
-      color: var(--dark);
-    }
-    
-    .download-card p {
-      color: var(--gray);
-      font-size: 0.9rem;
-      margin-bottom: 20px;
-    }
-    
-    /* Status Indicator */
-    .status-indicator {
+    .badge-status {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 500;
     }
     
-    .status-active {
+    .badge-realizado {
       background-color: rgba(52, 168, 83, 0.1);
-      color: var(--secondary);
+      color: var(--secondary-green);
     }
     
-    .status-inactive {
+    .badge-cancelado {
       background-color: rgba(234, 67, 53, 0.1);
-      color: var(--danger);
+      color: var(--accent-red);
     }
     
-    /* Responsividade */
-    @media (max-width: 1200px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .card {
-        grid-column: 1 / span 1 !important;
-      }
+    .current-year-indicator {
+      background: linear-gradient(135deg, var(--secondary-green) 0%, #2e8b47 100%);
+      color: white;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     
-    @media (max-width: 768px) {
-      .header-inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-      }
-      
-      .nav-tabs {
-        flex-wrap: wrap;
-      }
-      
-      .nav-tab {
-        padding: 12px 16px;
-        font-size: 0.9rem;
-      }
-      
-      .filters-row {
-        grid-template-columns: 1fr;
-      }
-      
-      .table-actions {
-        flex-direction: column;
-      }
-      
-      .btn-primary, .btn-ghost {
-        width: 100%;
-      }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--primary-dark);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
     }
     
-    /* Tab Content */
     .tab-content {
       display: none;
-      grid-column: 1 / span 12;
     }
     
     .tab-content.active {
       display: block;
     }
     
-    /* Current Year Indicator */
-    .current-year-indicator {
-      background: linear-gradient(135deg, var(--secondary) 0%, #2e8b47 100%);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: 10px;
-    }
-    
-    /* Action Bar - Nova */
-    .action-bar {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .action-btn {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      color: var(--gray);
-      transition: all 0.3s ease;
-    }
-    
-    .action-btn:hover {
-      background-color: #f8f9fa;
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-    
-    .action-btn.print:hover {
-      color: #ea4335;
-      border-color: #ea4335;
-    }
-    
-    .action-btn.share:hover {
-      color: #34a853;
-      border-color: #34a853;
-    }
-    
-    /* Tooltip */
-    .tooltip {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .tooltip .tooltip-text {
-      visibility: hidden;
-      width: 200px;
-      background-color: var(--dark);
-      color: white;
-      text-align: center;
-      border-radius: 6px;
-      padding: 10px;
-      position: absolute;
-      z-index: 1000;
-      bottom: 125%;
-      left: 50%;
-      margin-left: -100px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      font-size: 0.85rem;
-      font-weight: normal;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    
-    .tooltip .tooltip-text::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -5px;
-      border-width: 5px;
-      border-style: solid;
-      border-color: var(--dark) transparent transparent transparent;
-    }
-    
-    .tooltip:hover .tooltip-text {
-      visibility: visible;
-      opacity: 1;
-    }
-    
-    /* Share Modal */
-    .share-modal {
-      display: none;
+    .loading-overlay {
       position: fixed;
-      z-index: 1000;
-      left: 0;
       top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
-    }
-    
-    .share-modal-content {
-      background-color: white;
-      margin: 15% auto;
-      padding: 30px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    
-    .share-modal-header {
+      background: rgba(255, 255, 255, 0.9);
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .share-options {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-top: 20px;
-    }
-    
-    .share-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .share-option:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--card-shadow);
-    }
-    
-    .share-option.facebook:hover {
-      background-color: rgba(59, 89, 152, 0.05);
-      border-color: #3b5998;
-    }
-    
-    .share-option.twitter:hover {
-      background-color: rgba(29, 161, 242, 0.05);
-      border-color: #1da1f2;
-    }
-    
-    .share-option.linkedin:hover {
-      background-color: rgba(0, 119, 181, 0.05);
-      border-color: #0077b5;
-    }
-    
-    .share-option.whatsapp:hover {
-      background-color: rgba(37, 211, 102, 0.05);
-      border-color: #25d366;
-    }
-    
-    .close-modal {
-      color: var(--gray);
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-      padding: 0 10px;
-    }
-    
-    .close-modal:hover {
-      color: var(--dark);
-    }
-    
-    /* Print Styles */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      
-      .tab-content.active,
-      .tab-content.active * {
-        visibility: visible;
-      }
-      
-      .tab-content.active {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-      }
-      
-      .action-bar,
-      .nav-container,
-      .footer,
-      .filters-row,
-      .btn-primary,
-      .btn-ghost,
-      .table-actions {
-        display: none !important;
-      }
-      
-      .card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-      }
-      
-      .main-grid {
-        display: block;
-        padding: 0;
-      }
-      
-      h1, h2, h3 {
-        color: black !important;
-      }
-    }
-    
-    /* Dropdown Menu */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .dropdown-content {
+      z-index: 9999;
       display: none;
-      position: absolute;
-      background-color: white;
-      min-width: 200px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-      z-index: 100;
-      border-radius: 8px;
-      overflow: hidden;
-      right: 0;
-      top: 100%;
-      margin-top: 5px;
     }
     
-    .dropdown:hover .dropdown-content {
-      display: block;
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(41, 67, 90, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--accent-red);
+      animation: spin 1s linear infinite;
     }
     
-    .dropdown-item {
-      padding: 12px 16px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--dark);
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: background-color 0.2s;
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
     }
     
-    .dropdown-item:hover {
-      background-color: #f8f9fa;
+    @media (max-width: 992px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
     
-    .dropdown-item:last-child {
-      border-bottom: none;
+    @media (max-width: 768px) {
+      .header-title {
+        font-size: 22px;
+      }
+      
+      .actions-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .export-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      
+      .social-share {
+        width: 100%;
+        justify-content: flex-start;
+        margin-top: 15px;
+      }
+      
+      .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+      
+      .card-stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="dashboard-header">
-    <div class="container header-inner">
-      <div class="brand">
-        <div class="logo">MG</div>
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Header Principal -->
+  <header class="main-header">
+    <div class="container">
+      <div class="logo-container">
+        <div class="logo">
+          <i class="fas fa-plane"></i>
+        </div>
         <div>
-          <h1>Voos Oficiais — Governo de MG</h1>
-          <div class="subtitle">Dashboard público de voos oficiais</div>
+          <h1 class="header-title">Painel de Voos Oficiais</h1>
+          <p class="header-subtitle">Governo do Estado de Minas Gerais - Transparência de Voos Oficiais</p>
+          <a href="https://dados.mg.gov.br" target="_blank" class="link-legislacao" style="color: white; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; opacity: 0.9; transition: opacity 0.3s;">
+            <i class="fas fa-external-link-alt"></i> Portal de Dados Abertos de Minas Gerais
+          </a>
         </div>
       </div>
-      <div class="header-actions">
-        <button id="btn-portal-mg" class="btn-ghost">
-          <i class="fas fa-external-link-alt"></i> dados.mg.gov.br
-        </button>
-      </div>
     </div>
-    
-    <nav class="nav-container">
-      <div class="container">
-        <ul class="nav-tabs">
-          <li class="nav-tab active" data-tab="overview">
-            <i class="fas fa-chart-bar"></i> Visão Geral
-          </li>
-          <li class="nav-tab" data-tab="destinos">
-            <i class="fas fa-plane"></i> Análise de Destinos
-          </li>
-          <li class="nav-tab" data-tab="download">
-            <i class="fas fa-download"></i> Download de Dados
-          </li>
-          <li class="nav-tab" data-tab="relatorios">
-            <i class="fas fa-file-alt"></i> Relatórios
-          </li>
-        </ul>
-      </div>
-    </nav>
   </header>
 
-  <main class="container main-grid">
-    <!-- Aba: Visão Geral (padrão) -->
-    <div id="tab-overview" class="tab-content active">
-      <!-- Action Bar -->
-      <div class="action-bar">
-        <div class="dropdown">
-          <button class="action-btn tooltip" title="Opções de download">
-            <i class="fas fa-download"></i> Download
-            <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+  <!-- Conteúdo Principal -->
+  <div class="container">
+    <!-- Menu de Navegação -->
+    <div class="nav-tabs-container">
+      <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+            <i class="fas fa-chart-pie me-2"></i>Visão Geral
           </button>
-          <span class="tooltip-text">Baixe os dados visíveis na tela em diferentes formatos</span>
-          <div class="dropdown-content">
-            <div class="dropdown-item" onclick="downloadVisibleData('csv')">
-              <i class="fas fa-file-csv"></i> CSV (Tela Atual)
-            </div>
-            <div class="dropdown-item" onclick="downloadVisibleData('xlsx')">
-              <i class="fas fa-file-excel"></i> Excel (Tela Atual)
-            </div>
-            <div class="dropdown-item" onclick="downloadVisibleData('pdf')">
-              <i class="fas fa-file-pdf"></i> PDF (Tela Atual)
-            </div>
-            <div class="dropdown-item" onclick="downloadVisibleData('json')">
-              <i class="fas fa-file-code"></i> JSON (Tela Atual)
-            </div>
-          </div>
-        </div>
-        
-        <button class="action-btn print tooltip" onclick="printCurrentTab()" title="Imprimir conteúdo visível">
-          <i class="fas fa-print"></i> Imprimir
-        </button>
-        
-        <button class="action-btn share tooltip" onclick="openShareModal()" title="Compartilhar nas redes sociais">
-          <i class="fas fa-share-alt"></i> Compartilhar
-        </button>
-      </div>
-
-      <!-- filtros -->
-      <section class="card filters" id="filters">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h3><i class="fas fa-filter"></i> Filtros</h3>
-          <div id="current-year-display" class="current-year-indicator">
-            <i class="fas fa-calendar-alt"></i> Ano atual: <span id="current-year">2024</span>
-          </div>
-        </div>
-        <div class="filters-row">
-          <div class="tooltip">
-            <label for="filter-ano">Ano</label>
-            <select id="filter-ano">
-              <option value="2024">2024 (Mais recente)</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="all">Todos os anos</option>
-            </select>
-            <span class="tooltip-text">Filtre os dados por ano específico ou visualize todos</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="filter-origem">Origem</label>
-            <select id="filter-origem"><option value="all">Todas as origens</option></select>
-            <span class="tooltip-text">Filtre por aeroporto de origem dos voos</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="filter-destino">Destino</label>
-            <select id="filter-destino"><option value="all">Todos os destinos</option></select>
-            <span class="tooltip-text">Filtre por aeroporto de destino dos voos</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="filter-orgao">Órgão</label>
-            <select id="filter-orgao"><option value="all">Todos os órgãos</option></select>
-            <span class="tooltip-text">Filtre por órgão governamental responsável</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="filter-situacao">Situação</label>
-            <select id="filter-situacao">
-              <option value="all">Todas as situações</option>
-              <option value="REALIZADO">REALIZADO</option>
-              <option value="CANCELADA">CANCELADA</option>
-            </select>
-            <span class="tooltip-text">Filtre por situação do voo (realizado ou cancelado)</span>
-          </div>
-          
-          <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
-            <button id="btn-apply" class="btn-primary tooltip" title="Aplicar filtros selecionados">
-              <i class="fas fa-check"></i> Aplicar
-            </button>
-            <button id="btn-clear" class="btn-ghost tooltip" title="Limpar todos os filtros">
-              <i class="fas fa-broom"></i> Limpar
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- cards resumo -->
-      <section class="card summary-row" id="summary-row">
-        <div class="summary-card tooltip">
-          <div class="big" id="card-voos">—</div>
-          <div class="label"><i class="fas fa-plane"></i> Voos (DB únicos)</div>
-          <span class="tooltip-text">Número total de voos únicos na base de dados</span>
-        </div>
-        <div class="summary-card tooltip">
-          <div class="big" id="card-horas">—</div>
-          <div class="label"><i class="fas fa-clock"></i> Horas voadas</div>
-          <span class="tooltip-text">Soma total de horas de voo realizadas</span>
-        </div>
-        <div class="summary-card tooltip">
-          <div class="big" id="card-pass">—</div>
-          <div class="label"><i class="fas fa-users"></i> Passageiros</div>
-          <span class="tooltip-text">Total de passageiros transportados</span>
-        </div>
-        <div class="summary-card tooltip">
-          <div class="big" id="card-destinos">—</div>
-          <div class="label"><i class="fas fa-map-marker-alt"></i> Destinos</div>
-          <span class="tooltip-text">Número de destinos diferentes atendidos</span>
-        </div>
-      </section>
-
-      <!-- gráficos -->
-      <section class="card" style="grid-column: 1 / span 6;">
-        <h3><i class="fas fa-map-marked-alt"></i> Top Destinos</h3>
-        <div id="chart-destinos" style="height:400px;"></div>
-      </section>
-
-      <section class="card" style="grid-column: 7 / span 6;">
-        <h3><i class="fas fa-chart-line"></i> Horas Voadas por Mês</h3>
-        <div id="chart-horas" style="height:400px;"></div>
-      </section>
-
-      <!-- tabela -->
-      <section class="card" style="grid-column: 1 / span 12;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-          <h3><i class="fas fa-table"></i> Detalhamento de Voos</h3>
-          <div class="status-indicator status-active tooltip">
-            <i class="fas fa-database"></i> Dados do ano: <span id="table-year">2024</span>
-            <span class="tooltip-text">Período dos dados exibidos na tabela</span>
-          </div>
-        </div>
-        <div id="table-container" class="table-wrapper"></div>
-        <div class="table-actions">
-          <button id="btn-export-csv" class="btn-primary">
-            <i class="fas fa-file-csv"></i> Exportar CSV
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="destinos-tab" data-bs-toggle="tab" data-bs-target="#destinos" type="button" role="tab">
+            <i class="fas fa-map-marker-alt me-2"></i>Destinos
           </button>
-          <button id="btn-export-xlsx" class="btn-ghost">
-            <i class="fas fa-file-excel"></i> Exportar Excel (XLSX)
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="download-tab" data-bs-toggle="tab" data-bs-target="#download" type="button" role="tab">
+            <i class="fas fa-download me-2"></i>Download de Dados
           </button>
-        </div>
-      </section>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="relatorios-tab" data-bs-toggle="tab" data-bs-target="#relatorios" type="button" role="tab">
+            <i class="fas fa-file-alt me-2"></i>Relatórios
+          </button>
+        </li>
+      </ul>
     </div>
 
-    <!-- Aba: Análise de Destinos -->
-    <div id="tab-destinos" class="tab-content">
-      <!-- Action Bar -->
-      <div class="action-bar">
-        <div class="dropdown">
-          <button class="action-btn tooltip" title="Opções de download">
-            <i class="fas fa-download"></i> Download
-            <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
-          </button>
-          <span class="tooltip-text">Baixe a análise de destinos visível na tela</span>
-          <div class="dropdown-content">
-            <div class="dropdown-item" onclick="downloadDestinosData('csv')">
-              <i class="fas fa-file-csv"></i> CSV (Análise Destinos)
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content" id="dashboardTabsContent">
+      <!-- ABA 1: VISÃO GERAL -->
+      <div class="tab-pane fade show active" id="overview" role="tabpanel">
+        <!-- Filtros -->
+        <div class="filter-container">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="filter-ano" class="form-label filter-label">Ano</label>
+                <select class="form-select" id="filter-ano">
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="all">Todos os anos</option>
+                </select>
+              </div>
             </div>
-            <div class="dropdown-item" onclick="downloadDestinosData('xlsx')">
-              <i class="fas fa-file-excel"></i> Excel (Análise Destinos)
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="filter-origem" class="form-label filter-label">Origem</label>
+                <select class="form-select" id="filter-origem">
+                  <option value="all">Todas as origens</option>
+                  <option value="CNF">Belo Horizonte (CNF)</option>
+                  <option value="GRU">São Paulo (GRU)</option>
+                  <option value="GIG">Rio de Janeiro (GIG)</option>
+                  <option value="BSB">Brasília (BSB)</option>
+                </select>
+              </div>
             </div>
-            <div class="dropdown-item" onclick="downloadDestinosData('pdf')">
-              <i class="fas fa-file-pdf"></i> PDF (Análise Destinos)
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="filter-destino" class="form-label filter-label">Destino</label>
+                <select class="form-select" id="filter-destino">
+                  <option value="all">Todos os destinos</option>
+                  <option value="CNF">Belo Horizonte (CNF)</option>
+                  <option value="GRU">São Paulo (GRU)</option>
+                  <option value="GIG">Rio de Janeiro (GIG)</option>
+                  <option value="BSB">Brasília (BSB)</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="filter-situacao" class="form-label filter-label">Situação</label>
+                <select class="form-select" id="filter-situacao">
+                  <option value="all">Todas as situações</option>
+                  <option value="REALIZADO">REALIZADO</option>
+                  <option value="CANCELADA">CANCELADA</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex gap-3">
+                <button class="btn-primary-custom" id="btn-apply">
+                  <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                </button>
+                <button class="btn-secondary-custom" id="btn-clear">
+                  <i class="fas fa-redo me-2"></i>Limpar Filtros
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        
-        <button class="action-btn print tooltip" onclick="printCurrentTab()" title="Imprimir análise de destinos">
-          <i class="fas fa-print"></i> Imprimir
-        </button>
-        
-        <button class="action-btn share tooltip" onclick="openShareModal('destinos')" title="Compartilhar análise de destinos">
-          <i class="fas fa-share-alt"></i> Compartilhar
-        </button>
+
+        <!-- Ações -->
+        <div class="actions-container">
+          <div class="export-buttons">
+            <button class="btn-export" id="exportCSV">
+              <i class="fas fa-file-csv"></i> CSV
+            </button>
+            <button class="btn-export" id="exportExcel">
+              <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button class="btn-export" id="exportPDF">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-export" id="btn-print">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+          </div>
+          
+          <div class="social-share">
+            <span class="social-share-label">Compartilhar:</span>
+            <a href="#" class="btn-social btn-facebook" style="background: #3b5998;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="btn-social btn-twitter" style="background: #1da1f2;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="btn-social btn-linkedin" style="background: #0077b5;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="btn-social btn-whatsapp" style="background: #25d366;">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Cards de Estatísticas -->
+        <div class="card-stats-grid">
+          <div class="card-stats">
+            <i class="fas fa-plane fa-2x" style="color: var(--accent-red);"></i>
+            <div class="value" id="card-voos">1.248</div>
+            <div class="label">Voos (DB únicos)</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-clock fa-2x" style="color: var(--secondary-blue);"></i>
+            <div class="value" id="card-horas">2.847h</div>
+            <div class="label">Horas Voadas</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-users fa-2x" style="color: var(--secondary-green);"></i>
+            <div class="value" id="card-pass">3.892</div>
+            <div class="label">Passageiros</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-map-marker-alt fa-2x" style="color: var(--secondary-purple);"></i>
+            <div class="value" id="card-destinos">156</div>
+            <div class="label">Destinos</div>
+          </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="dashboard-grid">
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Top Destinos com Mais Voos</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-destinos" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Horas Voadas por Mês</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-horas" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="table-container">
+          <div class="table-header">
+            <h3 class="table-title">Detalhamento de Voos</h3>
+            <div class="d-flex align-items-center gap-3">
+              <span class="current-year-indicator">
+                <i class="fas fa-calendar-alt"></i> Dados do ano: <span id="table-year">2024</span>
+              </span>
+              <span class="table-badge" id="voos-count">1.248 voos</span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th onclick="sortTable('voos', 'data')">
+                    Data <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'origem')">
+                    Origem <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'destino')">
+                    Destino <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'orgao')">
+                    Órgão <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'passageiro')">
+                    Passageiro <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'horas')">
+                    Horas <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('voos', 'status')">
+                    Status <span class="sort-icon">▼</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="voos-table-body">
+                <!-- Dados carregados via JavaScript -->
+              </tbody>
+              <tfoot id="voos-table-footer">
+                <!-- Rodapé carregado via JavaScript -->
+              </tfoot>
+            </table>
+          </div>
+        </div>
       </div>
 
-      <section class="card" style="grid-column: 1 / span 12;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2><i class="fas fa-plane"></i> Análise de Destinos</h2>
-          <div class="current-year-indicator tooltip">
-            <i class="fas fa-calendar-alt"></i> Visualizando: <span id="destinos-year">2024</span>
-            <span class="tooltip-text">Período da análise de destinos exibida</span>
+      <!-- ABA 2: DESTINOS -->
+      <div class="tab-pane fade" id="destinos" role="tabpanel">
+        <!-- Filtros -->
+        <div class="filter-container">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="destinos-ano" class="form-label filter-label">Ano</label>
+                <select class="form-select" id="destinos-ano">
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="all">Todos os anos</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="destinos-destino" class="form-label filter-label">Destino</label>
+                <select class="form-select" id="destinos-destino">
+                  <option value="all">Todos os destinos</option>
+                  <option value="CNF">Belo Horizonte (CNF)</option>
+                  <option value="GRU">São Paulo (GRU)</option>
+                  <option value="GIG">Rio de Janeiro (GIG)</option>
+                  <option value="BSB">Brasília (BSB)</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="destinos-tipo" class="form-label filter-label">Tipo de Voo</label>
+                <select class="form-select" id="destinos-tipo">
+                  <option value="all">Todos os tipos</option>
+                  <option value="INTERNO">Interno</option>
+                  <option value="EXTERNO">Externo</option>
+                  <option value="INTERNACIONAL">Internacional</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex gap-3">
+                <button class="btn-primary-custom" id="btn-apply-destinos">
+                  <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                </button>
+                <button class="btn-secondary-custom" id="btn-clear-destinos">
+                  <i class="fas fa-redo me-2"></i>Limpar Filtros
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <p>Análise detalhada dos voos por destino, tipo de voo e período.</p>
-        
-        <div class="filters-row" style="margin-top: 20px;">
-          <div class="tooltip">
-            <label for="destinos-ano">Ano</label>
-            <select id="destinos-ano">
-              <option value="2024">2024 (Mais recente)</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="2021">2021</option>
-              <option value="all">Todos os anos</option>
-            </select>
-            <span class="tooltip-text">Selecione o ano para análise de destinos</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="destinos-destino">Destino</label>
-            <select id="destinos-destino">
-              <option value="all">Todos os destinos</option>
-              <option value="CNF">Belo Horizonte (CNF)</option>
-              <option value="GRU">São Paulo (GRU)</option>
-              <option value="GIG">Rio de Janeiro (GIG)</option>
-              <option value="BSB">Brasília (BSB)</option>
-            </select>
-            <span class="tooltip-text">Filtre por destino específico para análise detalhada</span>
-          </div>
-          
-          <div class="tooltip">
-            <label for="destinos-tipo">Tipo de Voo</label>
-            <select id="destinos-tipo">
-              <option value="all">Todos os tipos</option>
-              <option value="INTERNO">Interno</option>
-              <option value="EXTERNO">Externo</option>
-              <option value="INTERNACIONAL">Internacional</option>
-            </select>
-            <span class="tooltip-text">Filtre por tipo de voo (interno, externo ou internacional)</span>
-          </div>
-          
-          <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
-            <button id="btn-apply-destinos" class="btn-primary tooltip" title="Aplicar filtros na análise de destinos">
-              <i class="fas fa-chart-bar"></i> Analisar
-            </button>
-            <button id="btn-download-destinos" class="btn-ghost tooltip" title="Baixar dados da análise atual">
-              <i class="fas fa-download"></i> Baixar CSV
-            </button>
-          </div>
-        </div>
-        
-        <div id="destinos-analysis-content" style="margin-top: 30px;">
-          <div class="card" style="margin-bottom: 20px;">
-            <h3 class="tooltip">
-              <i class="fas fa-chart-pie"></i> Distribuição por Tipo de Voo
-              <span class="tooltip-text">Gráfico mostrando a proporção de voos por categoria</span>
-            </h3>
-            <div id="chart-tipo-voo" style="height:300px;"></div>
-          </div>
-          
-          <div class="card">
-            <h3 class="tooltip">
-              <i class="fas fa-table"></i> Detalhamento por Destino
-              <span class="tooltip-text">Tabela com métricas detalhadas por destino</span>
-            </h3>
-            <div id="table-destinos" class="table-wrapper" style="margin-top: 15px;"></div>
-          </div>
-        </div>
-      </section>
-    </div>
 
-    <!-- Aba: Download de Dados -->
-    <div id="tab-download" class="tab-content">
-      <section class="card" style="grid-column: 1 / span 12;">
-        <h2><i class="fas fa-download"></i> Download de Dados</h2>
-        <p>Faça download dos dados completos ou filtrados dos voos oficiais. Os arquivos são gerados a partir dos CSVs da pasta <code>normalized</code>.</p>
-        
-        <div class="download-section">
-          <h3><i class="fas fa-filter"></i> Filtros para Download</h3>
-          <div class="filters-row">
-            <div>
-              <label for="download-year">Ano</label>
-              <select id="download-year">
-                <option value="2024">2024 (Mais recente)</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="all">Todos os anos (consolidado)</option>
-              </select>
-            </div>
-            <div>
-              <label for="download-format">Formato</label>
-              <select id="download-format">
-                <option value="csv">CSV (Original)</option>
-                <option value="xlsx">Excel (XLSX)</option>
-                <option value="json">JSON</option>
-              </select>
-            </div>
-            <div>
-              <label for="download-filter">Com Filtros Ativos?</label>
-              <select id="download-filter">
-                <option value="no">Sem filtros - dados completos</option>
-                <option value="yes">Com filtros aplicados</option>
-              </select>
-            </div>
-          </div>
-          
-          <div style="text-align: center; margin-top: 30px;">
-            <button id="btn-download-year" class="btn-primary" style="padding: 15px 30px; font-size: 1.1rem;">
-              <i class="fas fa-download"></i> Baixar Dados do Ano Selecionado
+        <!-- Ações -->
+        <div class="actions-container">
+          <div class="export-buttons">
+            <button class="btn-export" id="exportCSV-destinos">
+              <i class="fas fa-file-csv"></i> CSV
             </button>
-            <p style="margin-top: 15px; color: var(--gray); font-size: 0.9rem;">
-              <i class="fas fa-info-circle"></i> O download incluirá todos os dados do ano selecionado, conforme disponível na pasta normalized
-            </p>
+            <button class="btn-export" id="exportExcel-destinos">
+              <i class="fas fa-file-excel"></i> Excel
+            </button>
+            <button class="btn-export" id="exportPDF-destinos">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="btn-export" id="btn-print-destinos">
+              <i class="fas fa-print"></i> Imprimir
+            </button>
           </div>
           
-          <div class="download-options" style="margin-top: 40px;">
-            <div class="download-card">
-              <i class="fas fa-file-csv"></i>
-              <h4>CSV do Ano Atual</h4>
-              <p>Download direto do arquivo CSV de 2024</p>
-              <button class="btn-primary download-btn" data-year="2024" data-format="csv">
-                <i class="fas fa-download"></i> Baixar 2024.csv
-              </button>
-            </div>
-            
-            <div class="download-card">
-              <i class="fas fa-file-archive"></i>
-              <h4>Todos os Anos</h4>
-              <p>Arquivo consolidado com todos os anos</p>
-              <button class="btn-primary download-btn" data-year="all" data-format="csv">
-                <i class="fas fa-download"></i> Baixar Consolidado.csv
-              </button>
-            </div>
-            
-            <div class="download-card">
-              <i class="fas fa-database"></i>
-              <h4>Metadados</h4>
-              <p>Informações sobre a estrutura dos dados</p>
-              <button class="btn-ghost download-btn" data-year="metadata" data-format="json">
-                <i class="fas fa-download"></i> Baixar Metadados
-              </button>
-            </div>
+          <div class="social-share">
+            <span class="social-share-label">Compartilhar:</span>
+            <a href="#" class="btn-social btn-facebook" style="background: #3b5998;">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="btn-social btn-twitter" style="background: #1da1f2;">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="btn-social btn-linkedin" style="background: #0077b5;">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="btn-social btn-whatsapp" style="background: #25d366;">
+              <i class="fab fa-whatsapp"></i>
+            </a>
           </div>
         </div>
-      </section>
-    </div>
 
-    <!-- Aba: Relatórios -->
-    <div id="tab-relatorios" class="tab-content">
-      <section class="card" style="grid-column: 1 / span 12;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <h2><i class="fas fa-file-alt"></i> Relatórios Analíticos</h2>
-          <div class="current-year-indicator">
-            <i class="fas fa-calendar-alt"></i> Período: <span id="relatorios-period">2024</span>
+        <!-- Gráficos -->
+        <div class="dashboard-grid">
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Distribuição por Tipo de Voo</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-tipo-voo" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Top 10 Destinos com Mais Voos</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-top-destinos" style="height:100%; width:100%;"></div>
+            </div>
           </div>
         </div>
-        <p>Relatórios consolidados e análises detalhadas dos voos oficiais. Os dados são atualizados conforme os filtros aplicados.</p>
-        
-        <div class="filters-row" style="margin-top: 20px;">
-          <div>
-            <label for="relatorio-ano">Ano do Relatório</label>
-            <select id="relatorio-ano">
-              <option value="2024">2024 (Padrão)</option>
-              <option value="2023">2023</option>
-              <option value="2022">2022</option>
-              <option value="custom">Personalizado</option>
-            </select>
-          </div>
-          <div>
-            <label for="relatorio-tipo">Tipo de Relatório</label>
-            <select id="relatorio-tipo">
-              <option value="consolidado">Consolidado Anual</option>
-              <option value="orgaos">Por Órgão</option>
-              <option value="destinos">Por Destino</option>
-              <option value="eficiencia">Indicadores de Eficiência</option>
-            </select>
-          </div>
-          <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
-            <button id="btn-gerar-relatorio" class="btn-primary">
-              <i class="fas fa-chart-bar"></i> Gerar Relatório
-            </button>
-            <button id="btn-export-relatorio" class="btn-ghost">
-              <i class="fas fa-file-pdf"></i> Exportar PDF
-            </button>
-          </div>
-        </div>
-        
-        <div id="relatorios-content" style="margin-top: 30px;">
-          <div class="summary-row">
-            <div class="summary-card">
-              <div class="big" id="relatorio-voos">1.248</div>
-              <div class="label">Total de Voos</div>
-            </div>
-            <div class="summary-card">
-              <div class="big" id="relatorio-custo">R$ 4,2M</div>
-              <div class="label">Custo Estimado</div>
-            </div>
-            <div class="summary-card">
-              <div class="big" id="relatorio-media">3,1</div>
-              <div class="label">Passageiros/Voo</div>
-            </div>
-            <div class="summary-card">
-              <div class="big" id="relatorio-efficiency">78%</div>
-              <div class="label">Taxa de Ocupação</div>
-            </div>
-          </div>
-          
-          <div class="card" style="margin-top: 20px;">
-            <h3><i class="fas fa-chart-bar"></i> Top 10 Órgãos com Mais Voos</h3>
-            <div id="chart-orgaos" style="height:350px;"></div>
-          </div>
-          
-          <div class="card" style="margin-top: 20px;">
-            <h3><i class="fas fa-table"></i> Detalhamento do Relatório</h3>
-            <div id="table-relatorio" class="table-wrapper" style="margin-top: 15px;"></div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </main>
 
-  <!-- Modal de Compartilhamento -->
-  <div id="shareModal" class="share-modal">
-    <div class="share-modal-content">
-      <div class="share-modal-header">
-        <h3><i class="fas fa-share-alt"></i> Compartilhar</h3>
-        <span class="close-modal" onclick="closeShareModal()">&times;</span>
-      </div>
-      <p>Compartilhe esta análise nas redes sociais:</p>
-      
-      <div class="share-options">
-        <div class="share-option facebook" onclick="shareOnFacebook()">
-          <i class="fab fa-facebook-f" style="color: #3b5998; font-size: 1.5rem;"></i>
-          <span>Facebook</span>
-        </div>
-        
-        <div class="share-option twitter" onclick="shareOnTwitter()">
-          <i class="fab fa-twitter" style="color: #1da1f2; font-size: 1.5rem;"></i>
-          <span>Twitter</span>
-        </div>
-        
-        <div class="share-option linkedin" onclick="shareOnLinkedIn()">
-          <i class="fab fa-linkedin-in" style="color: #0077b5; font-size: 1.5rem;"></i>
-          <span>LinkedIn</span>
-        </div>
-        
-        <div class="share-option whatsapp" onclick="shareOnWhatsApp()">
-          <i class="fab fa-whatsapp" style="color: #25d366; font-size: 1.5rem;"></i>
-          <span>WhatsApp</span>
+        <!-- Tabela -->
+        <div class="table-container">
+          <div class="table-header">
+            <h3 class="table-title">Análise de Destinos</h3>
+            <div class="d-flex align-items-center gap-3">
+              <span class="current-year-indicator">
+                <i class="fas fa-calendar-alt"></i> Período: <span id="destinos-period">2024</span>
+              </span>
+              <span class="table-badge" id="destinos-count">156 destinos</span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th onclick="sortTable('destinos', 'destino')">
+                    Destino <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'tipo')">
+                    Tipo de Voo <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'quantidade')">
+                    Quantidade <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'horas_totais')">
+                    Horas Totais <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'passageiros')">
+                    Passageiros <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'custo_medio')">
+                    Custo Médio <span class="sort-icon">▼</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="destinos-table-body">
+                <!-- Dados carregados via JavaScript -->
+              </tbody>
+              <tfoot id="destinos-table-footer">
+                <!-- Rodapé carregado via JavaScript -->
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
-      
-      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
-        <p><strong>Link para compartilhar:</strong></p>
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-          <input type="text" id="share-link" value="https://dados.mg.gov.br/voos-oficiais" readonly 
-                 style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;">
-          <button onclick="copyShareLink()" class="btn-primary" style="padding: 8px 16px;">
-            <i class="fas fa-copy"></i> Copiar
-          </button>
+
+      <!-- ABA 3: DOWNLOAD DE DADOS -->
+      <div class="tab-pane fade" id="download" role="tabpanel">
+        <!-- Filtros para Download -->
+        <div class="filter-container">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="download-year" class="form-label filter-label">Ano</label>
+                <select class="form-select" id="download-year">
+                  <option value="2024">2024</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="2021">2021</option>
+                  <option value="all">Todos os anos (consolidado)</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="download-format" class="form-label filter-label">Formato</label>
+                <select class="form-select" id="download-format">
+                  <option value="csv">CSV</option>
+                  <option value="xlsx">Excel</option>
+                  <option value="json">JSON</option>
+                  <option value="pdf">PDF</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="download-filter" class="form-label filter-label">Com Filtros Ativos?</label>
+                <select class="form-select" id="download-filter">
+                  <option value="no">Sem filtros - dados completos</option>
+                  <option value="yes">Com filtros aplicados</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex gap-3">
+                <button class="btn-primary-custom" id="btn-download-year">
+                  <i class="fas fa-download me-2"></i>Baixar Dados
+                </button>
+                <a href="https://dados.mg.gov.br" target="_blank" class="btn-secondary-custom">
+                  <i class="fas fa-external-link-alt me-2"></i>Acessar Portal de Dados Abertos
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações sobre os dados -->
+        <div class="table-container">
+          <div class="table-header">
+            <h3 class="table-title">Dados de Voos Oficiais</h3>
+            <div class="d-flex align-items-center gap-3">
+              <span class="table-badge">Dados Abertos</span>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card-stats">
+                  <i class="fas fa-file-csv fa-3x mb-3" style="color: var(--secondary-green);"></i>
+                  <h4>Dados Completos</h4>
+                  <p class="text-muted">Baixe os dados completos de voos oficiais em formato estruturado para análise.</p>
+                  <div class="mt-3">
+                    <button class="btn-export w-100" onclick="downloadFullDataset()">
+                      <i class="fas fa-database me-2"></i>Dataset Completo
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card-stats">
+                  <i class="fas fa-code fa-3x mb-3" style="color: var(--primary-dark);"></i>
+                  <h4>API de Dados</h4>
+                  <p class="text-muted">Acesse os dados via API para integração com outros sistemas.</p>
+                  <div class="mt-3">
+                    <a href="https://dados.mg.gov.br/api" target="_blank" class="btn-export w-100 d-block text-decoration-none">
+                      <i class="fas fa-code me-2"></i>Acessar API
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h5 class="mb-3">Últimas Atualizações</h5>
+              <div class="list-group">
+                <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">Dados de 2024</h6>
+                    <small>Atualizado em 15/01/2024</small>
+                  </div>
+                  <p class="mb-1">Dataset completo com todos os voos realizados em 2024.</p>
+                  <small>1.248 registros, 156 destinos</small>
+                </div>
+                <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h6 class="mb-1">Dados de 2023</h6>
+                    <small>Atualizado em 15/01/2023</small>
+                  </div>
+                  <p class="mb-1">Dataset completo com todos os voos realizados em 2023.</p>
+                  <small>1.120 registros, 142 destinos</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h5 class="mb-3">Metadados</h5>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Campo</th>
+                    <th>Descrição</th>
+                    <th>Tipo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>data</td>
+                    <td>Data do voo</td>
+                    <td>Data</td>
+                  </tr>
+                  <tr>
+                    <td>origem</td>
+                    <td>Aeroporto de origem</td>
+                    <td>Texto</td>
+                  </tr>
+                  <tr>
+                    <td>destino</td>
+                    <td>Aeroporto de destino</td>
+                    <td>Texto</td>
+                  </tr>
+                  <tr>
+                    <td>orgao</td>
+                    <td>Órgão responsável</td>
+                    <td>Texto</td>
+                  </tr>
+                  <tr>
+                    <td>passageiro</td>
+                    <td>Nome do passageiro</td>
+                    <td>Texto</td>
+                  </tr>
+                  <tr>
+                    <td>horas</td>
+                    <td>Horas de voo</td>
+                    <td>Decimal</td>
+                  </tr>
+                  <tr>
+                    <td>status</td>
+                    <td>Situação do voo</td>
+                    <td>Texto</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 4: RELATÓRIOS -->
+      <div class="tab-pane fade" id="relatorios" role="tabpanel">
+        <!-- Filtros para Relatórios -->
+        <div class="filter-container">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="relatorio-ano" class="form-label filter-label">Ano do Relatório</label>
+                <select class="form-select" id="relatorio-ano">
+                  <option value="2024">2024 (Padrão)</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="relatorio-tipo" class="form-label filter-label">Tipo de Relatório</label>
+                <select class="form-select" id="relatorio-tipo">
+                  <option value="consolidado">Consolidado Anual</option>
+                  <option value="orgaos">Por Órgão</option>
+                  <option value="destinos">Por Destino</option>
+                  <option value="eficiencia">Indicadores de Eficiência</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-3">
+                <label for="relatorio-orgao" class="form-label filter-label">Órgão (opcional)</label>
+                <select class="form-select" id="relatorio-orgao">
+                  <option value="all">Todos os órgãos</option>
+                  <option value="Secretaria Saúde">Secretaria de Saúde</option>
+                  <option value="Secretaria Educação">Secretaria de Educação</option>
+                  <option value="Secretaria Infraestrutura">Secretaria de Infraestrutura</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="d-flex gap-3">
+                <button class="btn-primary-custom" id="btn-gerar-relatorio">
+                  <i class="fas fa-chart-bar me-2"></i>Gerar Relatório
+                </button>
+                <button class="btn-secondary-custom" id="btn-export-relatorio">
+                  <i class="fas fa-file-pdf me-2"></i>Exportar PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cards de Estatísticas do Relatório -->
+        <div class="card-stats-grid">
+          <div class="card-stats">
+            <i class="fas fa-plane fa-2x" style="color: var(--accent-red);"></i>
+            <div class="value" id="relatorio-voos">1.248</div>
+            <div class="label">Total de Voos</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-money-bill-wave fa-2x" style="color: var(--secondary-green);"></i>
+            <div class="value" id="relatorio-custo">R$ 4,2M</div>
+            <div class="label">Custo Estimado</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-users fa-2x" style="color: var(--secondary-blue);"></i>
+            <div class="value" id="relatorio-media">3,1</div>
+            <div class="label">Passageiros/Voo</div>
+          </div>
+          <div class="card-stats">
+            <i class="fas fa-chart-line fa-2x" style="color: var(--secondary-purple);"></i>
+            <div class="value" id="relatorio-efficiency">78%</div>
+            <div class="label">Taxa de Ocupação</div>
+          </div>
+        </div>
+
+        <!-- Gráficos do Relatório -->
+        <div class="dashboard-grid">
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Top 10 Órgãos com Mais Voos</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-orgaos" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <h4 class="chart-title">Distribuição por Situação</h4>
+            </div>
+            <div class="chart-wrapper">
+              <div id="chart-situacao" style="height:100%; width:100%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela do Relatório -->
+        <div class="table-container">
+          <div class="table-header">
+            <h3 class="table-title">Detalhamento do Relatório</h3>
+            <div class="d-flex align-items-center gap-3">
+              <span class="current-year-indicator">
+                <i class="fas fa-calendar-alt"></i> Período: <span id="relatorios-period">2024</span>
+              </span>
+              <span class="table-badge" id="relatorio-count">1.248 voos</span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th onclick="sortTable('relatorio', 'mes')">
+                    Mês <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'voos_realizados')">
+                    Voos Realizados <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'voos_cancelados')">
+                    Voos Cancelados <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'horas_voadas')">
+                    Horas Voadas <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'passageiros')">
+                    Passageiros <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'custo_total')">
+                    Custo Total <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('relatorio', 'eficiencia')">
+                    Eficiência <span class="sort-icon">▼</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="relatorio-table-body">
+                <!-- Dados carregados via JavaScript -->
+              </tbody>
+              <tfoot id="relatorio-table-footer">
+                <!-- Rodapé carregado via JavaScript -->
+              </tfoot>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -1224,104 +1255,372 @@
       <p><i class="fas fa-database"></i> Dados abertos — atualizados via repositório GitHub.</p>
       <p style="margin-top: 10px; font-size: 0.8rem;">
         © 2024 Governo de Minas Gerais. 
-        <a href="https://dados.mg.gov.br" style="color: var(--primary); text-decoration: none;">
+        <a href="https://dados.mg.gov.br" style="color: var(--primary-dark); text-decoration: none; font-weight: 600;">
           <i class="fas fa-external-link-alt"></i> dados.mg.gov.br
         </a>
       </p>
     </div>
   </footer>
 
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script>
-    // Sistema de abas
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', function() {
-        // Remove classe active de todas as abas
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        
-        // Adiciona classe active na aba clicada
-        this.classList.add('active');
-        const tabId = this.getAttribute('data-tab');
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-        
-        // Atualiza gráficos quando muda de aba
-        if (tabId === 'overview') {
-          updateSummaryCards();
-          renderCharts();
-        } else if (tabId === 'destinos') {
-          renderDestinosChart();
-          renderDestinosTable();
-        } else if (tabId === 'relatorios') {
-          renderRelatorioCharts();
-          renderRelatorioTable();
-        }
-      });
+    // ============================================
+    // CONFIGURAÇÃO INICIAL
+    // ============================================
+    
+    const chartInstances = {};
+    let sortStates = {
+      voos: { column: 'data', direction: 'desc' },
+      destinos: { column: 'quantidade', direction: 'desc' },
+      relatorio: { column: 'mes', direction: 'asc' }
+    };
+    
+    // Paleta de cores (mesma do diarias_viagens.html)
+    const palette = {
+      primary: ['#29435A', '#2E5984', '#3A7CA5', '#4F9EC4'],
+      accent: ['#B93C42', '#DB233F', '#E5586E', '#EF8A9E'],
+      secondary: ['#2E8B57', '#3CB371', '#66CDAA', '#98F5FF'],
+      additional: ['#6A5ACD', '#9370DB', '#BA55D3', '#DA70D6']
+    };
+    
+    // Dados mockados para voos
+    const dadosVoos = [
+      { data: '15/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'João Silva', horas: 1.5, status: 'REALIZADO' },
+      { data: '18/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'Rio de Janeiro (GIG)', orgao: 'Secretaria de Educação', passageiro: 'Maria Oliveira', horas: 1.2, status: 'REALIZADO' },
+      { data: '22/03/2024', origem: 'Uberlândia (UDI)', destino: 'Brasília (BSB)', orgao: 'Secretaria de Infraestrutura', passageiro: 'Carlos Santos', horas: 2.0, status: 'CANCELADA' },
+      { data: '10/02/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'Ana Costa', horas: 1.5, status: 'REALIZADO' },
+      { data: '05/04/2024', origem: 'Belo Horizonte (CNF)', destino: 'Uberlândia (UDI)', orgao: 'Secretaria de Segurança', passageiro: 'Roberto Alves', horas: 0.8, status: 'REALIZADO' },
+      { data: '12/04/2024', origem: 'São Paulo (GRU)', destino: 'Brasília (BSB)', orgao: 'Governadoria', passageiro: 'Patrícia Lima', horas: 1.8, status: 'REALIZADO' },
+      { data: '20/04/2024', origem: 'Rio de Janeiro (GIG)', destino: 'Belo Horizonte (CNF)', orgao: 'Secretaria de Cultura', passageiro: 'Fernando Souza', horas: 1.3, status: 'CANCELADA' },
+      { data: '25/04/2024', origem: 'Brasília (BSB)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Finanças', passageiro: 'Amanda Rocha', horas: 2.1, status: 'REALIZADO' }
+    ];
+    
+    // Dados mockados para destinos
+    const dadosDestinos = [
+      { destino: 'São Paulo (GRU)', tipo: 'Externo', quantidade: 280, horas_totais: 420, passageiros: 850, custo_medio: 2450 },
+      { destino: 'Rio de Janeiro (GIG)', tipo: 'Externo', quantidade: 195, horas_totais: 292, passageiros: 580, custo_medio: 1980 },
+      { destino: 'Brasília (BSB)', tipo: 'Interno', quantidade: 150, horas_totais: 300, passageiros: 450, custo_medio: 3120 },
+      { destino: 'Uberlândia (UDI)', tipo: 'Interno', quantidade: 120, horas_totais: 180, passageiros: 360, custo_medio: 1750 },
+      { destino: 'Vitória (VIX)', tipo: 'Externo', quantidade: 85, horas_totais: 127, passageiros: 255, custo_medio: 2100 },
+      { destino: 'Curitiba (CWB)', tipo: 'Externo', quantidade: 75, horas_totais: 112, passageiros: 225, custo_medio: 2300 }
+    ];
+    
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      setupEventListeners();
+      setupTooltips();
+      loadInitialData();
     });
     
-    // Botão do portal dados.mg
-    document.getElementById('btn-portal-mg').addEventListener('click', function() {
-      window.open('https://dados.mg.gov.br', '_blank');
-    });
-    
-    // Variáveis globais
-    let currentYear = 2024; // Ano mais atual da pasta normalized
-    let currentData = [];
-    let sortColumn = 'data';
-    let sortDirection = 'asc';
-    let currentTab = 'overview';
-    
-    // Inicializa com ano mais atual
-    function initializeCurrentYear() {
-      document.getElementById('current-year').textContent = currentYear;
-      document.getElementById('table-year').textContent = currentYear;
-      document.getElementById('destinos-year').textContent = currentYear;
-      document.getElementById('relatorios-period').textContent = currentYear;
+    function setupEventListeners() {
+      // Visão Geral
+      document.getElementById('btn-apply').addEventListener('click', loadVoosData);
+      document.getElementById('btn-clear').addEventListener('click', clearVoosFilters);
       
-      // Define o ano atual como padrão em todos os selects
-      document.querySelectorAll('select[id$="ano"]').forEach(select => {
-        const currentYearOption = select.querySelector(`option[value="${currentYear}"]`);
-        if (currentYearOption) {
-          select.value = currentYear;
-        }
+      // Destinos
+      document.getElementById('btn-apply-destinos').addEventListener('click', loadDestinosData);
+      document.getElementById('btn-clear-destinos').addEventListener('click', clearDestinosFilters);
+      
+      // Relatórios
+      document.getElementById('btn-gerar-relatorio').addEventListener('click', loadRelatorioData);
+      
+      // Exportação
+      document.getElementById('exportCSV').addEventListener('click', () => exportData('voos'));
+      document.getElementById('exportCSV-destinos').addEventListener('click', () => exportData('destinos'));
+      
+      // Download
+      document.getElementById('btn-download-year').addEventListener('click', handleDownload);
+      
+      // Impressão
+      document.getElementById('btn-print').addEventListener('click', () => printCurrentTab('Visão Geral de Voos'));
+      document.getElementById('btn-print-destinos').addEventListener('click', () => printCurrentTab('Análise de Destinos'));
+      document.getElementById('btn-export-relatorio').addEventListener('click', () => printCurrentTab('Relatório de Voos'));
+      
+      // Compartilhamento em redes sociais
+      setupSocialShare();
+    }
+    
+    function setupTooltips() {
+      // Tooltips para filtros
+      tippy('#filter-ano', {
+        content: 'Selecione o ano para filtrar os dados',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      tippy('#filter-origem', {
+        content: 'Selecione o aeroporto de origem',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      tippy('#filter-destino', {
+        content: 'Selecione o aeroporto de destino',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      tippy('#filter-situacao', {
+        content: 'Filtre por situação do voo',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      // Tooltips para botões
+      tippy('.btn-export', {
+        content: 'Exportar dados',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      tippy('.btn-social', {
+        content: 'Compartilhar',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
+      });
+      
+      tippy('.sort-icon', {
+        content: 'Clique para ordenar',
+        placement: 'top',
+        theme: 'light',
+        animation: 'scale'
       });
     }
     
-    // Simulação de dados para os cards
-    function updateSummaryCards() {
-      const year = document.getElementById('filter-ano').value;
-      const isCurrentYear = year === currentYear.toString() || year === 'all';
-      
-      document.getElementById('card-voos').textContent = year === 'all' ? '4.892' : '1.248';
-      document.getElementById('card-horas').textContent = year === 'all' ? '9.847h' : '2.847h';
-      document.getElementById('card-pass').textContent = year === 'all' ? '15.892' : '3.892';
-      document.getElementById('card-destinos').textContent = year === 'all' ? '218' : '156';
-      
-      // Atualiza indicador do ano
-      const displayYear = year === 'all' ? 'Todos' : year;
-      document.getElementById('table-year').textContent = displayYear;
+    function setupSocialShare() {
+      document.querySelectorAll('.btn-social').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          const url = encodeURIComponent(window.location.href);
+          const title = encodeURIComponent('Painel de Voos Oficiais - Governo de Minas Gerais');
+          const text = encodeURIComponent('Confira os dados de transparência sobre voos oficiais do Governo de Minas Gerais');
+          
+          let shareUrl = '';
+          
+          if (this.classList.contains('btn-facebook')) {
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+          } else if (this.classList.contains('btn-twitter')) {
+            shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${text}`;
+          } else if (this.classList.contains('btn-linkedin')) {
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+          } else if (this.classList.contains('btn-whatsapp')) {
+            shareUrl = `https://wa.me/?text=${text}%20${url}`;
+          }
+          
+          if (shareUrl) {
+            window.open(shareUrl, '_blank', 'width=600,height=400');
+          }
+        });
+      });
     }
     
-    // Simulação de gráficos
-    function renderCharts() {
-      const year = document.getElementById('filter-ano').value;
-      const isAllYears = year === 'all';
+    function loadInitialData() {
+      loadVoosData();
+      loadDestinosData();
+      loadRelatorioData();
       
-      // Dados para gráfico de destinos
-      const destinosData = isAllYears ? 
-        [{
-          x: ['Belo Horizonte', 'São Paulo', 'Rio de Janeiro', 'Brasília', 'Uberlândia', 'Outros'],
-          y: [1200, 980, 750, 620, 520, 802],
-          type: 'bar',
-          marker: { color: '#1a73e8' }
-        }] :
-        [{
-          x: ['Belo Horizonte', 'São Paulo', 'Rio de Janeiro', 'Brasília', 'Uberlândia', 'Outros'],
-          y: [320, 280, 195, 150, 120, 183],
-          type: 'bar',
-          marker: { color: '#1a73e8' }
-        }];
+      // Atualiza indicador de ano atual
+      document.getElementById('table-year').textContent = '2024';
+      document.getElementById('destinos-period').textContent = '2024';
+      document.getElementById('relatorios-period').textContent = '2024';
+    }
+    
+    // ============================================
+    // FUNÇÕES DE FORMATAÇÃO
+    // ============================================
+    
+    function formatCurrency(valor) {
+      return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(valor);
+    }
+    
+    function formatHoras(horas) {
+      const horasInt = Math.floor(horas);
+      const minutos = Math.round((horas - horasInt) * 60);
+      return `${horasInt}h${minutos > 0 ? ` ${minutos}m` : ''}`;
+    }
+    
+    // ============================================
+    // SISTEMA DE ORDENAÇÃO
+    // ============================================
+    
+    function sortTable(tableType, column) {
+      const currentSort = sortStates[tableType];
       
-      Plotly.newPlot('chart-destinos', destinosData, {
+      // Alternar direção se clicar na mesma coluna
+      if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+      }
+      
+      // Atualizar ícones
+      updateSortIcons(tableType, column, currentSort.direction);
+      
+      // Aplicar ordenação
+      switch(tableType) {
+        case 'voos':
+          sortVoosData(column, currentSort.direction);
+          break;
+        case 'destinos':
+          sortDestinosData(column, currentSort.direction);
+          break;
+        case 'relatorio':
+          sortRelatorioData(column, currentSort.direction);
+          break;
+      }
+    }
+    
+    function updateSortIcons(tableType, column, direction) {
+      // Resetar todos os ícones da tabela
+      const table = document.querySelector(`#${tableType}-table-body`).closest('table');
+      const headers = table.querySelectorAll('thead th');
+      
+      headers.forEach(header => {
+        header.classList.remove('sorted-asc', 'sorted-desc');
+        const icon = header.querySelector('.sort-icon');
+        if (icon) {
+          icon.textContent = '▼';
+        }
+      });
+      
+      // Atualizar o cabeçalho atual
+      const currentHeader = Array.from(headers).find(th => 
+        th.getAttribute('onclick')?.includes(column)
+      );
+      
+      if (currentHeader) {
+        currentHeader.classList.add(direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        const icon = currentHeader.querySelector('.sort-icon');
+        if (icon) {
+          icon.textContent = direction === 'asc' ? '▲' : '▼';
+        }
+      }
+    }
+    
+    // ============================================
+    // VISÃO GERAL (VOOS)
+    // ============================================
+    
+    function loadVoosData() {
+      const ano = document.getElementById('filter-ano').value;
+      const origem = document.getElementById('filter-origem').value;
+      const destino = document.getElementById('filter-destino').value;
+      const situacao = document.getElementById('filter-situacao').value;
+      
+      let filteredData = [...dadosVoos];
+      
+      if (ano !== 'all') {
+        // Filtrar por ano (simplificado)
+        filteredData = filteredData.filter(v => v.data.includes('/2024'));
+      }
+      
+      if (origem !== 'all') {
+        filteredData = filteredData.filter(v => v.origem.includes(origem));
+      }
+      
+      if (destino !== 'all') {
+        filteredData = filteredData.filter(v => v.destino.includes(destino));
+      }
+      
+      if (situacao !== 'all') {
+        filteredData = filteredData.filter(v => v.status === situacao);
+      }
+      
+      // Ordenar por data (decrescente por padrão)
+      filteredData.sort((a, b) => {
+        const aDate = a.data.split('/').reverse().join('');
+        const bDate = b.data.split('/').reverse().join('');
+        return bDate.localeCompare(aDate);
+      });
+      
+      renderVoosTable(filteredData);
+      renderVoosCharts(filteredData);
+      updateVoosStatistics(filteredData);
+      
+      // Atualizar ícones de ordenação
+      updateSortIcons('voos', 'data', 'desc');
+      
+      // Atualizar contador
+      document.getElementById('voos-count').textContent = `${filteredData.length} voos`;
+      
+      // Atualizar ano na tabela
+      document.getElementById('table-year').textContent = ano === 'all' ? 'Todos' : ano;
+    }
+    
+    function renderVoosTable(data) {
+      const tableBody = document.getElementById('voos-table-body');
+      const tableFooter = document.getElementById('voos-table-footer');
+      
+      let tableHTML = '';
+      let totalHoras = 0;
+      
+      data.forEach(item => {
+        tableHTML += `
+          <tr>
+            <td>${item.data}</td>
+            <td>${item.origem}</td>
+            <td>${item.destino}</td>
+            <td>${item.orgao}</td>
+            <td>${item.passageiro}</td>
+            <td>${formatHoras(item.horas)}</td>
+            <td>
+              <span class="badge-status ${item.status === 'REALIZADO' ? 'badge-realizado' : 'badge-cancelado'}">
+                <i class="fas ${item.status === 'REALIZADO' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                ${item.status}
+              </span>
+            </td>
+          </tr>
+        `;
+        
+        totalHoras += item.horas;
+      });
+      
+      tableBody.innerHTML = tableHTML || '<tr><td colspan="7" class="text-center">Nenhum voo encontrado</td></tr>';
+      tableFooter.innerHTML = `
+        <tr class="table-footer">
+          <td colspan="5"><strong>TOTAL</strong></td>
+          <td><strong>${formatHoras(totalHoras)}</strong></td>
+          <td><strong>${data.length} voos</strong></td>
+        </tr>
+      `;
+    }
+    
+    function renderVoosCharts(data) {
+      // Gráfico de destinos
+      const destinosCount = {};
+      data.forEach(item => {
+        const destino = item.destino.split(' (')[0];
+        destinosCount[destino] = (destinosCount[destino] || 0) + 1;
+      });
+      
+      const destinosArray = Object.entries(destinosCount)
+        .map(([destino, quantidade]) => ({ destino, quantidade }))
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 8);
+      
+      const destinosTrace = {
+        x: destinosArray.map(d => d.destino.length > 10 ? d.destino.substring(0, 10) + '...' : d.destino),
+        y: destinosArray.map(d => d.quantidade),
+        type: 'bar',
+        marker: { color: palette.primary[0] }
+      };
+      
+      Plotly.newPlot('chart-destinos', [destinosTrace], {
         title: '',
         margin: { t: 10, r: 30, b: 80, l: 60 },
         paper_bgcolor: 'transparent',
@@ -1329,18 +1628,19 @@
       });
       
       // Gráfico de horas por mês
-      const horasData = [{
-        x: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-        y: isAllYears ? 
-          [210, 195, 230, 245, 260, 240, 255, 265, 250, 235, 220, 205] :
-          [180, 165, 210, 225, 240, 220, 235, 245, 230, 215, 200, 185],
+      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const horasMensais = meses.map(() => Math.random() * 30 + 180);
+      
+      const horasTrace = {
+        x: meses,
+        y: horasMensais,
         type: 'scatter',
         mode: 'lines+markers',
-        line: { color: '#34a853', width: 3 },
-        marker: { color: '#34a853', size: 8 }
-      }];
+        line: { color: palette.secondary[0], width: 3 },
+        marker: { color: palette.secondary[0], size: 8 }
+      };
       
-      Plotly.newPlot('chart-horas', horasData, {
+      Plotly.newPlot('chart-horas', [horasTrace], {
         title: '',
         margin: { t: 10, r: 30, b: 50, l: 60 },
         paper_bgcolor: 'transparent',
@@ -1348,491 +1648,560 @@
       });
     }
     
-    // Tabela com ordenação
-    function renderTable() {
-      const year = document.getElementById('filter-ano').value;
-      const isAllYears = year === 'all';
+    function updateVoosStatistics(data) {
+      const totalVoos = data.length;
+      const totalHoras = data.reduce((sum, item) => sum + item.horas, 0);
+      const totalPassageiros = totalVoos * 3.1; // Estimativa
+      const destinosUnicos = new Set(data.map(item => item.destino)).size;
       
-      const tableData = isAllYears ? [
-        { data: '15/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'João Silva', horas: '1.5h', status: 'REALIZADO' },
-        { data: '18/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'Rio de Janeiro (GIG)', orgao: 'Secretaria de Educação', passageiro: 'Maria Oliveira', horas: '1.2h', status: 'REALIZADO' },
-        { data: '22/03/2023', origem: 'Uberlândia (UDI)', destino: 'Brasília (BSB)', orgao: 'Secretaria de Infraestrutura', passageiro: 'Carlos Santos', horas: '2.0h', status: 'CANCELADA' },
-        { data: '10/02/2023', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'Ana Costa', horas: '1.5h', status: 'REALIZADO' }
-      ] : [
-        { data: '15/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'João Silva', horas: '1.5h', status: 'REALIZADO' },
-        { data: '18/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'Rio de Janeiro (GIG)', orgao: 'Secretaria de Educação', passageiro: 'Maria Oliveira', horas: '1.2h', status: 'REALIZADO' },
-        { data: '22/03/2024', origem: 'Uberlândia (UDI)', destino: 'Brasília (BSB)', orgao: 'Secretaria de Infraestrutura', passageiro: 'Carlos Santos', horas: '2.0h', status: 'CANCELADA' },
-        { data: '10/02/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'Ana Costa', horas: '1.5h', status: 'REALIZADO' }
-      ];
+      document.getElementById('card-voos').textContent = totalVoos.toLocaleString('pt-BR');
+      document.getElementById('card-horas').textContent = formatHoras(totalHoras);
+      document.getElementById('card-pass').textContent = Math.round(totalPassageiros).toLocaleString('pt-BR');
+      document.getElementById('card-destinos').textContent = destinosUnicos;
+    }
+    
+    function sortVoosData(column, direction) {
+      let sortedData = [...dadosVoos];
       
-      // Ordena os dados
-      tableData.sort((a, b) => {
-        const aVal = a[sortColumn];
-        const bVal = b[sortColumn];
+      sortedData.sort((a, b) => {
+        let valA = a[column];
+        let valB = b[column];
         
-        if (sortColumn === 'data') {
+        if (column === 'data') {
           // Converte datas para comparação
-          const aDate = aVal.split('/').reverse().join('');
-          const bDate = bVal.split('/').reverse().join('');
-          return sortDirection === 'asc' ? aDate.localeCompare(bDate) : bDate.localeCompare(aDate);
-        } else if (sortColumn === 'horas') {
-          // Converte horas para número
-          const aNum = parseFloat(aVal);
-          const bNum = parseFloat(bVal);
-          return sortDirection === 'asc' ? aNum - bNum : bNum - aNum;
+          const aDate = valA.split('/').reverse().join('');
+          const bDate = valB.split('/').reverse().join('');
+          return direction === 'asc' ? aDate.localeCompare(bDate) : bDate.localeCompare(aDate);
+        } else if (column === 'horas') {
+          return direction === 'asc' ? valA - valB : valB - valA;
         } else {
           // Ordenação alfabética para outras colunas
-          return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+          return direction === 'asc' ? 
+            valA.localeCompare(valB, 'pt-BR') : 
+            valB.localeCompare(valA, 'pt-BR');
         }
       });
       
-      const tableContainer = document.getElementById('table-container');
-      tableContainer.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th class="sortable ${sortColumn === 'data' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="data">Data</th>
-              <th class="sortable ${sortColumn === 'origem' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="origem">Origem</th>
-              <th class="sortable ${sortColumn === 'destino' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="destino">Destino</th>
-              <th class="sortable ${sortColumn === 'orgao' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="orgao">Órgão</th>
-              <th class="sortable ${sortColumn === 'passageiro' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="passageiro">Passageiro</th>
-              <th class="sortable ${sortColumn === 'horas' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="horas">Horas</th>
-              <th class="sortable ${sortColumn === 'status' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}" data-column="status">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableData.map(row => `
-              <tr>
-                <td>${row.data}</td>
-                <td>${row.origem}</td>
-                <td>${row.destino}</td>
-                <td>${row.orgao}</td>
-                <td>${row.passageiro}</td>
-                <td>${row.horas}</td>
-                <td><span class="badge ${row.status === 'REALIZADO' ? 'badge-success' : 'badge-danger'}">${row.status}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-      
-      // Adiciona eventos de ordenação
-      document.querySelectorAll('th.sortable').forEach(th => {
-        th.addEventListener('click', function() {
-          const column = this.getAttribute('data-column');
-          if (sortColumn === column) {
-            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-          } else {
-            sortColumn = column;
-            sortDirection = 'asc';
-          }
-          renderTable();
-        });
-      });
+      renderVoosTable(sortedData);
     }
     
-    // Gráficos para análise de destinos
-    function renderDestinosChart() {
-      const year = document.getElementById('destinos-ano').value || currentYear;
+    function clearVoosFilters() {
+      document.getElementById('filter-ano').value = '2024';
+      document.getElementById('filter-origem').value = 'all';
+      document.getElementById('filter-destino').value = 'all';
+      document.getElementById('filter-situacao').value = 'all';
+      loadVoosData();
+    }
+    
+    // ============================================
+    // DESTINOS
+    // ============================================
+    
+    function loadDestinosData() {
+      const ano = document.getElementById('destinos-ano').value;
       const destino = document.getElementById('destinos-destino').value;
       const tipo = document.getElementById('destinos-tipo').value;
       
-      const chartData = [{
-        labels: ['Interno', 'Externo', 'Internacional'],
-        values: [65, 25, 10],
-        type: 'pie',
-        marker: { colors: ['#1a73e8', '#34a853', '#fbbc04'] }
-      }];
+      let filteredData = [...dadosDestinos];
       
-      Plotly.newPlot('chart-tipo-voo', chartData, {
-        title: `Distribuição por Tipo de Voo${destino !== 'all' ? ` - ${destino}` : ''}`,
+      if (destino !== 'all') {
+        filteredData = filteredData.filter(d => d.destino.includes(destino));
+      }
+      
+      if (tipo !== 'all') {
+        filteredData = filteredData.filter(d => d.tipo === tipo);
+      }
+      
+      // Ordenar por quantidade (decrescente por padrão)
+      filteredData.sort((a, b) => b.quantidade - a.quantidade);
+      
+      renderDestinosTable(filteredData);
+      renderDestinosCharts(filteredData);
+      
+      // Atualizar ícones de ordenação
+      updateSortIcons('destinos', 'quantidade', 'desc');
+      
+      // Atualizar contador
+      document.getElementById('destinos-count').textContent = `${filteredData.length} destinos`;
+      
+      // Atualizar período
+      document.getElementById('destinos-period').textContent = ano === 'all' ? 'Todos' : ano;
+    }
+    
+    function renderDestinosTable(data) {
+      const tableBody = document.getElementById('destinos-table-body');
+      const tableFooter = document.getElementById('destinos-table-footer');
+      
+      let tableHTML = '';
+      let totals = { quantidade: 0, horas_totais: 0, passageiros: 0 };
+      
+      data.forEach(item => {
+        tableHTML += `
+          <tr>
+            <td>${item.destino}</td>
+            <td>${item.tipo}</td>
+            <td>${item.quantidade.toLocaleString('pt-BR')}</td>
+            <td>${formatHoras(item.horas_totais)}</td>
+            <td>${item.passageiros.toLocaleString('pt-BR')}</td>
+            <td>${formatCurrency(item.custo_medio)}</td>
+          </tr>
+        `;
+        
+        totals.quantidade += item.quantidade;
+        totals.horas_totais += item.horas_totais;
+        totals.passageiros += item.passageiros;
+      });
+      
+      tableBody.innerHTML = tableHTML || '<tr><td colspan="6" class="text-center">Nenhum destino encontrado</td></tr>';
+      tableFooter.innerHTML = `
+        <tr class="table-footer">
+          <td colspan="2"><strong>TOTAL</strong></td>
+          <td><strong>${totals.quantidade.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${formatHoras(totals.horas_totais)}</strong></td>
+          <td><strong>${totals.passageiros.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>—</strong></td>
+        </tr>
+      `;
+    }
+    
+    function renderDestinosCharts(data) {
+      // Gráfico de tipo de voo
+      const tiposCount = {};
+      data.forEach(item => {
+        tiposCount[item.tipo] = (tiposCount[item.tipo] || 0) + 1;
+      });
+      
+      const tiposTrace = {
+        labels: Object.keys(tiposCount),
+        values: Object.values(tiposCount),
+        type: 'pie',
+        marker: { colors: [palette.primary[0], palette.accent[0], palette.secondary[0]] }
+      };
+      
+      Plotly.newPlot('chart-tipo-voo', [tiposTrace], {
+        title: '',
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent'
       });
       
-      // Atualiza o ano exibido
-      document.getElementById('destinos-year').textContent = year === 'all' ? 'Todos' : year;
+      // Gráfico de top destinos
+      const topDestinos = [...data]
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 8);
+      
+      const topDestinosTrace = {
+        x: topDestinos.map(d => d.destino.split(' (')[0]),
+        y: topDestinos.map(d => d.quantidade),
+        type: 'bar',
+        marker: { color: palette.accent[0] }
+      };
+      
+      Plotly.newPlot('chart-top-destinos', [topDestinosTrace], {
+        title: '',
+        margin: { t: 10, r: 30, b: 80, l: 60 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
     }
     
-    // Tabela para análise de destinos
-    function renderDestinosTable() {
-      const tableContainer = document.getElementById('table-destinos');
-      tableContainer.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Destino</th>
-              <th>Tipo de Voo</th>
-              <th>Quantidade</th>
-              <th>Horas Totais</th>
-              <th>Passageiros</th>
-              <th>Custo Médio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>São Paulo (GRU)</td>
-              <td>Externo</td>
-              <td>280</td>
-              <td>420h</td>
-              <td>850</td>
-              <td>R$ 2.450,00</td>
-            </tr>
-            <tr>
-              <td>Rio de Janeiro (GIG)</td>
-              <td>Externo</td>
-              <td>195</td>
-              <td>292h</td>
-              <td>580</td>
-              <td>R$ 1.980,00</td>
-            </tr>
-            <tr>
-              <td>Brasília (BSB)</td>
-              <td>Interno</td>
-              <td>150</td>
-              <td>300h</td>
-              <td>450</td>
-              <td>R$ 3.120,00</td>
-            </tr>
-            <tr>
-              <td>Uberlândia (UDI)</td>
-              <td>Interno</td>
-              <td>120</td>
-              <td>180h</td>
-              <td>360</td>
-              <td>R$ 1.750,00</td>
-            </tr>
-          </tbody>
-        </table>
+    function sortDestinosData(column, direction) {
+      let sortedData = [...dadosDestinos];
+      
+      sortedData.sort((a, b) => {
+        let valA = a[column];
+        let valB = b[column];
+        
+        if (typeof valA === 'string') {
+          return direction === 'asc' ? 
+            valA.localeCompare(valB, 'pt-BR') : 
+            valB.localeCompare(valA, 'pt-BR');
+        } else {
+          return direction === 'asc' ? valA - valB : valB - valA;
+        }
+      });
+      
+      renderDestinosTable(sortedData);
+    }
+    
+    function clearDestinosFilters() {
+      document.getElementById('destinos-ano').value = '2024';
+      document.getElementById('destinos-destino').value = 'all';
+      document.getElementById('destinos-tipo').value = 'all';
+      loadDestinosData();
+    }
+    
+    // ============================================
+    // RELATÓRIOS
+    // ============================================
+    
+    function loadRelatorioData() {
+      const ano = document.getElementById('relatorio-ano').value;
+      const tipo = document.getElementById('relatorio-tipo').value;
+      
+      renderRelatorioTable();
+      renderRelatorioCharts();
+      
+      // Atualizar período
+      document.getElementById('relatorios-period').textContent = ano === 'all' ? 'Todos' : ano;
+      document.getElementById('relatorio-count').textContent = '1.248 voos';
+    }
+    
+    function renderRelatorioTable() {
+      const tableBody = document.getElementById('relatorio-table-body');
+      const tableFooter = document.getElementById('relatorio-table-footer');
+      
+      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      
+      let tableHTML = '';
+      let totals = { voos_realizados: 0, voos_cancelados: 0, horas_voadas: 0, passageiros: 0, custo_total: 0 };
+      
+      meses.forEach((mes, index) => {
+        const voosRealizados = Math.floor(Math.random() * 30) + 90;
+        const voosCancelados = Math.floor(Math.random() * 5) + 1;
+        const horasVoadas = Math.floor(Math.random() * 50) + 180;
+        const passageiros = Math.floor(Math.random() * 150) + 250;
+        const custoTotal = (Math.random() * 50 + 200) * 1000;
+        const eficiencia = Math.floor(Math.random() * 20) + 70;
+        
+        tableHTML += `
+          <tr>
+            <td>${mes}</td>
+            <td>${voosRealizados.toLocaleString('pt-BR')}</td>
+            <td>${voosCancelados.toLocaleString('pt-BR')}</td>
+            <td>${formatHoras(horasVoadas)}</td>
+            <td>${passageiros.toLocaleString('pt-BR')}</td>
+            <td>${formatCurrency(custoTotal)}</td>
+            <td>${eficiencia}%</td>
+          </tr>
+        `;
+        
+        totals.voos_realizados += voosRealizados;
+        totals.voos_cancelados += voosCancelados;
+        totals.horas_voadas += horasVoadas;
+        totals.passageiros += passageiros;
+        totals.custo_total += custoTotal;
+      });
+      
+      tableBody.innerHTML = tableHTML;
+      tableFooter.innerHTML = `
+        <tr class="table-footer">
+          <td><strong>TOTAL</strong></td>
+          <td><strong>${totals.voos_realizados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${totals.voos_cancelados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${formatHoras(totals.horas_voadas)}</strong></td>
+          <td><strong>${totals.passageiros.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${formatCurrency(totals.custo_total)}</strong></td>
+          <td><strong>${Math.round((totals.passageiros / (totals.voos_realizados * 4)) * 100)}%</strong></td>
+        </tr>
       `;
     }
     
-    // Gráficos para relatórios
     function renderRelatorioCharts() {
-      const year = document.getElementById('relatorio-ano').value || currentYear;
-      
-      const chartData = [{
+      // Gráfico de órgãos
+      const orgaosTrace = {
         x: ['Secretaria Saúde', 'Secretaria Educação', 'Secretaria Infraestrutura', 'Governadoria', 'Secretaria Segurança', 'Outros'],
         y: [320, 280, 195, 150, 120, 183],
         type: 'bar',
-        marker: { color: '#1a73e8' }
-      }];
+        marker: { color: palette.primary[0] }
+      };
       
-      Plotly.newPlot('chart-orgaos', chartData, {
+      Plotly.newPlot('chart-orgaos', [orgaosTrace], {
         title: '',
         margin: { t: 10, r: 30, b: 80, l: 60 },
         paper_bgcolor: 'transparent',
         plot_bgcolor: 'transparent'
       });
       
-      // Atualiza o período exibido
-      document.getElementById('relatorios-period').textContent = year === 'all' ? 'Todos' : year;
-    }
-    
-    // Tabela para relatórios
-    function renderRelatorioTable() {
-      const tableContainer = document.getElementById('table-relatorio');
-      tableContainer.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Mês</th>
-              <th>Voos Realizados</th>
-              <th>Voos Cancelados</th>
-              <th>Horas Voadas</th>
-              <th>Passageiros</th>
-              <th>Custo Total</th>
-              <th>Eficiência</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'].map((mes, i) => `
-              <tr>
-                <td>${mes}</td>
-                <td>${Math.floor(Math.random() * 30) + 90}</td>
-                <td>${Math.floor(Math.random() * 5) + 1}</td>
-                <td>${Math.floor(Math.random() * 50) + 180}h</td>
-                <td>${Math.floor(Math.random() * 150) + 250}</td>
-                <td>R$ ${(Math.random() * 50 + 200).toFixed(3).replace('.', ',')}</td>
-                <td>${Math.floor(Math.random() * 20) + 70}%</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-    
-    // FUNÇÕES DE IMPRESSÃO, DOWNLOAD E COMPARTILHAMENTO
-    
-    // Imprimir conteúdo da aba atual
-    function printCurrentTab() {
-      // Atualiza o título da impressão baseado na aba atual
-      const activeTab = document.querySelector('.nav-tab.active');
-      const tabName = activeTab ? activeTab.textContent.trim() : 'Voos Oficiais';
-      document.title = `Relatório ${tabName} - Voos Oficiais MG`;
-      
-      // Executa a impressão
-      window.print();
-      
-      // Restaura o título original
-      setTimeout(() => {
-        document.title = 'Voos Oficiais — Dashboard';
-      }, 1000);
-    }
-    
-    // Download dos dados visíveis na tela
-    function downloadVisibleData(format) {
-      const activeTab = document.querySelector('.tab-content.active').id;
-      let dataName = '';
-      let dataContent = '';
-      
-      if (activeTab === 'tab-overview') {
-        dataName = 'visao-geral-voos';
-        // Captura dados da tabela visível
-        const tableRows = document.querySelectorAll('#table-container tbody tr');
-        const headers = ['Data', 'Origem', 'Destino', 'Órgão', 'Passageiro', 'Horas', 'Status'];
-        
-        dataContent = headers.join(',') + '\n';
-        tableRows.forEach(row => {
-          const cells = row.querySelectorAll('td');
-          const rowData = Array.from(cells).map(cell => {
-            // Remove badges e formatações especiais
-            const badge = cell.querySelector('.badge');
-            return badge ? badge.textContent : cell.textContent;
-          });
-          dataContent += rowData.join(',') + '\n';
-        });
-      } else if (activeTab === 'tab-destinos') {
-        dataName = 'analise-destinos';
-        // Captura dados da tabela de destinos
-        const tableRows = document.querySelectorAll('#table-destinos tbody tr');
-        const headers = ['Destino', 'Tipo de Voo', 'Quantidade', 'Horas Totais', 'Passageiros', 'Custo Médio'];
-        
-        dataContent = headers.join(',') + '\n';
-        tableRows.forEach(row => {
-          const cells = row.querySelectorAll('td');
-          const rowData = Array.from(cells).map(cell => cell.textContent);
-          dataContent += rowData.join(',') + '\n';
-        });
-      }
-      
-      // Adiciona informações do filtro atual
-      const year = document.getElementById('filter-ano') ? document.getElementById('filter-ano').value : 
-                   document.getElementById('destinos-ano') ? document.getElementById('destinos-ano').value : '2024';
-      
-      const filterInfo = `\n\nFiltros aplicados:\nAno: ${year}\nData de exportação: ${new Date().toLocaleDateString('pt-BR')}\nFonte: Voos Oficiais - Governo de MG`;
-      dataContent += filterInfo;
-      
-      // Cria e baixa o arquivo
-      const blob = new Blob([dataContent], { type: getMimeType(format) });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${dataName}-${new Date().toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      
-      alert(`Download do arquivo ${format.toUpperCase()} gerado com sucesso!`);
-    }
-    
-    // Download específico para análise de destinos
-    function downloadDestinosData(format) {
-      downloadVisibleData(format);
-    }
-    
-    // Função auxiliar para MIME types
-    function getMimeType(format) {
-      const mimeTypes = {
-        'csv': 'text/csv',
-        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'pdf': 'application/pdf',
-        'json': 'application/json'
+      // Gráfico de situação
+      const situacaoTrace = {
+        labels: ['Realizados', 'Cancelados'],
+        values: [1150, 98],
+        type: 'pie',
+        marker: { colors: [palette.secondary[0], palette.accent[0]] }
       };
-      return mimeTypes[format] || 'text/plain';
+      
+      Plotly.newPlot('chart-situacao', [situacaoTrace], {
+        title: '',
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
     }
     
-    // Modal de compartilhamento
-    function openShareModal(tab = 'overview') {
-      const modal = document.getElementById('shareModal');
-      modal.style.display = 'block';
+    function sortRelatorioData(column, direction) {
+      // Implementação simplificada
+      const tableBody = document.getElementById('relatorio-table-body');
+      const rows = Array.from(tableBody.querySelectorAll('tr'));
       
-      // Atualiza o link baseado na aba atual
-      const shareLink = document.getElementById('share-link');
-      const activeTab = document.querySelector('.nav-tab.active');
-      const tabName = activeTab ? activeTab.getAttribute('data-tab') : 'overview';
+      rows.sort((a, b) => {
+        const aVal = a.cells[0].textContent;
+        const bVal = b.cells[0].textContent;
+        
+        if (column === 'mes') {
+          const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+          const aIndex = meses.indexOf(aVal);
+          const bIndex = meses.indexOf(bVal);
+          return direction === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+        }
+        
+        return 0;
+      });
       
-      let url = `https://dados.mg.gov.br/voos-oficiais`;
-      if (tabName !== 'overview') {
-        url += `#${tabName}`;
+      // Reordenar as linhas na tabela
+      rows.forEach(row => tableBody.appendChild(row));
+    }
+    
+    // ============================================
+    // FUNÇÕES DE EXPORTAÇÃO E DOWNLOAD
+    // ============================================
+    
+    function exportData(tipo) {
+      let data, filename, headers;
+      
+      switch(tipo) {
+        case 'voos':
+          data = dadosVoos;
+          filename = `voos_oficiais_${new Date().toISOString().slice(0,10)}.csv`;
+          headers = ['Data', 'Origem', 'Destino', 'Órgão', 'Passageiro', 'Horas', 'Status'];
+          break;
+          
+        case 'destinos':
+          data = dadosDestinos;
+          filename = `analise_destinos_${new Date().toISOString().slice(0,10)}.csv`;
+          headers = ['Destino', 'Tipo de Voo', 'Quantidade', 'Horas Totais', 'Passageiros', 'Custo Médio'];
+          break;
       }
       
-      shareLink.value = url;
+      exportToCSV(data, filename, headers);
+      showNotification('Dados exportados com sucesso!', 'success');
     }
     
-    function closeShareModal() {
-      document.getElementById('shareModal').style.display = 'none';
-    }
-    
-    function copyShareLink() {
-      const shareLink = document.getElementById('share-link');
-      shareLink.select();
-      document.execCommand('copy');
+    function exportToCSV(data, filename, headers) {
+      const csvRows = [];
+      csvRows.push(headers.join(','));
       
-      // Feedback visual
-      const copyBtn = document.querySelector('button[onclick="copyShareLink()"]');
-      const originalText = copyBtn.innerHTML;
-      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+      data.forEach(item => {
+        const row = headers.map(header => {
+          const key = header.toLowerCase().replace(' ', '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const value = item[key] || item[header] || '';
+          
+          // Escapar vírgulas em strings
+          if (typeof value === 'string' && value.includes(',')) {
+            return `"${value}"`;
+          }
+          
+          return value;
+        });
+        csvRows.push(row.join(','));
+      });
+      
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    function handleDownload() {
+      const ano = document.getElementById('download-year').value;
+      const formato = document.getElementById('download-format').value;
+      const filtro = document.getElementById('download-filter').value;
+      
+      // Simular processamento
+      showLoading();
+      
       setTimeout(() => {
-        copyBtn.innerHTML = originalText;
+        hideLoading();
+        
+        let filename = `voos_oficiais_${ano}`;
+        if (filtro === 'yes') {
+          filename += '_com_filtros';
+        }
+        
+        switch(formato) {
+          case 'csv':
+            filename += '.csv';
+            break;
+          case 'xlsx':
+            filename += '.xlsx';
+            break;
+          case 'json':
+            filename += '.json';
+            break;
+          case 'pdf':
+            filename += '.pdf';
+            break;
+        }
+        
+        showNotification(`Download do arquivo ${filename} iniciado!`, 'success');
+      }, 1500);
+    }
+    
+    function downloadFullDataset() {
+      showLoading();
+      
+      setTimeout(() => {
+        hideLoading();
+        
+        const filename = `dataset_completo_voos_oficiais_${new Date().getFullYear()}.zip`;
+        showNotification(`Dataset completo baixado: ${filename}`, 'success');
       }, 2000);
     }
     
-    // Funções de compartilhamento em redes sociais
-    function shareOnFacebook() {
-      const url = encodeURIComponent(document.getElementById('share-link').value);
-      const text = encodeURIComponent('Confira os dados de Voos Oficiais do Governo de Minas Gerais');
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+    // ============================================
+    // FUNÇÕES DE UTILITÁRIOS
+    // ============================================
+    
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      `;
+      
+      notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.remove();
+        }
+      }, 5000);
     }
     
-    function shareOnTwitter() {
-      const url = encodeURIComponent(document.getElementById('share-link').value);
-      const text = encodeURIComponent('Dados de Voos Oficiais - Governo de Minas Gerais #DadosAbertos #Transparência');
-      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    function showLoading() {
+      document.getElementById('loadingOverlay').style.display = 'flex';
     }
     
-    function shareOnLinkedIn() {
-      const url = encodeURIComponent(document.getElementById('share-link').value);
-      const title = encodeURIComponent('Voos Oficiais - Governo de Minas Gerais');
-      const summary = encodeURIComponent('Dashboard público com dados de voos oficiais do Governo de MG');
-      window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`, '_blank');
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
     }
     
-    function shareOnWhatsApp() {
-      const url = encodeURIComponent(document.getElementById('share-link').value);
-      const text = encodeURIComponent('Confira os dados de Voos Oficiais do Governo de Minas Gerais: ');
-      window.open(`https://wa.me/?text=${text}${url}`, '_blank');
+    function printCurrentTab(title) {
+      const activeTab = document.querySelector('.tab-pane.active');
+      const originalBody = document.body.innerHTML;
+      
+      const printContent = `
+        <html>
+        <head>
+          <title>${title} - Governo de Minas Gerais</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              padding: 20px; 
+              color: #333; 
+            }
+            .print-header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #B93C42;
+              padding-bottom: 20px;
+            }
+            .print-title {
+              color: #29435A;
+              font-size: 24px;
+              margin: 0;
+            }
+            .print-subtitle {
+              color: #666;
+              font-size: 14px;
+              margin: 5px 0 0 0;
+            }
+            .print-date {
+              color: #666;
+              font-size: 12px;
+              margin-top: 10px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 20px 0;
+              font-size: 12px;
+            }
+            th {
+              background-color: #f8f9fa;
+              color: #29435A;
+              font-weight: bold;
+              text-transform: uppercase;
+              padding: 12px 8px;
+              border: 1px solid #dee2e6;
+              text-align: left;
+            }
+            td {
+              padding: 10px 8px;
+              border: 1px solid #dee2e6;
+            }
+            .total-row {
+              background-color: #f8f9fa;
+              font-weight: bold;
+            }
+            @media print {
+              .no-print { display: none; }
+              .page-break { page-break-before: always; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <h1 class="print-title">${title}</h1>
+            <p class="print-subtitle">Governo do Estado de Minas Gerais</p>
+            <p class="print-subtitle">Painel de Voos Oficiais - Transparência de Voos</p>
+            <p class="print-date">Data da impressão: ${new Date().toLocaleDateString('pt-BR')}</p>
+          </div>
+          ${activeTab.innerHTML}
+        </body>
+        </html>
+      `;
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      printWindow.onload = () => {
+        setTimeout(() => {
+          printWindow.print();
+          printWindow.close();
+        }, 500);
+      };
     }
     
-    // Fecha modal ao clicar fora
-    window.onclick = function(event) {
-      const modal = document.getElementById('shareModal');
-      if (event.target == modal) {
-        closeShareModal();
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        const activeTab = document.querySelector('.tab-pane.active');
+        const firstFilter = activeTab.querySelector('input, select');
+        if (firstFilter) {
+          firstFilter.focus();
+        }
       }
-    }
-    
-    // Botões de aplicação de filtros
-    document.getElementById('btn-apply').addEventListener('click', function() {
-      updateSummaryCards();
-      renderCharts();
-      renderTable();
-    });
-    
-    document.getElementById('btn-apply-destinos').addEventListener('click', function() {
-      renderDestinosChart();
-      renderDestinosTable();
-    });
-    
-    document.getElementById('btn-gerar-relatorio').addEventListener('click', function() {
-      renderRelatorioCharts();
-      renderRelatorioTable();
-    });
-    
-    // Botão de limpar filtros
-    document.getElementById('btn-clear').addEventListener('click', function() {
-      document.getElementById('filter-ano').value = currentYear;
-      document.getElementById('filter-origem').value = 'all';
-      document.getElementById('filter-destino').value = 'all';
-      document.getElementById('filter-orgao').value = 'all';
-      document.getElementById('filter-situacao').value = 'all';
       
-      updateSummaryCards();
-      renderCharts();
-      renderTable();
-    });
-    
-    // Botões de exportação
-    document.getElementById('btn-export-csv').addEventListener('click', function() {
-      downloadVisibleData('csv');
-    });
-    
-    document.getElementById('btn-export-xlsx').addEventListener('click', function() {
-      const year = document.getElementById('filter-ano').value;
-      alert(`Exportação para Excel do ano ${year} iniciada!`);
-    });
-    
-    document.getElementById('btn-download-destinos').addEventListener('click', function() {
-      downloadDestinosData('csv');
-    });
-    
-    document.getElementById('btn-export-relatorio').addEventListener('click', function() {
-      const year = document.getElementById('relatorio-ano').value;
-      const tipo = document.getElementById('relatorio-tipo').value;
-      
-      alert(`Exportação do relatório ${tipo} do ano ${year} para PDF iniciada!`);
-    });
-    
-    // Botão principal de download
-    document.getElementById('btn-download-year').addEventListener('click', function() {
-      const year = document.getElementById('download-year').value;
-      const format = document.getElementById('download-format').value;
-      const filter = document.getElementById('download-filter').value;
-      
-      alert(`Download do arquivo ${year}.${format} ${filter === 'yes' ? 'com filtros aplicados' : 'completo'} iniciado!`);
-    });
-    
-    // Botões de download rápido
-    document.querySelectorAll('.download-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const year = this.getAttribute('data-year');
-        const format = this.getAttribute('data-format');
-        
-        if (year === 'metadata') {
-          alert(`Download dos metadados em formato ${format.toUpperCase()} iniciado!`);
-        } else {
-          alert(`Download do arquivo ${year}.${format} iniciado!`);
+      if (e.key === 'Escape') {
+        const activeTabId = document.querySelector('.tab-pane.active').id;
+        if (activeTabId === 'overview') {
+          clearVoosFilters();
+        } else if (activeTabId === 'destinos') {
+          clearDestinosFilters();
         }
-      });
+      }
     });
     
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeCurrentYear();
-      updateSummaryCards();
-      renderCharts();
-      renderTable();
-      renderDestinosChart();
-      renderDestinosTable();
-      renderRelatorioCharts();
-      renderRelatorioTable();
-      
-      // Preenche anos nos selects
-      const years = [2024, 2023, 2022, 2021];
-      const yearSelects = document.querySelectorAll('select[id$="ano"]');
-      
-      yearSelects.forEach(select => {
-        // Limpa opções existentes (exceto a primeira)
-        while (select.options.length > 1) {
-          select.remove(1);
-        }
-        
-        // Adiciona anos
-        years.forEach(year => {
-          const option = document.createElement('option');
-          option.value = year;
-          option.textContent = year;
-          select.appendChild(option);
-        });
-        
-        // Adiciona opção "Todos os anos"
-        const allOption = document.createElement('option');
-        allOption.value = 'all';
-        allOption.textContent = 'Todos os anos';
-        select.appendChild(allOption);
-      });
-    });
+    console.log('Painel de Voos Oficiais carregado com sucesso!');
   </script>
 </body>
 </html>
