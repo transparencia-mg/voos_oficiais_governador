@@ -14,6 +14,8 @@
   <!-- Tippy.js para tooltips -->
   <script src="https://unpkg.com/@popperjs/core@2"></script>
   <script src="https://unpkg.com/tippy.js@6"></script>
+  <!-- PapaParse para CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   
   <style>
     :root {
@@ -495,6 +497,40 @@
       100% { transform: rotate(360deg); }
     }
     
+    /* Status de atualização */
+    .update-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--primary-dark);
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .update-status.online {
+      color: var(--secondary-green);
+      background: rgba(52, 168, 83, 0.1);
+    }
+    
+    .update-status.offline {
+      color: var(--accent-red);
+      background: rgba(234, 67, 53, 0.1);
+    }
+    
+    .update-status.updating {
+      color: var(--warning-yellow);
+      background: rgba(255, 193, 7, 0.1);
+    }
+    
+    .data-source-info {
+      font-size: 0.8rem;
+      color: var(--primary-dark);
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+    
     @media (max-width: 992px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
@@ -541,6 +577,12 @@
   <!-- Loading Overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
+    <div class="ms-3">
+      <p class="mb-1" id="loadingText">Carregando dados...</p>
+      <div class="progress" style="width: 200px; height: 8px;">
+        <div id="loadingProgress" class="progress-bar" style="width: 0%; background-color: var(--accent-red);"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Header Principal -->
@@ -553,9 +595,21 @@
         <div>
           <h1 class="header-title">Painel de Voos Oficiais</h1>
           <p class="header-subtitle">Governo do Estado de Minas Gerais - Transparência de Voos Oficiais</p>
-          <a href="https://dados.mg.gov.br" target="_blank" class="link-legislacao" style="color: white; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; opacity: 0.9; transition: opacity 0.3s;">
-            <i class="fas fa-external-link-alt"></i> Portal de Dados Abertos de Minas Gerais
-          </a>
+          <div class="d-flex align-items-center gap-3 mt-2">
+            <a href="https://dados.mg.gov.br" target="_blank" class="link-legislacao" style="color: white; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; opacity: 0.9; transition: opacity 0.3s;">
+              <i class="fas fa-external-link-alt"></i> Portal de Dados Abertos
+            </a>
+            <a href="https://github.com/transparencia-mg/voos_oficiais_governador/tree/main/docs/data/normalized" target="_blank" class="link-legislacao" style="color: white; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; opacity: 0.9; transition: opacity 0.3s;">
+              <i class="fab fa-github"></i> Repositório GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 d-flex justify-content-end">
+        <div class="update-status online" id="updateStatus">
+          <i class="fas fa-circle"></i>
+          <span id="updateStatusText">Dados atualizados</span>
+          <small id="lastUpdateTime">Agora</small>
         </div>
       </div>
     </div>
@@ -600,11 +654,8 @@
               <div class="mb-3">
                 <label for="filter-ano" class="form-label filter-label">Ano</label>
                 <select class="form-select" id="filter-ano">
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
                   <option value="all">Todos os anos</option>
+                  <!-- Os anos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
@@ -613,10 +664,7 @@
                 <label for="filter-origem" class="form-label filter-label">Origem</label>
                 <select class="form-select" id="filter-origem">
                   <option value="all">Todas as origens</option>
-                  <option value="CNF">Belo Horizonte (CNF)</option>
-                  <option value="GRU">São Paulo (GRU)</option>
-                  <option value="GIG">Rio de Janeiro (GIG)</option>
-                  <option value="BSB">Brasília (BSB)</option>
+                  <!-- As origens serão carregadas dinamicamente -->
                 </select>
               </div>
             </div>
@@ -625,10 +673,7 @@
                 <label for="filter-destino" class="form-label filter-label">Destino</label>
                 <select class="form-select" id="filter-destino">
                   <option value="all">Todos os destinos</option>
-                  <option value="CNF">Belo Horizonte (CNF)</option>
-                  <option value="GRU">São Paulo (GRU)</option>
-                  <option value="GIG">Rio de Janeiro (GIG)</option>
-                  <option value="BSB">Brasília (BSB)</option>
+                  <!-- Os destinos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
@@ -638,7 +683,7 @@
                 <select class="form-select" id="filter-situacao">
                   <option value="all">Todas as situações</option>
                   <option value="REALIZADO">REALIZADO</option>
-                  <option value="CANCELADA">CANCELADA</option>
+                  <option value="CANCELADO">CANCELADO</option>
                 </select>
               </div>
             </div>
@@ -651,6 +696,9 @@
                 </button>
                 <button class="btn-secondary-custom" id="btn-clear">
                   <i class="fas fa-redo me-2"></i>Limpar Filtros
+                </button>
+                <button class="btn-secondary-custom" id="btn-refresh-data">
+                  <i class="fas fa-sync-alt me-2"></i>Atualizar Dados
                 </button>
               </div>
             </div>
@@ -695,23 +743,27 @@
         <div class="card-stats-grid">
           <div class="card-stats">
             <i class="fas fa-plane fa-2x" style="color: var(--accent-red);"></i>
-            <div class="value" id="card-voos">1.248</div>
-            <div class="label">Voos (DB únicos)</div>
+            <div class="value" id="card-voos">—</div>
+            <div class="label">Voos</div>
+            <div class="data-source-info" id="card-voos-source">Carregando...</div>
           </div>
           <div class="card-stats">
             <i class="fas fa-clock fa-2x" style="color: var(--secondary-blue);"></i>
-            <div class="value" id="card-horas">2.847h</div>
+            <div class="value" id="card-horas">—</div>
             <div class="label">Horas Voadas</div>
+            <div class="data-source-info" id="card-horas-source">Carregando...</div>
           </div>
           <div class="card-stats">
             <i class="fas fa-users fa-2x" style="color: var(--secondary-green);"></i>
-            <div class="value" id="card-pass">3.892</div>
+            <div class="value" id="card-pass">—</div>
             <div class="label">Passageiros</div>
+            <div class="data-source-info" id="card-pass-source">Carregando...</div>
           </div>
           <div class="card-stats">
             <i class="fas fa-map-marker-alt fa-2x" style="color: var(--secondary-purple);"></i>
-            <div class="value" id="card-destinos">156</div>
+            <div class="value" id="card-destinos">—</div>
             <div class="label">Destinos</div>
+            <div class="data-source-info" id="card-destinos-source">Carregando...</div>
           </div>
         </div>
 
@@ -720,6 +772,7 @@
           <div class="chart-container">
             <div class="chart-header">
               <h4 class="chart-title">Top Destinos com Mais Voos</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
               <div id="chart-destinos" style="height:100%; width:100%;"></div>
@@ -727,10 +780,11 @@
           </div>
           <div class="chart-container">
             <div class="chart-header">
-              <h4 class="chart-title">Horas Voadas por Mês</h4>
+              <h4 class="chart-title">Voos por Mês</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
-              <div id="chart-horas" style="height:100%; width:100%;"></div>
+              <div id="chart-meses" style="height:100%; width:100%;"></div>
             </div>
           </div>
         </div>
@@ -741,9 +795,9 @@
             <h3 class="table-title">Detalhamento de Voos</h3>
             <div class="d-flex align-items-center gap-3">
               <span class="current-year-indicator">
-                <i class="fas fa-calendar-alt"></i> Dados do ano: <span id="table-year">2024</span>
+                <i class="fas fa-calendar-alt"></i> Dados: <span id="table-year">Carregando...</span>
               </span>
-              <span class="table-badge" id="voos-count">1.248 voos</span>
+              <span class="table-badge" id="voos-count">0 voos</span>
             </div>
           </div>
           <div class="table-responsive">
@@ -759,22 +813,19 @@
                   <th onclick="sortTable('voos', 'destino')">
                     Destino <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('voos', 'orgao')">
-                    Órgão <span class="sort-icon">▼</span>
-                  </th>
                   <th onclick="sortTable('voos', 'passageiro')">
                     Passageiro <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('voos', 'horas')">
+                  <th onclick="sortTable('voos', 'horas_voo')">
                     Horas <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('voos', 'status')">
+                  <th onclick="sortTable('voos', 'situacao')">
                     Status <span class="sort-icon">▼</span>
                   </th>
                 </tr>
               </thead>
               <tbody id="voos-table-body">
-                <!-- Dados carregados via JavaScript -->
+                <tr><td colspan="6" class="text-center">Carregando dados do GitHub...</td></tr>
               </tbody>
               <tfoot id="voos-table-footer">
                 <!-- Rodapé carregado via JavaScript -->
@@ -793,11 +844,8 @@
               <div class="mb-3">
                 <label for="destinos-ano" class="form-label filter-label">Ano</label>
                 <select class="form-select" id="destinos-ano">
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
                   <option value="all">Todos os anos</option>
+                  <!-- Os anos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
@@ -806,21 +854,17 @@
                 <label for="destinos-destino" class="form-label filter-label">Destino</label>
                 <select class="form-select" id="destinos-destino">
                   <option value="all">Todos os destinos</option>
-                  <option value="CNF">Belo Horizonte (CNF)</option>
-                  <option value="GRU">São Paulo (GRU)</option>
-                  <option value="GIG">Rio de Janeiro (GIG)</option>
-                  <option value="BSB">Brasília (BSB)</option>
+                  <!-- Os destinos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
             <div class="col-md-4">
               <div class="mb-3">
-                <label for="destinos-tipo" class="form-label filter-label">Tipo de Voo</label>
-                <select class="form-select" id="destinos-tipo">
-                  <option value="all">Todos os tipos</option>
-                  <option value="INTERNO">Interno</option>
-                  <option value="EXTERNO">Externo</option>
-                  <option value="INTERNACIONAL">Internacional</option>
+                <label for="destinos-situacao" class="form-label filter-label">Situação</label>
+                <select class="form-select" id="destinos-situacao">
+                  <option value="all">Todas as situações</option>
+                  <option value="REALIZADO">REALIZADO</option>
+                  <option value="CANCELADO">CANCELADO</option>
                 </select>
               </div>
             </div>
@@ -877,15 +921,17 @@
         <div class="dashboard-grid">
           <div class="chart-container">
             <div class="chart-header">
-              <h4 class="chart-title">Distribuição por Tipo de Voo</h4>
+              <h4 class="chart-title">Distribuição por Situação</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
-              <div id="chart-tipo-voo" style="height:100%; width:100%;"></div>
+              <div id="chart-situacao-destinos" style="height:100%; width:100%;"></div>
             </div>
           </div>
           <div class="chart-container">
             <div class="chart-header">
-              <h4 class="chart-title">Top 10 Destinos com Mais Voos</h4>
+              <h4 class="chart-title">Top 10 Destinos Mais Frequentes</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
               <div id="chart-top-destinos" style="height:100%; width:100%;"></div>
@@ -899,9 +945,9 @@
             <h3 class="table-title">Análise de Destinos</h3>
             <div class="d-flex align-items-center gap-3">
               <span class="current-year-indicator">
-                <i class="fas fa-calendar-alt"></i> Período: <span id="destinos-period">2024</span>
+                <i class="fas fa-calendar-alt"></i> Período: <span id="destinos-period">Carregando...</span>
               </span>
-              <span class="table-badge" id="destinos-count">156 destinos</span>
+              <span class="table-badge" id="destinos-count">0 destinos</span>
             </div>
           </div>
           <div class="table-responsive">
@@ -911,25 +957,25 @@
                   <th onclick="sortTable('destinos', 'destino')">
                     Destino <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('destinos', 'tipo')">
-                    Tipo de Voo <span class="sort-icon">▼</span>
-                  </th>
                   <th onclick="sortTable('destinos', 'quantidade')">
                     Quantidade <span class="sort-icon">▼</span>
                   </th>
                   <th onclick="sortTable('destinos', 'horas_totais')">
                     Horas Totais <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('destinos', 'passageiros')">
-                    Passageiros <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('destinos', 'realizados')">
+                    Realizados <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('destinos', 'custo_medio')">
-                    Custo Médio <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('destinos', 'cancelados')">
+                    Cancelados <span class="sort-icon">▼</span>
+                  </th>
+                  <th onclick="sortTable('destinos', 'taxa_sucesso')">
+                    Taxa Sucesso <span class="sort-icon">▼</span>
                   </th>
                 </tr>
               </thead>
               <tbody id="destinos-table-body">
-                <!-- Dados carregados via JavaScript -->
+                <tr><td colspan="6" class="text-center">Carregando dados do GitHub...</td></tr>
               </tbody>
               <tfoot id="destinos-table-footer">
                 <!-- Rodapé carregado via JavaScript -->
@@ -948,11 +994,8 @@
               <div class="mb-3">
                 <label for="download-year" class="form-label filter-label">Ano</label>
                 <select class="form-select" id="download-year">
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
                   <option value="all">Todos os anos (consolidado)</option>
+                  <!-- Os anos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
@@ -960,9 +1003,9 @@
               <div class="mb-3">
                 <label for="download-format" class="form-label filter-label">Formato</label>
                 <select class="form-select" id="download-format">
-                  <option value="csv">CSV</option>
-                  <option value="xlsx">Excel</option>
+                  <option value="csv">CSV (Original do GitHub)</option>
                   <option value="json">JSON</option>
+                  <option value="xlsx">Excel</option>
                   <option value="pdf">PDF</option>
                 </select>
               </div>
@@ -983,9 +1026,12 @@
                 <button class="btn-primary-custom" id="btn-download-year">
                   <i class="fas fa-download me-2"></i>Baixar Dados
                 </button>
-                <a href="https://dados.mg.gov.br" target="_blank" class="btn-secondary-custom">
-                  <i class="fas fa-external-link-alt me-2"></i>Acessar Portal de Dados Abertos
+                <a href="https://github.com/transparencia-mg/voos_oficiais_governador/tree/main/docs/data/normalized" target="_blank" class="btn-secondary-custom">
+                  <i class="fab fa-github me-2"></i>Acessar GitHub
                 </a>
+                <button class="btn-secondary-custom" id="btn-check-updates">
+                  <i class="fas fa-sync-alt me-2"></i>Verificar Atualizações
+                </button>
               </div>
             </div>
           </div>
@@ -997,6 +1043,10 @@
             <h3 class="table-title">Dados de Voos Oficiais</h3>
             <div class="d-flex align-items-center gap-3">
               <span class="table-badge">Dados Abertos</span>
+              <div class="update-status online" id="githubStatus">
+                <i class="fab fa-github"></i>
+                <span id="githubStatusText">GitHub Conectado</span>
+              </div>
             </div>
           </div>
           <div class="p-4">
@@ -1004,11 +1054,11 @@
               <div class="col-md-6">
                 <div class="card-stats">
                   <i class="fas fa-file-csv fa-3x mb-3" style="color: var(--secondary-green);"></i>
-                  <h4>Dados Completos</h4>
-                  <p class="text-muted">Baixe os dados completos de voos oficiais em formato estruturado para análise.</p>
+                  <h4>Dados Direto do GitHub</h4>
+                  <p class="text-muted">Baixe os dados brutos diretamente do repositório GitHub em formato CSV.</p>
                   <div class="mt-3">
-                    <button class="btn-export w-100" onclick="downloadFullDataset()">
-                      <i class="fas fa-database me-2"></i>Dataset Completo
+                    <button class="btn-export w-100" onclick="downloadFromGitHub('raw')">
+                      <i class="fas fa-database me-2"></i>Baixar CSV Original
                     </button>
                   </div>
                 </div>
@@ -1019,8 +1069,8 @@
                   <h4>API de Dados</h4>
                   <p class="text-muted">Acesse os dados via API para integração com outros sistemas.</p>
                   <div class="mt-3">
-                    <a href="https://dados.mg.gov.br/api" target="_blank" class="btn-export w-100 d-block text-decoration-none">
-                      <i class="fas fa-code me-2"></i>Acessar API
+                    <a href="https://api.github.com/repos/transparencia-mg/voos_oficiais_governador/contents/docs/data/normalized" target="_blank" class="btn-export w-100 d-block text-decoration-none">
+                      <i class="fas fa-code me-2"></i>Acessar API GitHub
                     </a>
                   </div>
                 </div>
@@ -1028,35 +1078,28 @@
             </div>
 
             <div class="mt-4">
-              <h5 class="mb-3">Últimas Atualizações</h5>
-              <div class="list-group">
+              <h5 class="mb-3">Arquivos Disponíveis no GitHub</h5>
+              <div id="github-files" class="list-group">
                 <div class="list-group-item">
                   <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">Dados de 2024</h6>
-                    <small>Atualizado em 15/01/2024</small>
+                    <h6 class="mb-1">Carregando arquivos...</h6>
+                    <small class="text-muted">—</small>
                   </div>
-                  <p class="mb-1">Dataset completo com todos os voos realizados em 2024.</p>
-                  <small>1.248 registros, 156 destinos</small>
-                </div>
-                <div class="list-group-item">
-                  <div class="d-flex w-100 justify-content-between">
-                    <h6 class="mb-1">Dados de 2023</h6>
-                    <small>Atualizado em 15/01/2023</small>
-                  </div>
-                  <p class="mb-1">Dataset completo com todos os voos realizados em 2023.</p>
-                  <small>1.120 registros, 142 destinos</small>
+                  <p class="mb-1">Aguardando conexão com GitHub...</p>
+                  <small>—</small>
                 </div>
               </div>
             </div>
 
             <div class="mt-4">
-              <h5 class="mb-3">Metadados</h5>
+              <h5 class="mb-3">Metadados da Estrutura</h5>
               <table class="table table-bordered">
                 <thead>
                   <tr>
                     <th>Campo</th>
                     <th>Descrição</th>
                     <th>Tipo</th>
+                    <th>Exemplo</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1064,36 +1107,37 @@
                     <td>data</td>
                     <td>Data do voo</td>
                     <td>Data</td>
+                    <td>2024-03-15</td>
                   </tr>
                   <tr>
                     <td>origem</td>
                     <td>Aeroporto de origem</td>
                     <td>Texto</td>
+                    <td>CNF (Belo Horizonte)</td>
                   </tr>
                   <tr>
                     <td>destino</td>
                     <td>Aeroporto de destino</td>
                     <td>Texto</td>
-                  </tr>
-                  <tr>
-                    <td>orgao</td>
-                    <td>Órgão responsável</td>
-                    <td>Texto</td>
+                    <td>GRU (São Paulo)</td>
                   </tr>
                   <tr>
                     <td>passageiro</td>
                     <td>Nome do passageiro</td>
                     <td>Texto</td>
+                    <td>João Silva</td>
                   </tr>
                   <tr>
-                    <td>horas</td>
-                    <td>Horas de voo</td>
+                    <td>horas_voo</td>
+                    <td>Duração do voo em horas</td>
                     <td>Decimal</td>
+                    <td>1.5</td>
                   </tr>
                   <tr>
-                    <td>status</td>
+                    <td>situacao</td>
                     <td>Situação do voo</td>
                     <td>Texto</td>
+                    <td>REALIZADO</td>
                   </tr>
                 </tbody>
               </table>
@@ -1111,10 +1155,8 @@
               <div class="mb-3">
                 <label for="relatorio-ano" class="form-label filter-label">Ano do Relatório</label>
                 <select class="form-select" id="relatorio-ano">
-                  <option value="2024">2024 (Padrão)</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="custom">Personalizado</option>
+                  <option value="all">Todos os anos</option>
+                  <!-- Os anos serão carregados dinamicamente -->
                 </select>
               </div>
             </div>
@@ -1123,20 +1165,19 @@
                 <label for="relatorio-tipo" class="form-label filter-label">Tipo de Relatório</label>
                 <select class="form-select" id="relatorio-tipo">
                   <option value="consolidado">Consolidado Anual</option>
-                  <option value="orgaos">Por Órgão</option>
                   <option value="destinos">Por Destino</option>
-                  <option value="eficiencia">Indicadores de Eficiência</option>
+                  <option value="situacao">Por Situação</option>
+                  <option value="mensal">Mensal Detalhado</option>
                 </select>
               </div>
             </div>
             <div class="col-md-4">
               <div class="mb-3">
-                <label for="relatorio-orgao" class="form-label filter-label">Órgão (opcional)</label>
-                <select class="form-select" id="relatorio-orgao">
-                  <option value="all">Todos os órgãos</option>
-                  <option value="Secretaria Saúde">Secretaria de Saúde</option>
-                  <option value="Secretaria Educação">Secretaria de Educação</option>
-                  <option value="Secretaria Infraestrutura">Secretaria de Infraestrutura</option>
+                <label for="relatorio-situacao" class="form-label filter-label">Situação (opcional)</label>
+                <select class="form-select" id="relatorio-situacao">
+                  <option value="all">Todas as situações</option>
+                  <option value="REALIZADO">REALIZADO</option>
+                  <option value="CANCELADO">CANCELADO</option>
                 </select>
               </div>
             </div>
@@ -1150,6 +1191,9 @@
                 <button class="btn-secondary-custom" id="btn-export-relatorio">
                   <i class="fas fa-file-pdf me-2"></i>Exportar PDF
                 </button>
+                <button class="btn-secondary-custom" id="btn-update-relatorio">
+                  <i class="fas fa-sync-alt me-2"></i>Atualizar Dados
+                </button>
               </div>
             </div>
           </div>
@@ -1159,23 +1203,27 @@
         <div class="card-stats-grid">
           <div class="card-stats">
             <i class="fas fa-plane fa-2x" style="color: var(--accent-red);"></i>
-            <div class="value" id="relatorio-voos">1.248</div>
+            <div class="value" id="relatorio-voos">—</div>
             <div class="label">Total de Voos</div>
+            <div class="data-source-info">GitHub</div>
           </div>
           <div class="card-stats">
-            <i class="fas fa-money-bill-wave fa-2x" style="color: var(--secondary-green);"></i>
-            <div class="value" id="relatorio-custo">R$ 4,2M</div>
-            <div class="label">Custo Estimado</div>
+            <i class="fas fa-clock fa-2x" style="color: var(--secondary-blue);"></i>
+            <div class="value" id="relatorio-horas">—</div>
+            <div class="label">Horas Voadas</div>
+            <div class="data-source-info">GitHub</div>
           </div>
           <div class="card-stats">
-            <i class="fas fa-users fa-2x" style="color: var(--secondary-blue);"></i>
-            <div class="value" id="relatorio-media">3,1</div>
-            <div class="label">Passageiros/Voo</div>
+            <i class="fas fa-check-circle fa-2x" style="color: var(--secondary-green);"></i>
+            <div class="value" id="relatorio-sucesso">—</div>
+            <div class="label">Taxa de Sucesso</div>
+            <div class="data-source-info">GitHub</div>
           </div>
           <div class="card-stats">
-            <i class="fas fa-chart-line fa-2x" style="color: var(--secondary-purple);"></i>
-            <div class="value" id="relatorio-efficiency">78%</div>
-            <div class="label">Taxa de Ocupação</div>
+            <i class="fas fa-map-marker-alt fa-2x" style="color: var(--secondary-purple);"></i>
+            <div class="value" id="relatorio-destinos">—</div>
+            <div class="label">Destinos Únicos</div>
+            <div class="data-source-info">GitHub</div>
           </div>
         </div>
 
@@ -1183,18 +1231,20 @@
         <div class="dashboard-grid">
           <div class="chart-container">
             <div class="chart-header">
-              <h4 class="chart-title">Top 10 Órgãos com Mais Voos</h4>
+              <h4 class="chart-title">Distribuição por Situação</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
-              <div id="chart-orgaos" style="height:100%; width:100%;"></div>
+              <div id="chart-situacao-relatorio" style="height:100%; width:100%;"></div>
             </div>
           </div>
           <div class="chart-container">
             <div class="chart-header">
-              <h4 class="chart-title">Distribuição por Situação</h4>
+              <h4 class="chart-title">Voos por Mês</h4>
+              <div class="data-source-info">Fonte: GitHub</div>
             </div>
             <div class="chart-wrapper">
-              <div id="chart-situacao" style="height:100%; width:100%;"></div>
+              <div id="chart-meses-relatorio" style="height:100%; width:100%;"></div>
             </div>
           </div>
         </div>
@@ -1205,40 +1255,37 @@
             <h3 class="table-title">Detalhamento do Relatório</h3>
             <div class="d-flex align-items-center gap-3">
               <span class="current-year-indicator">
-                <i class="fas fa-calendar-alt"></i> Período: <span id="relatorios-period">2024</span>
+                <i class="fas fa-calendar-alt"></i> Período: <span id="relatorios-period">Carregando...</span>
               </span>
-              <span class="table-badge" id="relatorio-count">1.248 voos</span>
+              <span class="table-badge" id="relatorio-count">0 voos</span>
             </div>
           </div>
           <div class="table-responsive">
             <table class="table table-hover">
               <thead>
                 <tr>
-                  <th onclick="sortTable('relatorio', 'mes')">
-                    Mês <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'periodo')">
+                    Período <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('relatorio', 'voos_realizados')">
-                    Voos Realizados <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'voos')">
+                    Voos <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('relatorio', 'voos_cancelados')">
-                    Voos Cancelados <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'realizados')">
+                    Realizados <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('relatorio', 'horas_voadas')">
-                    Horas Voadas <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'cancelados')">
+                    Cancelados <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('relatorio', 'passageiros')">
-                    Passageiros <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'horas')">
+                    Horas <span class="sort-icon">▼</span>
                   </th>
-                  <th onclick="sortTable('relatorio', 'custo_total')">
-                    Custo Total <span class="sort-icon">▼</span>
-                  </th>
-                  <th onclick="sortTable('relatorio', 'eficiencia')">
-                    Eficiência <span class="sort-icon">▼</span>
+                  <th onclick="sortTable('relatorio', 'taxa_sucesso')">
+                    Taxa Sucesso <span class="sort-icon">▼</span>
                   </th>
                 </tr>
               </thead>
               <tbody id="relatorio-table-body">
-                <!-- Dados carregados via JavaScript -->
+                <tr><td colspan="6" class="text-center">Carregando dados do GitHub...</td></tr>
               </tbody>
               <tfoot id="relatorio-table-footer">
                 <!-- Rodapé carregado via JavaScript -->
@@ -1252,10 +1299,15 @@
 
   <footer class="footer">
     <div class="container">
-      <p><i class="fas fa-database"></i> Dados abertos — atualizados via repositório GitHub.</p>
+      <p>
+        <i class="fas fa-database"></i> Dados atualizados automaticamente do 
+        <a href="https://github.com/transparencia-mg/voos_oficiais_governador/tree/main/docs/data/normalized" target="_blank" style="color: var(--primary-dark); text-decoration: none; font-weight: 600;">
+          <i class="fab fa-github"></i> GitHub
+        </a>
+      </p>
       <p style="margin-top: 10px; font-size: 0.8rem;">
         © 2024 Governo de Minas Gerais. 
-        <a href="https://dados.mg.gov.br" style="color: var(--primary-dark); text-decoration: none; font-weight: 600;">
+        <a href="https://dados.mg.gov.br" target="_blank" style="color: var(--primary-dark); text-decoration: none; font-weight: 600;">
           <i class="fas fa-external-link-alt"></i> dados.mg.gov.br
         </a>
       </p>
@@ -1274,10 +1326,26 @@
     let sortStates = {
       voos: { column: 'data', direction: 'desc' },
       destinos: { column: 'quantidade', direction: 'desc' },
-      relatorio: { column: 'mes', direction: 'asc' }
+      relatorio: { column: 'periodo', direction: 'asc' }
     };
     
-    // Paleta de cores (mesma do diarias_viagens.html)
+    // Configuração do GitHub
+    const GITHUB_REPO = 'transparencia-mg/voos_oficiais_governador';
+    const GITHUB_DATA_PATH = 'docs/data/normalized';
+    const GITHUB_API_BASE = 'https://api.github.com';
+    
+    // Cache de dados
+    let dadosCache = {
+      voos: [],
+      anos: [],
+      origens: [],
+      destinos: [],
+      situacoes: [],
+      lastUpdate: null,
+      files: []
+    };
+    
+    // Paleta de cores
     const palette = {
       primary: ['#29435A', '#2E5984', '#3A7CA5', '#4F9EC4'],
       accent: ['#B93C42', '#DB233F', '#E5586E', '#EF8A9E'],
@@ -1285,39 +1353,21 @@
       additional: ['#6A5ACD', '#9370DB', '#BA55D3', '#DA70D6']
     };
     
-    // Dados mockados para voos
-    const dadosVoos = [
-      { data: '15/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'João Silva', horas: 1.5, status: 'REALIZADO' },
-      { data: '18/03/2024', origem: 'Belo Horizonte (CNF)', destino: 'Rio de Janeiro (GIG)', orgao: 'Secretaria de Educação', passageiro: 'Maria Oliveira', horas: 1.2, status: 'REALIZADO' },
-      { data: '22/03/2024', origem: 'Uberlândia (UDI)', destino: 'Brasília (BSB)', orgao: 'Secretaria de Infraestrutura', passageiro: 'Carlos Santos', horas: 2.0, status: 'CANCELADA' },
-      { data: '10/02/2024', origem: 'Belo Horizonte (CNF)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Saúde', passageiro: 'Ana Costa', horas: 1.5, status: 'REALIZADO' },
-      { data: '05/04/2024', origem: 'Belo Horizonte (CNF)', destino: 'Uberlândia (UDI)', orgao: 'Secretaria de Segurança', passageiro: 'Roberto Alves', horas: 0.8, status: 'REALIZADO' },
-      { data: '12/04/2024', origem: 'São Paulo (GRU)', destino: 'Brasília (BSB)', orgao: 'Governadoria', passageiro: 'Patrícia Lima', horas: 1.8, status: 'REALIZADO' },
-      { data: '20/04/2024', origem: 'Rio de Janeiro (GIG)', destino: 'Belo Horizonte (CNF)', orgao: 'Secretaria de Cultura', passageiro: 'Fernando Souza', horas: 1.3, status: 'CANCELADA' },
-      { data: '25/04/2024', origem: 'Brasília (BSB)', destino: 'São Paulo (GRU)', orgao: 'Secretaria de Finanças', passageiro: 'Amanda Rocha', horas: 2.1, status: 'REALIZADO' }
-    ];
-    
-    // Dados mockados para destinos
-    const dadosDestinos = [
-      { destino: 'São Paulo (GRU)', tipo: 'Externo', quantidade: 280, horas_totais: 420, passageiros: 850, custo_medio: 2450 },
-      { destino: 'Rio de Janeiro (GIG)', tipo: 'Externo', quantidade: 195, horas_totais: 292, passageiros: 580, custo_medio: 1980 },
-      { destino: 'Brasília (BSB)', tipo: 'Interno', quantidade: 150, horas_totais: 300, passageiros: 450, custo_medio: 3120 },
-      { destino: 'Uberlândia (UDI)', tipo: 'Interno', quantidade: 120, horas_totais: 180, passageiros: 360, custo_medio: 1750 },
-      { destino: 'Vitória (VIX)', tipo: 'Externo', quantidade: 85, horas_totais: 127, passageiros: 255, custo_medio: 2100 },
-      { destino: 'Curitiba (CWB)', tipo: 'Externo', quantidade: 75, horas_totais: 112, passageiros: 225, custo_medio: 2300 }
-    ];
-    
     // Inicialização
     document.addEventListener('DOMContentLoaded', function() {
       setupEventListeners();
       setupTooltips();
-      loadInitialData();
+      loadDataFromGitHub();
+      
+      // Verificar atualizações a cada 5 minutos
+      setInterval(checkForUpdates, 300000);
     });
     
     function setupEventListeners() {
       // Visão Geral
       document.getElementById('btn-apply').addEventListener('click', loadVoosData);
       document.getElementById('btn-clear').addEventListener('click', clearVoosFilters);
+      document.getElementById('btn-refresh-data').addEventListener('click', () => loadDataFromGitHub(true));
       
       // Destinos
       document.getElementById('btn-apply-destinos').addEventListener('click', loadDestinosData);
@@ -1325,70 +1375,42 @@
       
       // Relatórios
       document.getElementById('btn-gerar-relatorio').addEventListener('click', loadRelatorioData);
+      document.getElementById('btn-update-relatorio').addEventListener('click', () => loadDataFromGitHub(true));
+      
+      // Download
+      document.getElementById('btn-download-year').addEventListener('click', handleDownload);
+      document.getElementById('btn-check-updates').addEventListener('click', checkForUpdates);
       
       // Exportação
       document.getElementById('exportCSV').addEventListener('click', () => exportData('voos'));
       document.getElementById('exportCSV-destinos').addEventListener('click', () => exportData('destinos'));
-      
-      // Download
-      document.getElementById('btn-download-year').addEventListener('click', handleDownload);
       
       // Impressão
       document.getElementById('btn-print').addEventListener('click', () => printCurrentTab('Visão Geral de Voos'));
       document.getElementById('btn-print-destinos').addEventListener('click', () => printCurrentTab('Análise de Destinos'));
       document.getElementById('btn-export-relatorio').addEventListener('click', () => printCurrentTab('Relatório de Voos'));
       
-      // Compartilhamento em redes sociais
+      // Compartilhamento
       setupSocialShare();
     }
     
     function setupTooltips() {
-      // Tooltips para filtros
-      tippy('#filter-ano', {
-        content: 'Selecione o ano para filtrar os dados',
+      tippy('#btn-refresh-data', {
+        content: 'Atualizar dados do GitHub',
         placement: 'top',
         theme: 'light',
         animation: 'scale'
       });
       
-      tippy('#filter-origem', {
-        content: 'Selecione o aeroporto de origem',
+      tippy('#btn-check-updates', {
+        content: 'Verificar atualizações no GitHub',
         placement: 'top',
         theme: 'light',
         animation: 'scale'
       });
       
-      tippy('#filter-destino', {
-        content: 'Selecione o aeroporto de destino',
-        placement: 'top',
-        theme: 'light',
-        animation: 'scale'
-      });
-      
-      tippy('#filter-situacao', {
-        content: 'Filtre por situação do voo',
-        placement: 'top',
-        theme: 'light',
-        animation: 'scale'
-      });
-      
-      // Tooltips para botões
-      tippy('.btn-export', {
-        content: 'Exportar dados',
-        placement: 'top',
-        theme: 'light',
-        animation: 'scale'
-      });
-      
-      tippy('.btn-social', {
-        content: 'Compartilhar',
-        placement: 'top',
-        theme: 'light',
-        animation: 'scale'
-      });
-      
-      tippy('.sort-icon', {
-        content: 'Clique para ordenar',
+      tippy('#githubStatus', {
+        content: 'Status da conexão com GitHub',
         placement: 'top',
         theme: 'light',
         animation: 'scale'
@@ -1402,7 +1424,7 @@
           
           const url = encodeURIComponent(window.location.href);
           const title = encodeURIComponent('Painel de Voos Oficiais - Governo de Minas Gerais');
-          const text = encodeURIComponent('Confira os dados de transparência sobre voos oficiais do Governo de Minas Gerais');
+          const text = encodeURIComponent('Confira os dados atualizados de voos oficiais do Governo de MG');
           
           let shareUrl = '';
           
@@ -1423,640 +1445,367 @@
       });
     }
     
-    function loadInitialData() {
-      loadVoosData();
-      loadDestinosData();
-      loadRelatorioData();
-      
-      // Atualiza indicador de ano atual
-      document.getElementById('table-year').textContent = '2024';
-      document.getElementById('destinos-period').textContent = '2024';
-      document.getElementById('relatorios-period').textContent = '2024';
-    }
-    
     // ============================================
-    // FUNÇÕES DE FORMATAÇÃO
+    // INTEGRAÇÃO COM GITHUB
     // ============================================
     
-    function formatCurrency(valor) {
-      return new Intl.NumberFormat('pt-BR', { 
-        style: 'currency', 
-        currency: 'BRL',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(valor);
-    }
-    
-    function formatHoras(horas) {
-      const horasInt = Math.floor(horas);
-      const minutos = Math.round((horas - horasInt) * 60);
-      return `${horasInt}h${minutos > 0 ? ` ${minutos}m` : ''}`;
-    }
-    
-    // ============================================
-    // SISTEMA DE ORDENAÇÃO
-    // ============================================
-    
-    function sortTable(tableType, column) {
-      const currentSort = sortStates[tableType];
+    async function loadDataFromGitHub(forceRefresh = false) {
+      showLoading('Conectando ao GitHub...');
+      updateStatus('updating', 'Conectando ao GitHub...');
       
-      // Alternar direção se clicar na mesma coluna
-      if (currentSort.column === column) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentSort.column = column;
-        currentSort.direction = 'asc';
-      }
-      
-      // Atualizar ícones
-      updateSortIcons(tableType, column, currentSort.direction);
-      
-      // Aplicar ordenação
-      switch(tableType) {
-        case 'voos':
-          sortVoosData(column, currentSort.direction);
-          break;
-        case 'destinos':
-          sortDestinosData(column, currentSort.direction);
-          break;
-        case 'relatorio':
-          sortRelatorioData(column, currentSort.direction);
-          break;
-      }
-    }
-    
-    function updateSortIcons(tableType, column, direction) {
-      // Resetar todos os ícones da tabela
-      const table = document.querySelector(`#${tableType}-table-body`).closest('table');
-      const headers = table.querySelectorAll('thead th');
-      
-      headers.forEach(header => {
-        header.classList.remove('sorted-asc', 'sorted-desc');
-        const icon = header.querySelector('.sort-icon');
-        if (icon) {
-          icon.textContent = '▼';
-        }
-      });
-      
-      // Atualizar o cabeçalho atual
-      const currentHeader = Array.from(headers).find(th => 
-        th.getAttribute('onclick')?.includes(column)
-      );
-      
-      if (currentHeader) {
-        currentHeader.classList.add(direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
-        const icon = currentHeader.querySelector('.sort-icon');
-        if (icon) {
-          icon.textContent = direction === 'asc' ? '▲' : '▼';
-        }
-      }
-    }
-    
-    // ============================================
-    // VISÃO GERAL (VOOS)
-    // ============================================
-    
-    function loadVoosData() {
-      const ano = document.getElementById('filter-ano').value;
-      const origem = document.getElementById('filter-origem').value;
-      const destino = document.getElementById('filter-destino').value;
-      const situacao = document.getElementById('filter-situacao').value;
-      
-      let filteredData = [...dadosVoos];
-      
-      if (ano !== 'all') {
-        // Filtrar por ano (simplificado)
-        filteredData = filteredData.filter(v => v.data.includes('/2024'));
-      }
-      
-      if (origem !== 'all') {
-        filteredData = filteredData.filter(v => v.origem.includes(origem));
-      }
-      
-      if (destino !== 'all') {
-        filteredData = filteredData.filter(v => v.destino.includes(destino));
-      }
-      
-      if (situacao !== 'all') {
-        filteredData = filteredData.filter(v => v.status === situacao);
-      }
-      
-      // Ordenar por data (decrescente por padrão)
-      filteredData.sort((a, b) => {
-        const aDate = a.data.split('/').reverse().join('');
-        const bDate = b.data.split('/').reverse().join('');
-        return bDate.localeCompare(aDate);
-      });
-      
-      renderVoosTable(filteredData);
-      renderVoosCharts(filteredData);
-      updateVoosStatistics(filteredData);
-      
-      // Atualizar ícones de ordenação
-      updateSortIcons('voos', 'data', 'desc');
-      
-      // Atualizar contador
-      document.getElementById('voos-count').textContent = `${filteredData.length} voos`;
-      
-      // Atualizar ano na tabela
-      document.getElementById('table-year').textContent = ano === 'all' ? 'Todos' : ano;
-    }
-    
-    function renderVoosTable(data) {
-      const tableBody = document.getElementById('voos-table-body');
-      const tableFooter = document.getElementById('voos-table-footer');
-      
-      let tableHTML = '';
-      let totalHoras = 0;
-      
-      data.forEach(item => {
-        tableHTML += `
-          <tr>
-            <td>${item.data}</td>
-            <td>${item.origem}</td>
-            <td>${item.destino}</td>
-            <td>${item.orgao}</td>
-            <td>${item.passageiro}</td>
-            <td>${formatHoras(item.horas)}</td>
-            <td>
-              <span class="badge-status ${item.status === 'REALIZADO' ? 'badge-realizado' : 'badge-cancelado'}">
-                <i class="fas ${item.status === 'REALIZADO' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
-                ${item.status}
-              </span>
-            </td>
-          </tr>
-        `;
-        
-        totalHoras += item.horas;
-      });
-      
-      tableBody.innerHTML = tableHTML || '<tr><td colspan="7" class="text-center">Nenhum voo encontrado</td></tr>';
-      tableFooter.innerHTML = `
-        <tr class="table-footer">
-          <td colspan="5"><strong>TOTAL</strong></td>
-          <td><strong>${formatHoras(totalHoras)}</strong></td>
-          <td><strong>${data.length} voos</strong></td>
-        </tr>
-      `;
-    }
-    
-    function renderVoosCharts(data) {
-      // Gráfico de destinos
-      const destinosCount = {};
-      data.forEach(item => {
-        const destino = item.destino.split(' (')[0];
-        destinosCount[destino] = (destinosCount[destino] || 0) + 1;
-      });
-      
-      const destinosArray = Object.entries(destinosCount)
-        .map(([destino, quantidade]) => ({ destino, quantidade }))
-        .sort((a, b) => b.quantidade - a.quantidade)
-        .slice(0, 8);
-      
-      const destinosTrace = {
-        x: destinosArray.map(d => d.destino.length > 10 ? d.destino.substring(0, 10) + '...' : d.destino),
-        y: destinosArray.map(d => d.quantidade),
-        type: 'bar',
-        marker: { color: palette.primary[0] }
-      };
-      
-      Plotly.newPlot('chart-destinos', [destinosTrace], {
-        title: '',
-        margin: { t: 10, r: 30, b: 80, l: 60 },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-      
-      // Gráfico de horas por mês
-      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-      const horasMensais = meses.map(() => Math.random() * 30 + 180);
-      
-      const horasTrace = {
-        x: meses,
-        y: horasMensais,
-        type: 'scatter',
-        mode: 'lines+markers',
-        line: { color: palette.secondary[0], width: 3 },
-        marker: { color: palette.secondary[0], size: 8 }
-      };
-      
-      Plotly.newPlot('chart-horas', [horasTrace], {
-        title: '',
-        margin: { t: 10, r: 30, b: 50, l: 60 },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-    }
-    
-    function updateVoosStatistics(data) {
-      const totalVoos = data.length;
-      const totalHoras = data.reduce((sum, item) => sum + item.horas, 0);
-      const totalPassageiros = totalVoos * 3.1; // Estimativa
-      const destinosUnicos = new Set(data.map(item => item.destino)).size;
-      
-      document.getElementById('card-voos').textContent = totalVoos.toLocaleString('pt-BR');
-      document.getElementById('card-horas').textContent = formatHoras(totalHoras);
-      document.getElementById('card-pass').textContent = Math.round(totalPassageiros).toLocaleString('pt-BR');
-      document.getElementById('card-destinos').textContent = destinosUnicos;
-    }
-    
-    function sortVoosData(column, direction) {
-      let sortedData = [...dadosVoos];
-      
-      sortedData.sort((a, b) => {
-        let valA = a[column];
-        let valB = b[column];
-        
-        if (column === 'data') {
-          // Converte datas para comparação
-          const aDate = valA.split('/').reverse().join('');
-          const bDate = valB.split('/').reverse().join('');
-          return direction === 'asc' ? aDate.localeCompare(bDate) : bDate.localeCompare(aDate);
-        } else if (column === 'horas') {
-          return direction === 'asc' ? valA - valB : valB - valA;
-        } else {
-          // Ordenação alfabética para outras colunas
-          return direction === 'asc' ? 
-            valA.localeCompare(valB, 'pt-BR') : 
-            valB.localeCompare(valA, 'pt-BR');
-        }
-      });
-      
-      renderVoosTable(sortedData);
-    }
-    
-    function clearVoosFilters() {
-      document.getElementById('filter-ano').value = '2024';
-      document.getElementById('filter-origem').value = 'all';
-      document.getElementById('filter-destino').value = 'all';
-      document.getElementById('filter-situacao').value = 'all';
-      loadVoosData();
-    }
-    
-    // ============================================
-    // DESTINOS
-    // ============================================
-    
-    function loadDestinosData() {
-      const ano = document.getElementById('destinos-ano').value;
-      const destino = document.getElementById('destinos-destino').value;
-      const tipo = document.getElementById('destinos-tipo').value;
-      
-      let filteredData = [...dadosDestinos];
-      
-      if (destino !== 'all') {
-        filteredData = filteredData.filter(d => d.destino.includes(destino));
-      }
-      
-      if (tipo !== 'all') {
-        filteredData = filteredData.filter(d => d.tipo === tipo);
-      }
-      
-      // Ordenar por quantidade (decrescente por padrão)
-      filteredData.sort((a, b) => b.quantidade - a.quantidade);
-      
-      renderDestinosTable(filteredData);
-      renderDestinosCharts(filteredData);
-      
-      // Atualizar ícones de ordenação
-      updateSortIcons('destinos', 'quantidade', 'desc');
-      
-      // Atualizar contador
-      document.getElementById('destinos-count').textContent = `${filteredData.length} destinos`;
-      
-      // Atualizar período
-      document.getElementById('destinos-period').textContent = ano === 'all' ? 'Todos' : ano;
-    }
-    
-    function renderDestinosTable(data) {
-      const tableBody = document.getElementById('destinos-table-body');
-      const tableFooter = document.getElementById('destinos-table-footer');
-      
-      let tableHTML = '';
-      let totals = { quantidade: 0, horas_totais: 0, passageiros: 0 };
-      
-      data.forEach(item => {
-        tableHTML += `
-          <tr>
-            <td>${item.destino}</td>
-            <td>${item.tipo}</td>
-            <td>${item.quantidade.toLocaleString('pt-BR')}</td>
-            <td>${formatHoras(item.horas_totais)}</td>
-            <td>${item.passageiros.toLocaleString('pt-BR')}</td>
-            <td>${formatCurrency(item.custo_medio)}</td>
-          </tr>
-        `;
-        
-        totals.quantidade += item.quantidade;
-        totals.horas_totais += item.horas_totais;
-        totals.passageiros += item.passageiros;
-      });
-      
-      tableBody.innerHTML = tableHTML || '<tr><td colspan="6" class="text-center">Nenhum destino encontrado</td></tr>';
-      tableFooter.innerHTML = `
-        <tr class="table-footer">
-          <td colspan="2"><strong>TOTAL</strong></td>
-          <td><strong>${totals.quantidade.toLocaleString('pt-BR')}</strong></td>
-          <td><strong>${formatHoras(totals.horas_totais)}</strong></td>
-          <td><strong>${totals.passageiros.toLocaleString('pt-BR')}</strong></td>
-          <td><strong>—</strong></td>
-        </tr>
-      `;
-    }
-    
-    function renderDestinosCharts(data) {
-      // Gráfico de tipo de voo
-      const tiposCount = {};
-      data.forEach(item => {
-        tiposCount[item.tipo] = (tiposCount[item.tipo] || 0) + 1;
-      });
-      
-      const tiposTrace = {
-        labels: Object.keys(tiposCount),
-        values: Object.values(tiposCount),
-        type: 'pie',
-        marker: { colors: [palette.primary[0], palette.accent[0], palette.secondary[0]] }
-      };
-      
-      Plotly.newPlot('chart-tipo-voo', [tiposTrace], {
-        title: '',
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-      
-      // Gráfico de top destinos
-      const topDestinos = [...data]
-        .sort((a, b) => b.quantidade - a.quantidade)
-        .slice(0, 8);
-      
-      const topDestinosTrace = {
-        x: topDestinos.map(d => d.destino.split(' (')[0]),
-        y: topDestinos.map(d => d.quantidade),
-        type: 'bar',
-        marker: { color: palette.accent[0] }
-      };
-      
-      Plotly.newPlot('chart-top-destinos', [topDestinosTrace], {
-        title: '',
-        margin: { t: 10, r: 30, b: 80, l: 60 },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-    }
-    
-    function sortDestinosData(column, direction) {
-      let sortedData = [...dadosDestinos];
-      
-      sortedData.sort((a, b) => {
-        let valA = a[column];
-        let valB = b[column];
-        
-        if (typeof valA === 'string') {
-          return direction === 'asc' ? 
-            valA.localeCompare(valB, 'pt-BR') : 
-            valB.localeCompare(valA, 'pt-BR');
-        } else {
-          return direction === 'asc' ? valA - valB : valB - valA;
-        }
-      });
-      
-      renderDestinosTable(sortedData);
-    }
-    
-    function clearDestinosFilters() {
-      document.getElementById('destinos-ano').value = '2024';
-      document.getElementById('destinos-destino').value = 'all';
-      document.getElementById('destinos-tipo').value = 'all';
-      loadDestinosData();
-    }
-    
-    // ============================================
-    // RELATÓRIOS
-    // ============================================
-    
-    function loadRelatorioData() {
-      const ano = document.getElementById('relatorio-ano').value;
-      const tipo = document.getElementById('relatorio-tipo').value;
-      
-      renderRelatorioTable();
-      renderRelatorioCharts();
-      
-      // Atualizar período
-      document.getElementById('relatorios-period').textContent = ano === 'all' ? 'Todos' : ano;
-      document.getElementById('relatorio-count').textContent = '1.248 voos';
-    }
-    
-    function renderRelatorioTable() {
-      const tableBody = document.getElementById('relatorio-table-body');
-      const tableFooter = document.getElementById('relatorio-table-footer');
-      
-      const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-      
-      let tableHTML = '';
-      let totals = { voos_realizados: 0, voos_cancelados: 0, horas_voadas: 0, passageiros: 0, custo_total: 0 };
-      
-      meses.forEach((mes, index) => {
-        const voosRealizados = Math.floor(Math.random() * 30) + 90;
-        const voosCancelados = Math.floor(Math.random() * 5) + 1;
-        const horasVoadas = Math.floor(Math.random() * 50) + 180;
-        const passageiros = Math.floor(Math.random() * 150) + 250;
-        const custoTotal = (Math.random() * 50 + 200) * 1000;
-        const eficiencia = Math.floor(Math.random() * 20) + 70;
-        
-        tableHTML += `
-          <tr>
-            <td>${mes}</td>
-            <td>${voosRealizados.toLocaleString('pt-BR')}</td>
-            <td>${voosCancelados.toLocaleString('pt-BR')}</td>
-            <td>${formatHoras(horasVoadas)}</td>
-            <td>${passageiros.toLocaleString('pt-BR')}</td>
-            <td>${formatCurrency(custoTotal)}</td>
-            <td>${eficiencia}%</td>
-          </tr>
-        `;
-        
-        totals.voos_realizados += voosRealizados;
-        totals.voos_cancelados += voosCancelados;
-        totals.horas_voadas += horasVoadas;
-        totals.passageiros += passageiros;
-        totals.custo_total += custoTotal;
-      });
-      
-      tableBody.innerHTML = tableHTML;
-      tableFooter.innerHTML = `
-        <tr class="table-footer">
-          <td><strong>TOTAL</strong></td>
-          <td><strong>${totals.voos_realizados.toLocaleString('pt-BR')}</strong></td>
-          <td><strong>${totals.voos_cancelados.toLocaleString('pt-BR')}</strong></td>
-          <td><strong>${formatHoras(totals.horas_voadas)}</strong></td>
-          <td><strong>${totals.passageiros.toLocaleString('pt-BR')}</strong></td>
-          <td><strong>${formatCurrency(totals.custo_total)}</strong></td>
-          <td><strong>${Math.round((totals.passageiros / (totals.voos_realizados * 4)) * 100)}%</strong></td>
-        </tr>
-      `;
-    }
-    
-    function renderRelatorioCharts() {
-      // Gráfico de órgãos
-      const orgaosTrace = {
-        x: ['Secretaria Saúde', 'Secretaria Educação', 'Secretaria Infraestrutura', 'Governadoria', 'Secretaria Segurança', 'Outros'],
-        y: [320, 280, 195, 150, 120, 183],
-        type: 'bar',
-        marker: { color: palette.primary[0] }
-      };
-      
-      Plotly.newPlot('chart-orgaos', [orgaosTrace], {
-        title: '',
-        margin: { t: 10, r: 30, b: 80, l: 60 },
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-      
-      // Gráfico de situação
-      const situacaoTrace = {
-        labels: ['Realizados', 'Cancelados'],
-        values: [1150, 98],
-        type: 'pie',
-        marker: { colors: [palette.secondary[0], palette.accent[0]] }
-      };
-      
-      Plotly.newPlot('chart-situacao', [situacaoTrace], {
-        title: '',
-        paper_bgcolor: 'transparent',
-        plot_bgcolor: 'transparent'
-      });
-    }
-    
-    function sortRelatorioData(column, direction) {
-      // Implementação simplificada
-      const tableBody = document.getElementById('relatorio-table-body');
-      const rows = Array.from(tableBody.querySelectorAll('tr'));
-      
-      rows.sort((a, b) => {
-        const aVal = a.cells[0].textContent;
-        const bVal = b.cells[0].textContent;
-        
-        if (column === 'mes') {
-          const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-          const aIndex = meses.indexOf(aVal);
-          const bIndex = meses.indexOf(bVal);
-          return direction === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+      try {
+        // Verificar se precisa atualizar (cache de 1 hora)
+        const now = new Date();
+        if (!forceRefresh && dadosCache.lastUpdate && 
+            (now - dadosCache.lastUpdate) < 3600000 && 
+            dadosCache.voos.length > 0) {
+          hideLoading();
+          updateStatus('online', 'Dados em cache');
+          loadFilterOptions();
+          loadVoosData();
+          return;
         }
         
-        return 0;
-      });
-      
-      // Reordenar as linhas na tabela
-      rows.forEach(row => tableBody.appendChild(row));
-    }
-    
-    // ============================================
-    // FUNÇÕES DE EXPORTAÇÃO E DOWNLOAD
-    // ============================================
-    
-    function exportData(tipo) {
-      let data, filename, headers;
-      
-      switch(tipo) {
-        case 'voos':
-          data = dadosVoos;
-          filename = `voos_oficiais_${new Date().toISOString().slice(0,10)}.csv`;
-          headers = ['Data', 'Origem', 'Destino', 'Órgão', 'Passageiro', 'Horas', 'Status'];
-          break;
-          
-        case 'destinos':
-          data = dadosDestinos;
-          filename = `analise_destinos_${new Date().toISOString().slice(0,10)}.csv`;
-          headers = ['Destino', 'Tipo de Voo', 'Quantidade', 'Horas Totais', 'Passageiros', 'Custo Médio'];
-          break;
-      }
-      
-      exportToCSV(data, filename, headers);
-      showNotification('Dados exportados com sucesso!', 'success');
-    }
-    
-    function exportToCSV(data, filename, headers) {
-      const csvRows = [];
-      csvRows.push(headers.join(','));
-      
-      data.forEach(item => {
-        const row = headers.map(header => {
-          const key = header.toLowerCase().replace(' ', '_').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          const value = item[key] || item[header] || '';
-          
-          // Escapar vírgulas em strings
-          if (typeof value === 'string' && value.includes(',')) {
-            return `"${value}"`;
+        // Buscar lista de arquivos
+        const filesUrl = `${GITHUB_API_BASE}/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
+        const filesResponse = await fetch(filesUrl);
+        
+        if (!filesResponse.ok) {
+          throw new Error(`GitHub API error: ${filesResponse.status}`);
+        }
+        
+        const files = await filesResponse.json();
+        dadosCache.files = files;
+        
+        // Atualizar lista de arquivos na interface
+        updateGitHubFilesList(files);
+        
+        // Carregar dados de todos os arquivos CSV
+        let allVoos = [];
+        let progress = 0;
+        
+        for (const file of files) {
+          if (file.name.endsWith('.csv')) {
+            updateLoadingProgress(progress, files.length, `Carregando ${file.name}...`);
+            
+            try {
+              const fileData = await loadCSVFromGitHub(file.download_url);
+              allVoos = allVoos.concat(fileData);
+            } catch (error) {
+              console.warn(`Erro ao carregar ${file.name}:`, error);
+            }
+            
+            progress++;
           }
-          
-          return value;
+        }
+        
+        // Processar dados
+        dadosCache.voos = processVoosData(allVoos);
+        dadosCache.lastUpdate = new Date();
+        
+        // Extrair opções de filtro
+        extractFilterOptions();
+        
+        // Atualizar interface
+        hideLoading();
+        updateStatus('online', 'Dados atualizados');
+        updateLastUpdateTime();
+        
+        // Carregar filtros e dados
+        loadFilterOptions();
+        loadVoosData();
+        
+        // Atualizar status do GitHub
+        updateGitHubStatus('online', 'GitHub Conectado');
+        
+      } catch (error) {
+        console.error('Erro ao carregar dados do GitHub:', error);
+        hideLoading();
+        updateStatus('offline', 'Erro ao carregar dados');
+        updateGitHubStatus('offline', 'Erro de conexão');
+        
+        // Usar dados mockados como fallback
+        useMockData();
+      }
+    }
+    
+    async function loadCSVFromGitHub(url) {
+      const response = await fetch(url);
+      const csvText = await response.text();
+      
+      return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            resolve(results.data);
+          },
+          error: (error) => {
+            reject(error);
+          }
         });
-        csvRows.push(row.join(','));
+      });
+    }
+    
+    function processVoosData(rawData) {
+      // Processar dados brutos
+      return rawData.map(voo => ({
+        data: voo.data || voo.date || '',
+        origem: voo.origem || voo.origin || '',
+        destino: voo.destino || voo.destination || '',
+        passageiro: voo.passageiro || voo.passenger || '',
+        horas_voo: parseFloat(voo.horas_voo || voo.flight_hours || voo.hours || 0),
+        situacao: (voo.situacao || voo.status || '').toUpperCase(),
+        // Extrair ano da data
+        ano: extractYearFromDate(voo.data || voo.date)
+      })).filter(voo => voo.data && voo.origem && voo.destino);
+    }
+    
+    function extractYearFromDate(dateStr) {
+      if (!dateStr) return '';
+      // Tenta extrair ano de diferentes formatos de data
+      const match = dateStr.match(/\b(\d{4})\b/);
+      return match ? match[1] : '';
+    }
+    
+    function extractFilterOptions() {
+      const voos = dadosCache.voos;
+      
+      // Extrair anos únicos
+      dadosCache.anos = [...new Set(voos.map(v => v.ano).filter(Boolean))].sort().reverse();
+      
+      // Extrair origens únicas
+      dadosCache.origens = [...new Set(voos.map(v => v.origem).filter(Boolean))].sort();
+      
+      // Extrair destinos únicos
+      dadosCache.destinos = [...new Set(voos.map(v => v.destino).filter(Boolean))].sort();
+      
+      // Extrair situações únicas
+      dadosCache.situacoes = [...new Set(voos.map(v => v.situacao).filter(Boolean))].sort();
+    }
+    
+    function loadFilterOptions() {
+      // Carregar anos
+      const yearSelects = document.querySelectorAll('select[id$="ano"], select[id*="year"]');
+      yearSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="all">Todos os anos</option>';
+        
+        dadosCache.anos.forEach(ano => {
+          const option = document.createElement('option');
+          option.value = ano;
+          option.textContent = ano;
+          if (ano === '2024') option.selected = true;
+          select.appendChild(option);
+        });
+        
+        // Restaurar valor anterior se possível
+        if (currentValue && dadosCache.anos.includes(currentValue)) {
+          select.value = currentValue;
+        }
       });
       
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
+      // Carregar origens
+      const origemSelects = document.querySelectorAll('select[id*="origem"]');
+      origemSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="all">Todas as origens</option>';
+        
+        dadosCache.origens.forEach(origem => {
+          const option = document.createElement('option');
+          option.value = origem;
+          option.textContent = origem;
+          select.appendChild(option);
+        });
+        
+        if (currentValue && dadosCache.origens.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
       
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
+      // Carregar destinos
+      const destinoSelects = document.querySelectorAll('select[id*="destino"]:not([id*="situacao"])');
+      destinoSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="all">Todos os destinos</option>';
+        
+        dadosCache.destinos.forEach(destino => {
+          const option = document.createElement('option');
+          option.value = destino;
+          option.textContent = destino;
+          select.appendChild(option);
+        });
+        
+        if (currentValue && dadosCache.destinos.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
       
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Carregar situações
+      const situacaoSelects = document.querySelectorAll('select[id*="situacao"]');
+      situacaoSelects.forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = '<option value="all">Todas as situações</option>';
+        
+        dadosCache.situacoes.forEach(situacao => {
+          const option = document.createElement('option');
+          option.value = situacao;
+          option.textContent = situacao;
+          select.appendChild(option);
+        });
+        
+        if (currentValue && dadosCache.situacoes.includes(currentValue)) {
+          select.value = currentValue;
+        }
+      });
     }
     
-    function handleDownload() {
-      const ano = document.getElementById('download-year').value;
-      const formato = document.getElementById('download-format').value;
-      const filtro = document.getElementById('download-filter').value;
+    function updateGitHubFilesList(files) {
+      const filesList = document.getElementById('github-files');
+      if (!filesList) return;
       
-      // Simular processamento
-      showLoading();
+      // Ordenar arquivos por nome (anos mais recentes primeiro)
+      const sortedFiles = files
+        .filter(file => file.name.endsWith('.csv'))
+        .sort((a, b) => b.name.localeCompare(a.name));
       
-      setTimeout(() => {
-        hideLoading();
-        
-        let filename = `voos_oficiais_${ano}`;
-        if (filtro === 'yes') {
-          filename += '_com_filtros';
-        }
-        
-        switch(formato) {
-          case 'csv':
-            filename += '.csv';
-            break;
-          case 'xlsx':
-            filename += '.xlsx';
-            break;
-          case 'json':
-            filename += '.json';
-            break;
-          case 'pdf':
-            filename += '.pdf';
-            break;
-        }
-        
-        showNotification(`Download do arquivo ${filename} iniciado!`, 'success');
-      }, 1500);
+      filesList.innerHTML = '';
+      
+      sortedFiles.forEach(file => {
+        const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.innerHTML = `
+          <div class="d-flex w-100 justify-content-between">
+            <h6 class="mb-1">
+              <i class="fas fa-file-csv text-success me-2"></i>
+              ${file.name}
+            </h6>
+            <small class="text-muted">${sizeMB} MB</small>
+          </div>
+          <p class="mb-1">${file.path}</p>
+          <small>Última atualização: ${new Date(file.updated_at || file.created_at).toLocaleDateString('pt-BR')}</small>
+          <div class="mt-2">
+            <button class="btn btn-sm btn-outline-primary me-2" onclick="downloadGitHubFile('${file.download_url}', '${file.name}')">
+              <i class="fas fa-download"></i> Baixar
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="previewGitHubFile('${file.download_url}')">
+              <i class="fas fa-eye"></i> Pré-visualizar
+            </button>
+          </div>
+        `;
+        filesList.appendChild(item);
+      });
+      
+      if (sortedFiles.length === 0) {
+        filesList.innerHTML = '<div class="list-group-item text-center">Nenhum arquivo CSV encontrado</div>';
+      }
     }
     
-    function downloadFullDataset() {
-      showLoading();
-      
-      setTimeout(() => {
-        hideLoading();
+    async function checkForUpdates() {
+      try {
+        updateStatus('updating', 'Verificando atualizações...');
         
-        const filename = `dataset_completo_voos_oficiais_${new Date().getFullYear()}.zip`;
-        showNotification(`Dataset completo baixado: ${filename}`, 'success');
-      }, 2000);
+        const filesUrl = `${GITHUB_API_BASE}/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
+        const response = await fetch(filesUrl, {
+          headers: {
+            'If-None-Match': dadosCache.lastUpdate ? dadosCache.lastUpdate.getTime() : ''
+          }
+        });
+        
+        if (response.status === 304) {
+          // Não há atualizações
+          updateStatus('online', 'Dados atualizados');
+          showNotification('Os dados já estão atualizados!', 'info');
+          return;
+        }
+        
+        if (response.ok) {
+          // Há atualizações disponíveis
+          const files = await response.json();
+          const hasNewFiles = JSON.stringify(files) !== JSON.stringify(dadosCache.files);
+          
+          if (hasNewFiles) {
+            showNotification('Novos dados disponíveis! Atualizando...', 'info');
+            loadDataFromGitHub(true);
+          } else {
+            updateStatus('online', 'Dados atualizados');
+            showNotification('Os dados já estão atualizados!', 'info');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar atualizações:', error);
+        updateStatus('offline', 'Erro ao verificar');
+      }
     }
     
     // ============================================
     // FUNÇÕES DE UTILITÁRIOS
     // ============================================
+    
+    function updateStatus(status, text) {
+      const statusElement = document.getElementById('updateStatus');
+      const textElement = document.getElementById('updateStatusText');
+      
+      if (statusElement && textElement) {
+        statusElement.className = `update-status ${status}`;
+        textElement.textContent = text;
+      }
+    }
+    
+    function updateGitHubStatus(status, text) {
+      const statusElement = document.getElementById('githubStatus');
+      const textElement = document.getElementById('githubStatusText');
+      
+      if (statusElement && textElement) {
+        statusElement.className = `update-status ${status}`;
+        textElement.textContent = text;
+      }
+    }
+    
+    function updateLastUpdateTime() {
+      const timeElement = document.getElementById('lastUpdateTime');
+      if (timeElement && dadosCache.lastUpdate) {
+        const now = new Date();
+        const diffMinutes = Math.floor((now - dadosCache.lastUpdate) / 60000);
+        
+        if (diffMinutes < 1) {
+          timeElement.textContent = 'Agora';
+        } else if (diffMinutes < 60) {
+          timeElement.textContent = `Há ${diffMinutes} min`;
+        } else {
+          const diffHours = Math.floor(diffMinutes / 60);
+          timeElement.textContent = `Há ${diffHours} h`;
+        }
+      }
+    }
+    
+    function showLoading(text = 'Carregando...') {
+      const overlay = document.getElementById('loadingOverlay');
+      const textElement = document.getElementById('loadingText');
+      
+      if (overlay) overlay.style.display = 'flex';
+      if (textElement) textElement.textContent = text;
+    }
+    
+    function hideLoading() {
+      const overlay = document.getElementById('loadingOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+    
+    function updateLoadingProgress(current, total, text) {
+      const progressElement = document.getElementById('loadingProgress');
+      const textElement = document.getElementById('loadingText');
+      
+      if (progressElement) {
+        const percentage = Math.round((current / total) * 100);
+        progressElement.style.width = `${percentage}%`;
+      }
+      
+      if (textElement) {
+        textElement.textContent = text;
+      }
+    }
     
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
@@ -2084,17 +1833,964 @@
       }, 5000);
     }
     
-    function showLoading() {
-      document.getElementById('loadingOverlay').style.display = 'flex';
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      
+      // Tentar converter diferentes formatos de data
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          // Se falhar, retornar a string original
+          return dateStr;
+        }
+        return date.toLocaleDateString('pt-BR');
+      } catch {
+        return dateStr;
+      }
     }
     
-    function hideLoading() {
-      document.getElementById('loadingOverlay').style.display = 'none';
+    function formatHoras(horas) {
+      if (!horas && horas !== 0) return '—';
+      const horasInt = Math.floor(horas);
+      const minutos = Math.round((horas - horasInt) * 60);
+      return `${horasInt}h${minutos > 0 ? ` ${minutos}m` : ''}`;
     }
+    
+    function formatCurrency(valor) {
+      if (!valor && valor !== 0) return '—';
+      return new Intl.NumberFormat('pt-BR', { 
+        style: 'currency', 
+        currency: 'BRL'
+      }).format(valor);
+    }
+    
+    // ============================================
+    // FUNÇÕES PARA DADOS DE FALLBACK (MOCK)
+    // ============================================
+    
+    function useMockData() {
+      // Dados mockados para quando o GitHub estiver offline
+      const mockVoos = [
+        { data: '2024-03-15', origem: 'CNF', destino: 'GRU', passageiro: 'João Silva', horas_voo: 1.5, situacao: 'REALIZADO', ano: '2024' },
+        { data: '2024-03-18', origem: 'CNF', destino: 'GIG', passageiro: 'Maria Oliveira', horas_voo: 1.2, situacao: 'REALIZADO', ano: '2024' },
+        { data: '2024-03-22', origem: 'UDI', destino: 'BSB', passageiro: 'Carlos Santos', horas_voo: 2.0, situacao: 'CANCELADO', ano: '2024' },
+        { data: '2024-02-10', origem: 'CNF', destino: 'GRU', passageiro: 'Ana Costa', horas_voo: 1.5, situacao: 'REALIZADO', ano: '2024' },
+        { data: '2023-12-05', origem: 'CNF', destino: 'VIX', passageiro: 'Roberto Alves', horas_voo: 1.8, situacao: 'REALIZADO', ano: '2023' },
+        { data: '2023-11-20', origem: 'GRU', destino: 'BSB', passageiro: 'Patrícia Lima', horas_voo: 1.8, situacao: 'REALIZADO', ano: '2023' }
+      ];
+      
+      dadosCache.voos = mockVoos;
+      dadosCache.anos = ['2024', '2023'];
+      dadosCache.origens = ['CNF', 'UDI', 'GRU'];
+      dadosCache.destinos = ['GRU', 'GIG', 'BSB', 'VIX'];
+      dadosCache.situacoes = ['REALIZADO', 'CANCELADO'];
+      dadosCache.lastUpdate = new Date();
+      
+      loadFilterOptions();
+      loadVoosData();
+      showNotification('Usando dados de exemplo (GitHub offline)', 'warning');
+    }
+    
+    // ============================================
+    // VISÃO GERAL (VOOS)
+    // ============================================
+    
+    function loadVoosData() {
+      const ano = document.getElementById('filter-ano').value;
+      const origem = document.getElementById('filter-origem').value;
+      const destino = document.getElementById('filter-destino').value;
+      const situacao = document.getElementById('filter-situacao').value;
+      
+      let filteredData = [...dadosCache.voos];
+      
+      if (ano !== 'all') {
+        filteredData = filteredData.filter(v => v.ano === ano);
+      }
+      
+      if (origem !== 'all') {
+        filteredData = filteredData.filter(v => v.origem === origem);
+      }
+      
+      if (destino !== 'all') {
+        filteredData = filteredData.filter(v => v.destino === destino);
+      }
+      
+      if (situacao !== 'all') {
+        filteredData = filteredData.filter(v => v.situacao === situacao);
+      }
+      
+      // Ordenar por data (decrescente por padrão)
+      filteredData.sort((a, b) => b.data.localeCompare(a.data));
+      
+      renderVoosTable(filteredData);
+      renderVoosCharts(filteredData);
+      updateVoosStatistics(filteredData);
+      
+      // Atualizar contador
+      document.getElementById('voos-count').textContent = `${filteredData.length} voos`;
+      document.getElementById('table-year').textContent = ano === 'all' ? 'Todos' : ano;
+    }
+    
+    function renderVoosTable(data) {
+      const tableBody = document.getElementById('voos-table-body');
+      const tableFooter = document.getElementById('voos-table-footer');
+      
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum voo encontrado com os filtros aplicados</td></tr>';
+        tableFooter.innerHTML = '';
+        return;
+      }
+      
+      let tableHTML = '';
+      let totalHoras = 0;
+      let realizados = 0;
+      
+      data.forEach(item => {
+        tableHTML += `
+          <tr>
+            <td>${formatDate(item.data)}</td>
+            <td>${item.origem}</td>
+            <td>${item.destino}</td>
+            <td>${item.passageiro}</td>
+            <td>${formatHoras(item.horas_voo)}</td>
+            <td>
+              <span class="badge-status ${item.situacao === 'REALIZADO' ? 'badge-realizado' : 'badge-cancelado'}">
+                <i class="fas ${item.situacao === 'REALIZADO' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                ${item.situacao}
+              </span>
+            </td>
+          </tr>
+        `;
+        
+        totalHoras += item.horas_voo;
+        if (item.situacao === 'REALIZADO') realizados++;
+      });
+      
+      tableBody.innerHTML = tableHTML;
+      tableFooter.innerHTML = `
+        <tr class="table-footer">
+          <td colspan="4"><strong>TOTAL</strong></td>
+          <td><strong>${formatHoras(totalHoras)}</strong></td>
+          <td><strong>${realizados}/${data.length} realizados</strong></td>
+        </tr>
+      `;
+    }
+    
+    function renderVoosCharts(data) {
+      if (data.length === 0) {
+        // Gráficos vazios
+        Plotly.newPlot('chart-destinos', [{
+          x: ['Sem dados'],
+          y: [0],
+          type: 'bar',
+          marker: { color: palette.primary[0] }
+        }], {
+          title: '',
+          margin: { t: 10, r: 30, b: 80, l: 60 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        
+        Plotly.newPlot('chart-meses', [{
+          x: ['Sem dados'],
+          y: [0],
+          type: 'scatter',
+          mode: 'lines+markers',
+          line: { color: palette.secondary[0], width: 3 }
+        }], {
+          title: '',
+          margin: { t: 10, r: 30, b: 50, l: 60 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        return;
+      }
+      
+      // Gráfico de destinos
+      const destinosCount = {};
+      data.forEach(item => {
+        destinosCount[item.destino] = (destinosCount[item.destino] || 0) + 1;
+      });
+      
+      const destinosArray = Object.entries(destinosCount)
+        .map(([destino, quantidade]) => ({ destino, quantidade }))
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 8);
+      
+      const destinosTrace = {
+        x: destinosArray.map(d => d.destino.length > 10 ? d.destino.substring(0, 10) + '...' : d.destino),
+        y: destinosArray.map(d => d.quantidade),
+        type: 'bar',
+        marker: { color: palette.primary[0] }
+      };
+      
+      Plotly.newPlot('chart-destinos', [destinosTrace], {
+        title: '',
+        margin: { t: 10, r: 30, b: 80, l: 60 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+      
+      // Gráfico por mês
+      const mesesCount = {};
+      data.forEach(item => {
+        try {
+          const date = new Date(item.data);
+          if (!isNaN(date.getTime())) {
+            const mes = date.toLocaleDateString('pt-BR', { month: 'short' });
+            mesesCount[mes] = (mesesCount[mes] || 0) + 1;
+          }
+        } catch (e) {
+          // Ignorar datas inválidas
+        }
+      });
+      
+      const mesesOrdenados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const mesesData = mesesOrdenados.map(mes => ({
+        mes,
+        quantidade: mesesCount[mes] || 0
+      }));
+      
+      const mesesTrace = {
+        x: mesesData.map(m => m.mes),
+        y: mesesData.map(m => m.quantidade),
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: palette.secondary[0], width: 3 },
+        marker: { color: palette.secondary[0], size: 8 }
+      };
+      
+      Plotly.newPlot('chart-meses', [mesesTrace], {
+        title: '',
+        margin: { t: 10, r: 30, b: 50, l: 60 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+    }
+    
+    function updateVoosStatistics(data) {
+      const totalVoos = data.length;
+      const totalHoras = data.reduce((sum, item) => sum + (item.horas_voo || 0), 0);
+      const totalPassageiros = new Set(data.map(item => item.passageiro)).size;
+      const destinosUnicos = new Set(data.map(item => item.destino)).size;
+      const realizados = data.filter(item => item.situacao === 'REALIZADO').length;
+      
+      document.getElementById('card-voos').textContent = totalVoos.toLocaleString('pt-BR');
+      document.getElementById('card-horas').textContent = formatHoras(totalHoras);
+      document.getElementById('card-pass').textContent = totalPassageiros.toLocaleString('pt-BR');
+      document.getElementById('card-destinos').textContent = destinosUnicos;
+      
+      // Atualizar fonte dos dados
+      document.getElementById('card-voos-source').textContent = `Fonte: GitHub`;
+      document.getElementById('card-horas-source').textContent = `Realizados: ${realizados}`;
+      document.getElementById('card-pass-source').textContent = `Únicos: ${totalPassageiros}`;
+      document.getElementById('card-destinos-source').textContent = `Distintos: ${destinosUnicos}`;
+    }
+    
+    function clearVoosFilters() {
+      document.getElementById('filter-ano').value = 'all';
+      document.getElementById('filter-origem').value = 'all';
+      document.getElementById('filter-destino').value = 'all';
+      document.getElementById('filter-situacao').value = 'all';
+      loadVoosData();
+    }
+    
+    // ============================================
+    // DESTINOS
+    // ============================================
+    
+    function loadDestinosData() {
+      const ano = document.getElementById('destinos-ano').value;
+      const destino = document.getElementById('destinos-destino').value;
+      const situacao = document.getElementById('destinos-situacao').value;
+      
+      let filteredData = [...dadosCache.voos];
+      
+      if (ano !== 'all') {
+        filteredData = filteredData.filter(v => v.ano === ano);
+      }
+      
+      if (destino !== 'all') {
+        filteredData = filteredData.filter(v => v.destino === destino);
+      }
+      
+      if (situacao !== 'all') {
+        filteredData = filteredData.filter(v => v.situacao === situacao);
+      }
+      
+      // Agrupar por destino
+      const destinosMap = {};
+      filteredData.forEach(voo => {
+        if (!destinosMap[voo.destino]) {
+          destinosMap[voo.destino] = {
+            destino: voo.destino,
+            quantidade: 0,
+            horas_totais: 0,
+            realizados: 0,
+            cancelados: 0
+          };
+        }
+        
+        destinosMap[voo.destino].quantidade++;
+        destinosMap[voo.destino].horas_totais += voo.horas_voo || 0;
+        
+        if (voo.situacao === 'REALIZADO') {
+          destinosMap[voo.destino].realizados++;
+        } else if (voo.situacao === 'CANCELADO') {
+          destinosMap[voo.destino].cancelados++;
+        }
+      });
+      
+      // Converter para array e calcular taxa de sucesso
+      const destinosArray = Object.values(destinosMap).map(d => ({
+        ...d,
+        taxa_sucesso: d.quantidade > 0 ? (d.realizados / d.quantidade) * 100 : 0
+      }));
+      
+      // Ordenar por quantidade (decrescente)
+      destinosArray.sort((a, b) => b.quantidade - a.quantidade);
+      
+      renderDestinosTable(destinosArray);
+      renderDestinosCharts(filteredData, destinosArray);
+      
+      // Atualizar contadores
+      document.getElementById('destinos-count').textContent = `${destinosArray.length} destinos`;
+      document.getElementById('destinos-period').textContent = ano === 'all' ? 'Todos' : ano;
+    }
+    
+    function renderDestinosTable(data) {
+      const tableBody = document.getElementById('destinos-table-body');
+      const tableFooter = document.getElementById('destinos-table-footer');
+      
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum destino encontrado</td></tr>';
+        tableFooter.innerHTML = '';
+        return;
+      }
+      
+      let tableHTML = '';
+      let totals = { quantidade: 0, horas_totais: 0, realizados: 0, cancelados: 0 };
+      
+      data.forEach(item => {
+        tableHTML += `
+          <tr>
+            <td>${item.destino}</td>
+            <td>${item.quantidade.toLocaleString('pt-BR')}</td>
+            <td>${formatHoras(item.horas_totais)}</td>
+            <td>${item.realizados.toLocaleString('pt-BR')}</td>
+            <td>${item.cancelados.toLocaleString('pt-BR')}</td>
+            <td>${item.taxa_sucesso.toFixed(1)}%</td>
+          </tr>
+        `;
+        
+        totals.quantidade += item.quantidade;
+        totals.horas_totais += item.horas_totais;
+        totals.realizados += item.realizados;
+        totals.cancelados += item.cancelados;
+      });
+      
+      const taxaSucessoTotal = totals.quantidade > 0 ? (totals.realizados / totals.quantidade) * 100 : 0;
+      
+      tableBody.innerHTML = tableHTML;
+      tableFooter.innerHTML = `
+        <tr class="table-footer">
+          <td><strong>TOTAL</strong></td>
+          <td><strong>${totals.quantidade.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${formatHoras(totals.horas_totais)}</strong></td>
+          <td><strong>${totals.realizados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${totals.cancelados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${taxaSucessoTotal.toFixed(1)}%</strong></td>
+        </tr>
+      `;
+    }
+    
+    function renderDestinosCharts(voosData, destinosData) {
+      if (voosData.length === 0) {
+        // Gráficos vazios
+        Plotly.newPlot('chart-situacao-destinos', [{
+          labels: ['Sem dados'],
+          values: [100],
+          type: 'pie',
+          marker: { colors: [palette.primary[0]] }
+        }], {
+          title: '',
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        
+        Plotly.newPlot('chart-top-destinos', [{
+          x: ['Sem dados'],
+          y: [0],
+          type: 'bar',
+          marker: { color: palette.accent[0] }
+        }], {
+          title: '',
+          margin: { t: 10, r: 30, b: 80, l: 60 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        return;
+      }
+      
+      // Gráfico de situação
+      const situacaoCount = voosData.reduce((acc, voo) => {
+        acc[voo.situacao] = (acc[voo.situacao] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const situacaoTrace = {
+        labels: Object.keys(situacaoCount),
+        values: Object.values(situacaoCount),
+        type: 'pie',
+        marker: { colors: [palette.secondary[0], palette.accent[0]] }
+      };
+      
+      Plotly.newPlot('chart-situacao-destinos', [situacaoTrace], {
+        title: '',
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+      
+      // Gráfico de top destinos (top 10)
+      const topDestinos = destinosData.slice(0, 10);
+      const topDestinosTrace = {
+        x: topDestinos.map(d => d.destino.length > 10 ? d.destino.substring(0, 10) + '...' : d.destino),
+        y: topDestinos.map(d => d.quantidade),
+        type: 'bar',
+        marker: { color: palette.accent[0] }
+      };
+      
+      Plotly.newPlot('chart-top-destinos', [topDestinosTrace], {
+        title: '',
+        margin: { t: 10, r: 30, b: 80, l: 60 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+    }
+    
+    function clearDestinosFilters() {
+      document.getElementById('destinos-ano').value = 'all';
+      document.getElementById('destinos-destino').value = 'all';
+      document.getElementById('destinos-situacao').value = 'all';
+      loadDestinosData();
+    }
+    
+    // ============================================
+    // RELATÓRIOS
+    // ============================================
+    
+    function loadRelatorioData() {
+      const ano = document.getElementById('relatorio-ano').value;
+      const tipo = document.getElementById('relatorio-tipo').value;
+      const situacao = document.getElementById('relatorio-situacao').value;
+      
+      let filteredData = [...dadosCache.voos];
+      
+      if (ano !== 'all') {
+        filteredData = filteredData.filter(v => v.ano === ano);
+      }
+      
+      if (situacao !== 'all') {
+        filteredData = filteredData.filter(v => v.situacao === situacao);
+      }
+      
+      renderRelatorioTable(filteredData, tipo);
+      renderRelatorioCharts(filteredData);
+      updateRelatorioStatistics(filteredData);
+      
+      document.getElementById('relatorios-period').textContent = ano === 'all' ? 'Todos' : ano;
+      document.getElementById('relatorio-count').textContent = `${filteredData.length} voos`;
+    }
+    
+    function renderRelatorioTable(data, tipo) {
+      const tableBody = document.getElementById('relatorio-table-body');
+      const tableFooter = document.getElementById('relatorio-table-footer');
+      
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum dado para exibir</td></tr>';
+        tableFooter.innerHTML = '';
+        return;
+      }
+      
+      let tableHTML = '';
+      let tableData = [];
+      let totals = { voos: 0, realizados: 0, cancelados: 0, horas: 0 };
+      
+      if (tipo === 'mensal') {
+        // Agrupar por mês
+        const mesesMap = {};
+        
+        data.forEach(voo => {
+          try {
+            const date = new Date(voo.data);
+            if (!isNaN(date.getTime())) {
+              const mesKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+              const mesLabel = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+              
+              if (!mesesMap[mesKey]) {
+                mesesMap[mesKey] = {
+                  periodo: mesLabel,
+                  voos: 0,
+                  realizados: 0,
+                  cancelados: 0,
+                  horas: 0
+                };
+              }
+              
+              mesesMap[mesKey].voos++;
+              mesesMap[mesKey].horas += voo.horas_voo || 0;
+              
+              if (voo.situacao === 'REALIZADO') {
+                mesesMap[mesKey].realizados++;
+              } else if (voo.situacao === 'CANCELADO') {
+                mesesMap[mesKey].cancelados++;
+              }
+            }
+          } catch (e) {
+            // Ignorar datas inválidas
+          }
+        });
+        
+        tableData = Object.values(mesesMap)
+          .map(m => ({
+            ...m,
+            taxa_sucesso: m.voos > 0 ? (m.realizados / m.voos) * 100 : 0
+          }))
+          .sort((a, b) => a.periodo.localeCompare(b.periodo));
+          
+      } else if (tipo === 'destinos') {
+        // Agrupar por destino
+        const destinosMap = {};
+        
+        data.forEach(voo => {
+          if (!destinosMap[voo.destino]) {
+            destinosMap[voo.destino] = {
+              periodo: voo.destino,
+              voos: 0,
+              realizados: 0,
+              cancelados: 0,
+              horas: 0
+            };
+          }
+          
+          destinosMap[voo.destino].voos++;
+          destinosMap[voo.destino].horas += voo.horas_voo || 0;
+          
+          if (voo.situacao === 'REALIZADO') {
+            destinosMap[voo.destino].realizados++;
+          } else if (voo.situacao === 'CANCELADO') {
+            destinosMap[voo.destino].cancelados++;
+          }
+        });
+        
+        tableData = Object.values(destinosMap)
+          .map(d => ({
+            ...d,
+            taxa_sucesso: d.voos > 0 ? (d.realizados / d.voos) * 100 : 0
+          }))
+          .sort((a, b) => b.voos - a.voos)
+          .slice(0, 20); // Limitar a 20 destinos
+          
+      } else {
+        // Consolidado anual
+        const anosMap = {};
+        
+        data.forEach(voo => {
+          if (!anosMap[voo.ano]) {
+            anosMap[voo.ano] = {
+              periodo: voo.ano,
+              voos: 0,
+              realizados: 0,
+              cancelados: 0,
+              horas: 0
+            };
+          }
+          
+          anosMap[voo.ano].voos++;
+          anosMap[voo.ano].horas += voo.horas_voo || 0;
+          
+          if (voo.situacao === 'REALIZADO') {
+            anosMap[voo.ano].realizados++;
+          } else if (voo.situacao === 'CANCELADO') {
+            anosMap[voo.ano].cancelados++;
+          }
+        });
+        
+        tableData = Object.values(anosMap)
+          .map(a => ({
+            ...a,
+            taxa_sucesso: a.voos > 0 ? (a.realizados / a.voos) * 100 : 0
+          }))
+          .sort((a, b) => b.periodo.localeCompare(a.periodo));
+      }
+      
+      // Gerar tabela HTML
+      tableData.forEach(item => {
+        tableHTML += `
+          <tr>
+            <td>${item.periodo}</td>
+            <td>${item.voos.toLocaleString('pt-BR')}</td>
+            <td>${item.realizados.toLocaleString('pt-BR')}</td>
+            <td>${item.cancelados.toLocaleString('pt-BR')}</td>
+            <td>${formatHoras(item.horas)}</td>
+            <td>${item.taxa_sucesso.toFixed(1)}%</td>
+          </tr>
+        `;
+        
+        totals.voos += item.voos;
+        totals.realizados += item.realizados;
+        totals.cancelados += item.cancelados;
+        totals.horas += item.horas;
+      });
+      
+      const taxaSucessoTotal = totals.voos > 0 ? (totals.realizados / totals.voos) * 100 : 0;
+      
+      tableBody.innerHTML = tableHTML || '<tr><td colspan="6" class="text-center">Nenhum dado para exibir</td></tr>';
+      tableFooter.innerHTML = tableData.length > 0 ? `
+        <tr class="table-footer">
+          <td><strong>TOTAL</strong></td>
+          <td><strong>${totals.voos.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${totals.realizados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${totals.cancelados.toLocaleString('pt-BR')}</strong></td>
+          <td><strong>${formatHoras(totals.horas)}</strong></td>
+          <td><strong>${taxaSucessoTotal.toFixed(1)}%</strong></td>
+        </tr>
+      ` : '';
+    }
+    
+    function renderRelatorioCharts(data) {
+      if (data.length === 0) {
+        // Gráficos vazios
+        Plotly.newPlot('chart-situacao-relatorio', [{
+          labels: ['Sem dados'],
+          values: [100],
+          type: 'pie',
+          marker: { colors: [palette.primary[0]] }
+        }], {
+          title: '',
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        
+        Plotly.newPlot('chart-meses-relatorio', [{
+          x: ['Sem dados'],
+          y: [0],
+          type: 'bar',
+          marker: { color: palette.secondary[0] }
+        }], {
+          title: '',
+          margin: { t: 10, r: 30, b: 50, l: 60 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent'
+        });
+        return;
+      }
+      
+      // Gráfico de situação
+      const situacaoCount = data.reduce((acc, voo) => {
+        acc[voo.situacao] = (acc[voo.situacao] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const situacaoTrace = {
+        labels: Object.keys(situacaoCount),
+        values: Object.values(situacaoCount),
+        type: 'pie',
+        marker: { colors: [palette.secondary[0], palette.accent[0]] }
+      };
+      
+      Plotly.newPlot('chart-situacao-relatorio', [situacaoTrace], {
+        title: '',
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+      
+      // Gráfico por mês
+      const mesesCount = {};
+      data.forEach(item => {
+        try {
+          const date = new Date(item.data);
+          if (!isNaN(date.getTime())) {
+            const mes = date.toLocaleDateString('pt-BR', { month: 'short' });
+            mesesCount[mes] = (mesesCount[mes] || 0) + 1;
+          }
+        } catch (e) {
+          // Ignorar datas inválidas
+        }
+      });
+      
+      const mesesOrdenados = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const mesesData = mesesOrdenados.map(mes => ({
+        mes,
+        quantidade: mesesCount[mes] || 0
+      }));
+      
+      const mesesTrace = {
+        x: mesesData.map(m => m.mes),
+        y: mesesData.map(m => m.quantidade),
+        type: 'bar',
+        marker: { color: palette.secondary[0] }
+      };
+      
+      Plotly.newPlot('chart-meses-relatorio', [mesesTrace], {
+        title: '',
+        margin: { t: 10, r: 30, b: 50, l: 60 },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+      });
+    }
+    
+    function updateRelatorioStatistics(data) {
+      const totalVoos = data.length;
+      const totalHoras = data.reduce((sum, item) => sum + (item.horas_voo || 0), 0);
+      const realizados = data.filter(item => item.situacao === 'REALIZADO').length;
+      const destinosUnicos = new Set(data.map(item => item.destino)).size;
+      const taxaSucesso = totalVoos > 0 ? (realizados / totalVoos) * 100 : 0;
+      
+      document.getElementById('relatorio-voos').textContent = totalVoos.toLocaleString('pt-BR');
+      document.getElementById('relatorio-horas').textContent = formatHoras(totalHoras);
+      document.getElementById('relatorio-sucesso').textContent = `${taxaSucesso.toFixed(1)}%`;
+      document.getElementById('relatorio-destinos').textContent = destinosUnicos;
+    }
+    
+    // ============================================
+    // DOWNLOAD E EXPORTAÇÃO
+    // ============================================
+    
+    async function handleDownload() {
+      const ano = document.getElementById('download-year').value;
+      const formato = document.getElementById('download-format').value;
+      const comFiltros = document.getElementById('download-filter').value === 'yes';
+      
+      showLoading('Preparando download...');
+      
+      try {
+        let dataToDownload;
+        
+        if (comFiltros) {
+          // Usar dados filtrados da aba atual
+          const activeTab = document.querySelector('.tab-pane.active').id;
+          
+          if (activeTab === 'overview') {
+            const anoFilter = document.getElementById('filter-ano').value;
+            const origemFilter = document.getElementById('filter-origem').value;
+            const destinoFilter = document.getElementById('filter-destino').value;
+            const situacaoFilter = document.getElementById('filter-situacao').value;
+            
+            dataToDownload = dadosCache.voos.filter(voo => {
+              if (anoFilter !== 'all' && voo.ano !== anoFilter) return false;
+              if (origemFilter !== 'all' && voo.origem !== origemFilter) return false;
+              if (destinoFilter !== 'all' && voo.destino !== destinoFilter) return false;
+              if (situacaoFilter !== 'all' && voo.situacao !== situacaoFilter) return false;
+              return true;
+            });
+          } else {
+            dataToDownload = dadosCache.voos;
+          }
+        } else {
+          // Usar todos os dados
+          dataToDownload = dadosCache.voos;
+        }
+        
+        // Filtrar por ano se necessário
+        if (ano !== 'all') {
+          dataToDownload = dataToDownload.filter(voo => voo.ano === ano);
+        }
+        
+        // Exportar no formato selecionado
+        switch(formato) {
+          case 'csv':
+            exportToCSV(dataToDownload, `voos_oficiais_${ano === 'all' ? 'todos' : ano}.csv`);
+            break;
+          case 'json':
+            exportToJSON(dataToDownload, `voos_oficiais_${ano === 'all' ? 'todos' : ano}.json`);
+            break;
+          case 'xlsx':
+          case 'pdf':
+            // Para Excel e PDF, mostramos uma mensagem
+            showNotification(`Formato ${formato.toUpperCase()} seria gerado com ${dataToDownload.length} registros`, 'info');
+            break;
+        }
+        
+        hideLoading();
+        showNotification(`Download preparado com ${dataToDownload.length} registros`, 'success');
+        
+      } catch (error) {
+        hideLoading();
+        showNotification('Erro ao preparar download', 'danger');
+        console.error('Erro no download:', error);
+      }
+    }
+    
+    function exportToCSV(data, filename) {
+      if (data.length === 0) {
+        showNotification('Nenhum dado para exportar', 'warning');
+        return;
+      }
+      
+      const headers = ['data', 'origem', 'destino', 'passageiro', 'horas_voo', 'situacao', 'ano'];
+      const csvRows = [];
+      
+      // Cabeçalho
+      csvRows.push(headers.join(','));
+      
+      // Dados
+      data.forEach(item => {
+        const row = headers.map(header => {
+          const value = item[header] || '';
+          // Escapar vírgulas e aspas
+          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        });
+        csvRows.push(row.join(','));
+      });
+      
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportToJSON(data, filename) {
+      const jsonContent = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+    
+    function exportData(tipo) {
+      let data, filename;
+      
+      switch(tipo) {
+        case 'voos':
+          data = dadosCache.voos;
+          filename = `voos_oficiais_${new Date().toISOString().slice(0,10)}.csv`;
+          break;
+          
+        case 'destinos':
+          // Para destinos, precisamos calcular os dados agrupados
+          const destinosMap = {};
+          dadosCache.voos.forEach(voo => {
+            if (!destinosMap[voo.destino]) {
+              destinosMap[voo.destino] = {
+                destino: voo.destino,
+                quantidade: 0,
+                horas_totais: 0,
+                realizados: 0,
+                cancelados: 0
+              };
+            }
+            
+            destinosMap[voo.destino].quantidade++;
+            destinosMap[voo.destino].horas_totais += voo.horas_voo || 0;
+            
+            if (voo.situacao === 'REALIZADO') {
+              destinosMap[voo.destino].realizados++;
+            } else if (voo.situacao === 'CANCELADO') {
+              destinosMap[voo.destino].cancelados++;
+            }
+          });
+          
+          data = Object.values(destinosMap).map(d => ({
+            ...d,
+            taxa_sucesso: d.quantidade > 0 ? (d.realizados / d.quantidade) * 100 : 0
+          }));
+          
+          filename = `analise_destinos_${new Date().toISOString().slice(0,10)}.csv`;
+          break;
+      }
+      
+      exportToCSV(data, filename);
+      showNotification('Dados exportados com sucesso!', 'success');
+    }
+    
+    function downloadFromGitHub(type) {
+      if (type === 'raw') {
+        // Baixar arquivo CSV original do GitHub
+        const csvFiles = dadosCache.files.filter(file => file.name.endsWith('.csv'));
+        if (csvFiles.length > 0) {
+          const latestFile = csvFiles.sort((a, b) => 
+            b.name.localeCompare(a.name)
+          )[0];
+          
+          window.open(latestFile.download_url, '_blank');
+          showNotification(`Baixando ${latestFile.name}...`, 'info');
+        } else {
+          showNotification('Nenhum arquivo CSV encontrado', 'warning');
+        }
+      }
+    }
+    
+    async function downloadGitHubFile(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        showNotification(`Download de ${filename} iniciado`, 'success');
+      } catch (error) {
+        showNotification(`Erro ao baixar ${filename}`, 'danger');
+        console.error('Erro no download:', error);
+      }
+    }
+    
+    async function previewGitHubFile(url) {
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const lines = text.split('\n').slice(0, 11); // Primeiras 10 linhas + cabeçalho
+        
+        const preview = lines.join('\n');
+        alert(`Pré-visualização (primeiras 10 linhas):\n\n${preview}`);
+      } catch (error) {
+        showNotification('Erro ao pré-visualizar arquivo', 'danger');
+      }
+    }
+    
+    // ============================================
+    // SISTEMA DE ORDENAÇÃO
+    // ============================================
+    
+    function sortTable(tableType, column) {
+      // Implementação básica - em produção, você pode querer implementar
+      // uma ordenação mais sofisticada para cada tipo de tabela
+      showNotification(`Ordenação por ${column} será implementada`, 'info');
+    }
+    
+    // ============================================
+    // IMPRESSÃO
+    // ============================================
     
     function printCurrentTab(title) {
       const activeTab = document.querySelector('.tab-pane.active');
-      const originalBody = document.body.innerHTML;
       
       const printContent = `
         <html>
@@ -2160,8 +2856,9 @@
           <div class="print-header">
             <h1 class="print-title">${title}</h1>
             <p class="print-subtitle">Governo do Estado de Minas Gerais</p>
-            <p class="print-subtitle">Painel de Voos Oficiais - Transparência de Voos</p>
+            <p class="print-subtitle">Painel de Voos Oficiais - Dados do GitHub</p>
             <p class="print-date">Data da impressão: ${new Date().toLocaleDateString('pt-BR')}</p>
+            <p class="print-date">Fonte: GitHub/${GITHUB_REPO}/${GITHUB_DATA_PATH}</p>
           </div>
           ${activeTab.innerHTML}
         </body>
@@ -2180,28 +2877,7 @@
       };
     }
     
-    // Atalhos de teclado
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.key === 'f') {
-        e.preventDefault();
-        const activeTab = document.querySelector('.tab-pane.active');
-        const firstFilter = activeTab.querySelector('input, select');
-        if (firstFilter) {
-          firstFilter.focus();
-        }
-      }
-      
-      if (e.key === 'Escape') {
-        const activeTabId = document.querySelector('.tab-pane.active').id;
-        if (activeTabId === 'overview') {
-          clearVoosFilters();
-        } else if (activeTabId === 'destinos') {
-          clearDestinosFilters();
-        }
-      }
-    });
-    
-    console.log('Painel de Voos Oficiais carregado com sucesso!');
+    console.log('Painel de Voos Oficiais com integração GitHub carregado com sucesso!');
   </script>
 </body>
 </html>
