@@ -471,6 +471,260 @@
       gap: 6px;
       margin-left: 10px;
     }
+    
+    /* Action Bar - Nova */
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .action-btn {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--gray);
+      transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+      background-color: #f8f9fa;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .action-btn.print:hover {
+      color: #ea4335;
+      border-color: #ea4335;
+    }
+    
+    .action-btn.share:hover {
+      color: #34a853;
+      border-color: #34a853;
+    }
+    
+    /* Tooltip */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--dark);
+      color: white;
+      text-align: center;
+      border-radius: 6px;
+      padding: 10px;
+      position: absolute;
+      z-index: 1000;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 0.85rem;
+      font-weight: normal;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .tooltip .tooltip-text::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--dark) transparent transparent transparent;
+    }
+    
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    
+    /* Share Modal */
+    .share-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .share-modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .share-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .share-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .share-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .share-option:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--card-shadow);
+    }
+    
+    .share-option.facebook:hover {
+      background-color: rgba(59, 89, 152, 0.05);
+      border-color: #3b5998;
+    }
+    
+    .share-option.twitter:hover {
+      background-color: rgba(29, 161, 242, 0.05);
+      border-color: #1da1f2;
+    }
+    
+    .share-option.linkedin:hover {
+      background-color: rgba(0, 119, 181, 0.05);
+      border-color: #0077b5;
+    }
+    
+    .share-option.whatsapp:hover {
+      background-color: rgba(37, 211, 102, 0.05);
+      border-color: #25d366;
+    }
+    
+    .close-modal {
+      color: var(--gray);
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 0 10px;
+    }
+    
+    .close-modal:hover {
+      color: var(--dark);
+    }
+    
+    /* Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      
+      .tab-content.active,
+      .tab-content.active * {
+        visibility: visible;
+      }
+      
+      .tab-content.active {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      
+      .action-bar,
+      .nav-container,
+      .footer,
+      .filters-row,
+      .btn-primary,
+      .btn-ghost,
+      .table-actions {
+        display: none !important;
+      }
+      
+      .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+      }
+      
+      .main-grid {
+        display: block;
+        padding: 0;
+      }
+      
+      h1, h2, h3 {
+        color: black !important;
+      }
+    }
+    
+    /* Dropdown Menu */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      z-index: 100;
+      border-radius: 8px;
+      overflow: hidden;
+      right: 0;
+      top: 100%;
+      margin-top: 5px;
+    }
+    
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+    
+    .dropdown-item {
+      padding: 12px 16px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--dark);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
@@ -513,6 +767,39 @@
   <main class="container main-grid">
     <!-- Aba: Visão Geral (padrão) -->
     <div id="tab-overview" class="tab-content active">
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <div class="dropdown">
+          <button class="action-btn tooltip" title="Opções de download">
+            <i class="fas fa-download"></i> Download
+            <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+          </button>
+          <span class="tooltip-text">Baixe os dados visíveis na tela em diferentes formatos</span>
+          <div class="dropdown-content">
+            <div class="dropdown-item" onclick="downloadVisibleData('csv')">
+              <i class="fas fa-file-csv"></i> CSV (Tela Atual)
+            </div>
+            <div class="dropdown-item" onclick="downloadVisibleData('xlsx')">
+              <i class="fas fa-file-excel"></i> Excel (Tela Atual)
+            </div>
+            <div class="dropdown-item" onclick="downloadVisibleData('pdf')">
+              <i class="fas fa-file-pdf"></i> PDF (Tela Atual)
+            </div>
+            <div class="dropdown-item" onclick="downloadVisibleData('json')">
+              <i class="fas fa-file-code"></i> JSON (Tela Atual)
+            </div>
+          </div>
+        </div>
+        
+        <button class="action-btn print tooltip" onclick="printCurrentTab()" title="Imprimir conteúdo visível">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+        
+        <button class="action-btn share tooltip" onclick="openShareModal()" title="Compartilhar nas redes sociais">
+          <i class="fas fa-share-alt"></i> Compartilhar
+        </button>
+      </div>
+
       <!-- filtros -->
       <section class="card filters" id="filters">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -522,7 +809,7 @@
           </div>
         </div>
         <div class="filters-row">
-          <div>
+          <div class="tooltip">
             <label for="filter-ano">Ano</label>
             <select id="filter-ano">
               <option value="2024">2024 (Mais recente)</option>
@@ -531,32 +818,42 @@
               <option value="2021">2021</option>
               <option value="all">Todos os anos</option>
             </select>
+            <span class="tooltip-text">Filtre os dados por ano específico ou visualize todos</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="filter-origem">Origem</label>
             <select id="filter-origem"><option value="all">Todas as origens</option></select>
+            <span class="tooltip-text">Filtre por aeroporto de origem dos voos</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="filter-destino">Destino</label>
             <select id="filter-destino"><option value="all">Todos os destinos</option></select>
+            <span class="tooltip-text">Filtre por aeroporto de destino dos voos</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="filter-orgao">Órgão</label>
             <select id="filter-orgao"><option value="all">Todos os órgãos</option></select>
+            <span class="tooltip-text">Filtre por órgão governamental responsável</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="filter-situacao">Situação</label>
             <select id="filter-situacao">
               <option value="all">Todas as situações</option>
               <option value="REALIZADO">REALIZADO</option>
               <option value="CANCELADA">CANCELADA</option>
             </select>
+            <span class="tooltip-text">Filtre por situação do voo (realizado ou cancelado)</span>
           </div>
+          
           <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
-            <button id="btn-apply" class="btn-primary">
+            <button id="btn-apply" class="btn-primary tooltip" title="Aplicar filtros selecionados">
               <i class="fas fa-check"></i> Aplicar
             </button>
-            <button id="btn-clear" class="btn-ghost">
+            <button id="btn-clear" class="btn-ghost tooltip" title="Limpar todos os filtros">
               <i class="fas fa-broom"></i> Limpar
             </button>
           </div>
@@ -565,21 +862,25 @@
 
       <!-- cards resumo -->
       <section class="card summary-row" id="summary-row">
-        <div class="summary-card">
+        <div class="summary-card tooltip">
           <div class="big" id="card-voos">—</div>
           <div class="label"><i class="fas fa-plane"></i> Voos (DB únicos)</div>
+          <span class="tooltip-text">Número total de voos únicos na base de dados</span>
         </div>
-        <div class="summary-card">
+        <div class="summary-card tooltip">
           <div class="big" id="card-horas">—</div>
           <div class="label"><i class="fas fa-clock"></i> Horas voadas</div>
+          <span class="tooltip-text">Soma total de horas de voo realizadas</span>
         </div>
-        <div class="summary-card">
+        <div class="summary-card tooltip">
           <div class="big" id="card-pass">—</div>
           <div class="label"><i class="fas fa-users"></i> Passageiros</div>
+          <span class="tooltip-text">Total de passageiros transportados</span>
         </div>
-        <div class="summary-card">
+        <div class="summary-card tooltip">
           <div class="big" id="card-destinos">—</div>
           <div class="label"><i class="fas fa-map-marker-alt"></i> Destinos</div>
+          <span class="tooltip-text">Número de destinos diferentes atendidos</span>
         </div>
       </section>
 
@@ -598,8 +899,9 @@
       <section class="card" style="grid-column: 1 / span 12;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
           <h3><i class="fas fa-table"></i> Detalhamento de Voos</h3>
-          <div class="status-indicator status-active">
+          <div class="status-indicator status-active tooltip">
             <i class="fas fa-database"></i> Dados do ano: <span id="table-year">2024</span>
+            <span class="tooltip-text">Período dos dados exibidos na tabela</span>
           </div>
         </div>
         <div id="table-container" class="table-wrapper"></div>
@@ -616,17 +918,48 @@
 
     <!-- Aba: Análise de Destinos -->
     <div id="tab-destinos" class="tab-content">
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <div class="dropdown">
+          <button class="action-btn tooltip" title="Opções de download">
+            <i class="fas fa-download"></i> Download
+            <i class="fas fa-chevron-down" style="font-size: 0.8em;"></i>
+          </button>
+          <span class="tooltip-text">Baixe a análise de destinos visível na tela</span>
+          <div class="dropdown-content">
+            <div class="dropdown-item" onclick="downloadDestinosData('csv')">
+              <i class="fas fa-file-csv"></i> CSV (Análise Destinos)
+            </div>
+            <div class="dropdown-item" onclick="downloadDestinosData('xlsx')">
+              <i class="fas fa-file-excel"></i> Excel (Análise Destinos)
+            </div>
+            <div class="dropdown-item" onclick="downloadDestinosData('pdf')">
+              <i class="fas fa-file-pdf"></i> PDF (Análise Destinos)
+            </div>
+          </div>
+        </div>
+        
+        <button class="action-btn print tooltip" onclick="printCurrentTab()" title="Imprimir análise de destinos">
+          <i class="fas fa-print"></i> Imprimir
+        </button>
+        
+        <button class="action-btn share tooltip" onclick="openShareModal('destinos')" title="Compartilhar análise de destinos">
+          <i class="fas fa-share-alt"></i> Compartilhar
+        </button>
+      </div>
+
       <section class="card" style="grid-column: 1 / span 12;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
           <h2><i class="fas fa-plane"></i> Análise de Destinos</h2>
-          <div class="current-year-indicator">
+          <div class="current-year-indicator tooltip">
             <i class="fas fa-calendar-alt"></i> Visualizando: <span id="destinos-year">2024</span>
+            <span class="tooltip-text">Período da análise de destinos exibida</span>
           </div>
         </div>
         <p>Análise detalhada dos voos por destino, tipo de voo e período.</p>
         
         <div class="filters-row" style="margin-top: 20px;">
-          <div>
+          <div class="tooltip">
             <label for="destinos-ano">Ano</label>
             <select id="destinos-ano">
               <option value="2024">2024 (Mais recente)</option>
@@ -635,8 +968,10 @@
               <option value="2021">2021</option>
               <option value="all">Todos os anos</option>
             </select>
+            <span class="tooltip-text">Selecione o ano para análise de destinos</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="destinos-destino">Destino</label>
             <select id="destinos-destino">
               <option value="all">Todos os destinos</option>
@@ -645,8 +980,10 @@
               <option value="GIG">Rio de Janeiro (GIG)</option>
               <option value="BSB">Brasília (BSB)</option>
             </select>
+            <span class="tooltip-text">Filtre por destino específico para análise detalhada</span>
           </div>
-          <div>
+          
+          <div class="tooltip">
             <label for="destinos-tipo">Tipo de Voo</label>
             <select id="destinos-tipo">
               <option value="all">Todos os tipos</option>
@@ -654,12 +991,14 @@
               <option value="EXTERNO">Externo</option>
               <option value="INTERNACIONAL">Internacional</option>
             </select>
+            <span class="tooltip-text">Filtre por tipo de voo (interno, externo ou internacional)</span>
           </div>
+          
           <div class="filter-actions" style="display: flex; gap: 10px; align-items: end;">
-            <button id="btn-apply-destinos" class="btn-primary">
+            <button id="btn-apply-destinos" class="btn-primary tooltip" title="Aplicar filtros na análise de destinos">
               <i class="fas fa-chart-bar"></i> Analisar
             </button>
-            <button id="btn-download-destinos" class="btn-ghost">
+            <button id="btn-download-destinos" class="btn-ghost tooltip" title="Baixar dados da análise atual">
               <i class="fas fa-download"></i> Baixar CSV
             </button>
           </div>
@@ -667,12 +1006,18 @@
         
         <div id="destinos-analysis-content" style="margin-top: 30px;">
           <div class="card" style="margin-bottom: 20px;">
-            <h3><i class="fas fa-chart-pie"></i> Distribuição por Tipo de Voo</h3>
+            <h3 class="tooltip">
+              <i class="fas fa-chart-pie"></i> Distribuição por Tipo de Voo
+              <span class="tooltip-text">Gráfico mostrando a proporção de voos por categoria</span>
+            </h3>
             <div id="chart-tipo-voo" style="height:300px;"></div>
           </div>
           
           <div class="card">
-            <h3><i class="fas fa-table"></i> Detalhamento por Destino</h3>
+            <h3 class="tooltip">
+              <i class="fas fa-table"></i> Detalhamento por Destino
+              <span class="tooltip-text">Tabela com métricas detalhadas por destino</span>
+            </h3>
             <div id="table-destinos" class="table-wrapper" style="margin-top: 15px;"></div>
           </div>
         </div>
@@ -830,6 +1175,50 @@
     </div>
   </main>
 
+  <!-- Modal de Compartilhamento -->
+  <div id="shareModal" class="share-modal">
+    <div class="share-modal-content">
+      <div class="share-modal-header">
+        <h3><i class="fas fa-share-alt"></i> Compartilhar</h3>
+        <span class="close-modal" onclick="closeShareModal()">&times;</span>
+      </div>
+      <p>Compartilhe esta análise nas redes sociais:</p>
+      
+      <div class="share-options">
+        <div class="share-option facebook" onclick="shareOnFacebook()">
+          <i class="fab fa-facebook-f" style="color: #3b5998; font-size: 1.5rem;"></i>
+          <span>Facebook</span>
+        </div>
+        
+        <div class="share-option twitter" onclick="shareOnTwitter()">
+          <i class="fab fa-twitter" style="color: #1da1f2; font-size: 1.5rem;"></i>
+          <span>Twitter</span>
+        </div>
+        
+        <div class="share-option linkedin" onclick="shareOnLinkedIn()">
+          <i class="fab fa-linkedin-in" style="color: #0077b5; font-size: 1.5rem;"></i>
+          <span>LinkedIn</span>
+        </div>
+        
+        <div class="share-option whatsapp" onclick="shareOnWhatsApp()">
+          <i class="fab fa-whatsapp" style="color: #25d366; font-size: 1.5rem;"></i>
+          <span>WhatsApp</span>
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <p><strong>Link para compartilhar:</strong></p>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <input type="text" id="share-link" value="https://dados.mg.gov.br/voos-oficiais" readonly 
+                 style="flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px;">
+          <button onclick="copyShareLink()" class="btn-primary" style="padding: 8px 16px;">
+            <i class="fas fa-copy"></i> Copiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container">
       <p><i class="fas fa-database"></i> Dados abertos — atualizados via repositório GitHub.</p>
@@ -879,6 +1268,7 @@
     let currentData = [];
     let sortColumn = 'data';
     let sortDirection = 'asc';
+    let currentTab = 'overview';
     
     // Inicializa com ano mais atual
     function initializeCurrentYear() {
@@ -1172,6 +1562,167 @@
       `;
     }
     
+    // FUNÇÕES DE IMPRESSÃO, DOWNLOAD E COMPARTILHAMENTO
+    
+    // Imprimir conteúdo da aba atual
+    function printCurrentTab() {
+      // Atualiza o título da impressão baseado na aba atual
+      const activeTab = document.querySelector('.nav-tab.active');
+      const tabName = activeTab ? activeTab.textContent.trim() : 'Voos Oficiais';
+      document.title = `Relatório ${tabName} - Voos Oficiais MG`;
+      
+      // Executa a impressão
+      window.print();
+      
+      // Restaura o título original
+      setTimeout(() => {
+        document.title = 'Voos Oficiais — Dashboard';
+      }, 1000);
+    }
+    
+    // Download dos dados visíveis na tela
+    function downloadVisibleData(format) {
+      const activeTab = document.querySelector('.tab-content.active').id;
+      let dataName = '';
+      let dataContent = '';
+      
+      if (activeTab === 'tab-overview') {
+        dataName = 'visao-geral-voos';
+        // Captura dados da tabela visível
+        const tableRows = document.querySelectorAll('#table-container tbody tr');
+        const headers = ['Data', 'Origem', 'Destino', 'Órgão', 'Passageiro', 'Horas', 'Status'];
+        
+        dataContent = headers.join(',') + '\n';
+        tableRows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          const rowData = Array.from(cells).map(cell => {
+            // Remove badges e formatações especiais
+            const badge = cell.querySelector('.badge');
+            return badge ? badge.textContent : cell.textContent;
+          });
+          dataContent += rowData.join(',') + '\n';
+        });
+      } else if (activeTab === 'tab-destinos') {
+        dataName = 'analise-destinos';
+        // Captura dados da tabela de destinos
+        const tableRows = document.querySelectorAll('#table-destinos tbody tr');
+        const headers = ['Destino', 'Tipo de Voo', 'Quantidade', 'Horas Totais', 'Passageiros', 'Custo Médio'];
+        
+        dataContent = headers.join(',') + '\n';
+        tableRows.forEach(row => {
+          const cells = row.querySelectorAll('td');
+          const rowData = Array.from(cells).map(cell => cell.textContent);
+          dataContent += rowData.join(',') + '\n';
+        });
+      }
+      
+      // Adiciona informações do filtro atual
+      const year = document.getElementById('filter-ano') ? document.getElementById('filter-ano').value : 
+                   document.getElementById('destinos-ano') ? document.getElementById('destinos-ano').value : '2024';
+      
+      const filterInfo = `\n\nFiltros aplicados:\nAno: ${year}\nData de exportação: ${new Date().toLocaleDateString('pt-BR')}\nFonte: Voos Oficiais - Governo de MG`;
+      dataContent += filterInfo;
+      
+      // Cria e baixa o arquivo
+      const blob = new Blob([dataContent], { type: getMimeType(format) });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${dataName}-${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      alert(`Download do arquivo ${format.toUpperCase()} gerado com sucesso!`);
+    }
+    
+    // Download específico para análise de destinos
+    function downloadDestinosData(format) {
+      downloadVisibleData(format);
+    }
+    
+    // Função auxiliar para MIME types
+    function getMimeType(format) {
+      const mimeTypes = {
+        'csv': 'text/csv',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'pdf': 'application/pdf',
+        'json': 'application/json'
+      };
+      return mimeTypes[format] || 'text/plain';
+    }
+    
+    // Modal de compartilhamento
+    function openShareModal(tab = 'overview') {
+      const modal = document.getElementById('shareModal');
+      modal.style.display = 'block';
+      
+      // Atualiza o link baseado na aba atual
+      const shareLink = document.getElementById('share-link');
+      const activeTab = document.querySelector('.nav-tab.active');
+      const tabName = activeTab ? activeTab.getAttribute('data-tab') : 'overview';
+      
+      let url = `https://dados.mg.gov.br/voos-oficiais`;
+      if (tabName !== 'overview') {
+        url += `#${tabName}`;
+      }
+      
+      shareLink.value = url;
+    }
+    
+    function closeShareModal() {
+      document.getElementById('shareModal').style.display = 'none';
+    }
+    
+    function copyShareLink() {
+      const shareLink = document.getElementById('share-link');
+      shareLink.select();
+      document.execCommand('copy');
+      
+      // Feedback visual
+      const copyBtn = document.querySelector('button[onclick="copyShareLink()"]');
+      const originalText = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+      setTimeout(() => {
+        copyBtn.innerHTML = originalText;
+      }, 2000);
+    }
+    
+    // Funções de compartilhamento em redes sociais
+    function shareOnFacebook() {
+      const url = encodeURIComponent(document.getElementById('share-link').value);
+      const text = encodeURIComponent('Confira os dados de Voos Oficiais do Governo de Minas Gerais');
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+    }
+    
+    function shareOnTwitter() {
+      const url = encodeURIComponent(document.getElementById('share-link').value);
+      const text = encodeURIComponent('Dados de Voos Oficiais - Governo de Minas Gerais #DadosAbertos #Transparência');
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+    }
+    
+    function shareOnLinkedIn() {
+      const url = encodeURIComponent(document.getElementById('share-link').value);
+      const title = encodeURIComponent('Voos Oficiais - Governo de Minas Gerais');
+      const summary = encodeURIComponent('Dashboard público com dados de voos oficiais do Governo de MG');
+      window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}&summary=${summary}`, '_blank');
+    }
+    
+    function shareOnWhatsApp() {
+      const url = encodeURIComponent(document.getElementById('share-link').value);
+      const text = encodeURIComponent('Confira os dados de Voos Oficiais do Governo de Minas Gerais: ');
+      window.open(`https://wa.me/?text=${text}${url}`, '_blank');
+    }
+    
+    // Fecha modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('shareModal');
+      if (event.target == modal) {
+        closeShareModal();
+      }
+    }
+    
     // Botões de aplicação de filtros
     document.getElementById('btn-apply').addEventListener('click', function() {
       updateSummaryCards();
@@ -1204,8 +1755,7 @@
     
     // Botões de exportação
     document.getElementById('btn-export-csv').addEventListener('click', function() {
-      const year = document.getElementById('filter-ano').value;
-      alert(`Exportação para CSV do ano ${year} iniciada!`);
+      downloadVisibleData('csv');
     });
     
     document.getElementById('btn-export-xlsx').addEventListener('click', function() {
@@ -1214,11 +1764,7 @@
     });
     
     document.getElementById('btn-download-destinos').addEventListener('click', function() {
-      const year = document.getElementById('destinos-ano').value;
-      const destino = document.getElementById('destinos-destino').value;
-      const tipo = document.getElementById('destinos-tipo').value;
-      
-      alert(`Download do CSV filtrado: Ano=${year}, Destino=${destino}, Tipo=${tipo}`);
+      downloadDestinosData('csv');
     });
     
     document.getElementById('btn-export-relatorio').addEventListener('click', function() {
