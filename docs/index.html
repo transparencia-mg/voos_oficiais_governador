@@ -92,7 +92,7 @@
     <div style="background:white;border-radius:12px;padding:12px;margin-bottom:20px;box-shadow:0 4px 10px rgba(0,0,0,0.06);">
       <ul class="nav nav-tabs" id="tabs">
         <li class="nav-item"><button class="nav-link active" data-target="#overview">Visão Geral</button></li>
-        <li class="nav-item"><button class="nav-link" data-target="#destinos">Análise por Destino</button></li>
+        <li class="nav-item"><button class="nav-link" data-target="#destinos">Destinos</button></li>
         <li class="nav-item"><button class="nav-link" data-target="#download">Download</button></li>
       </ul>
     </div>
@@ -117,8 +117,8 @@
             <select id="filter-destino" class="form-select"><option value="all">Todos os destinos</option></select>
           </div>
           <div class="col-md-3">
-            <label class="filter-label">Status do Voo</label>
-            <select id="filter-status" class="form-select"><option value="all">Todos os status</option></select>
+            <label class="filter-label">Passageiro</label>
+            <select id="filter-status" class="form-select"><option value="all">Passageiro</option></select>
           </div>
         </div>
         <div class="mt-3 d-flex gap-2">
@@ -141,25 +141,25 @@
         <div class="card-stats">
           <i class="fas fa-users fa-2x" style="color:#2E8B57"></i>
           <div class="value" id="card-passageiros">—</div>
-          <div class="label">Passageiros Únicos</div>
+          <div class="label">Total de Passageiros</div>
         </div>
         <div class="card-stats">
           <i class="fas fa-map-marker-alt fa-2x" style="color:#6A5ACD"></i>
           <div class="value" id="card-destinos">—</div>
-          <div class="label">Destinos Únicos</div>
+          <div class="label">Total de Destinos</div>
         </div>
       </div>
 
       <div class="row g-3">
         <div class="col-md-6">
           <div class="chart-container">
-            <div class="chart-header"><h4 class="chart-title">Distribuição por Status de Voo</h4><div class="data-source-info">Fonte: GitHub</div></div>
+            <div class="chart-header"><h4 class="chart-title">Destinos</h4><div class="data-source-info">Fonte: GitHub</div></div>
             <div id="chart-status" style="height:220px;"></div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="chart-container">
-            <div class="chart-header"><h4 class="chart-title">Top 10 Destinos</h4><div class="data-source-info">Fonte: GitHub</div></div>
+            <div class="chart-header"><h4 class="chart-title">Distribuição por Mês</h4><div class="data-source-info">Fonte: GitHub</div></div>
             <div id="chart-destinos" style="height:220px;"></div>
           </div>
         </div>
@@ -180,8 +180,8 @@
                 <th>Data</th>
                 <th>Origem</th>
                 <th>Destino</th>
-                <th>Passageiro</th>
-                <th>Status do Voo</th>
+                <th>Quantidade de Passageiro</th>
+                <th>Situação do Voo</th>
                 <th>Horas Voadas</th>
               </tr>
             </thead>
@@ -211,7 +211,7 @@
             <select id="analise-destino" class="form-select"><option value="all">Todos os destinos</option></select>
           </div>
           <div class="col-md-4">
-            <label class="filter-label">Status do Voo</label>
+            <label class="filter-label">Passageiro</label>
             <select id="analise-status" class="form-select"><option value="all">Todos</option></select>
           </div>
         </div>
@@ -227,8 +227,9 @@
 
       <div class="table-container">
         <div class="table-header">
-          <h3 class="table-title">Análise por Destino</h3>
-          <div><span class="table-badge">Análise</span></div>
+          <h3 class="table-title">Destinos</h3>
+          <span style="background:linear-gradient(135deg,#2E8B57,#2e8b47);color:white;padding:6px 12px;border-radius:20px;font-weight:600;">Ano: <span id="table-year">2025</span></span>
+            <span class="table-badge" id="voos-count">0 voos</span>
         </div>
         <div class="table-responsive p-3">
           <table class="table table-hover">
@@ -237,8 +238,8 @@
                 <th>Destino</th>
                 <th>Total de Voos</th>
                 <th>Horas Totais</th>
-                <th>Passageiros Únicos</th>
-                <th>Taxa Realização</th>
+                <th>Quantidade de Passageiros</th>
+                <th>Percentual de Voos</th>
               </tr>
             </thead>
             <tbody id="analise-table-body"><tr><td colspan="5" class="text-center">Selecione filtros e clique em "Gerar Análise"</td></tr></tbody>
@@ -247,10 +248,10 @@
       </div>
     </div>
 
-    <!-- Download -->
+    <!-- DataSet Completo -->
     <div id="download" class="tab-pane" style="display:none">
       <div class="table-container p-4">
-        <div class="table-header"><h3 class="table-title">Download de Dados</h3><div><span class="table-badge">Dados Abertos</span></div></div>
+        <div class="table-header"><h3 class="table-title">DataSet Completo</h3><div><span class="table-badge">Dados Abertos</span></div></div>
         <div class="p-3">
           <div class="row">
             <div class="col-md-6">
@@ -289,10 +290,10 @@
   const FILES = ['voos_2025.csv','voos_2021.csv']; // ordem: 2025 prioridade
 
   // Estado
-  let dadosCache = { voos: [], anos: [], origens: [], destinos: [], status: [], lastUpdate: null };
+  let dadosCache = { voos: [], anos: [], origens: [], destinos: [], situacao: [], lastUpdate: null };
   let dadosFiltrados = [];
   let currentPage = 1;
-  const pageSize = 20;
+  const pageSize = 100;
 
   // -------------------------
   // Helpers de normalização e BOM
@@ -361,7 +362,7 @@
         origem: (r['origem'] || '').toString().trim(),
         destino: (r['destino'] || '').toString().trim(),
         passageiro: (r['passageiro'] || '').toString().trim(),
-        status_voo: (r['status_voo'] || r['status'] || '').toString().trim(),
+        status_voo: (r['situacao_voo'] || r['situacao'] || '').toString().trim(),
         horas_voadas: parseFloat((r['horas_voadas'] || r['horas_voadas'.toLowerCase()] || r['horas_voadas']).toString().replace(',', '.')) || 0,
         // mantém raw para possível download total
         __raw: row
@@ -433,9 +434,9 @@
     // origens
     const sOrig = document.getElementById('filter-origem'); sOrig.innerHTML = '<option value="all">Todas as origens</option>';
     dadosCache.origens.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; sOrig.appendChild(opt); });
-    // destinos
-    const sDest = document.getElementById('filter-destino'); sDest.innerHTML = '<option value="all">Todos os destinos</option>';
-    const aDest = document.getElementById('analise-destino'); aDest.innerHTML = '<option value="all">Todos os destinos</option>';
+    // passageiro
+    const sDest = document.getElementById('filter-passageiro'); sDest.innerHTML = '<option value="all">Todos os passageiros</option>';
+    const aDest = document.getElementById('analise-passageiro'); aDest.innerHTML = '<option value="all">Todos os passageiros</option>';
     dadosCache.destinos.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; sDest.appendChild(opt); aDest.appendChild(opt.cloneNode(true)); });
     // status
     const sStatus = document.getElementById('filter-status'); sStatus.innerHTML = '<option value="all">Todos os status</option>';
@@ -463,13 +464,13 @@
   function aplicarFiltros(){
     const ano = document.getElementById('filter-ano').value;
     const origem = document.getElementById('filter-origem').value;
-    const destino = document.getElementById('filter-destino').value;
+    const passageiro = document.getElementById('filter-passageiro').value;
     const status = document.getElementById('filter-status').value;
 
     let dados = [...dadosCache.voos];
     if(ano && ano !== 'all') dados = dados.filter(d => d.ano === ano);
     if(origem && origem !== 'all') dados = dados.filter(d => d.origem === origem);
-    if(destino && destino !== 'all') dados = dados.filter(d => d.destino === destino);
+    if(passageiro && passageiro !== 'all') dados = dados.filter(d => d.passageiro === passageiro);
     if(status && status !== 'all') dados = dados.filter(d => (d.status_voo || '') === status);
 
     // ordenar por data decrescente (quando formato ISO funciona)
@@ -487,7 +488,7 @@
   function limparFiltros(){
     document.getElementById('filter-ano').value = '2025';
     document.getElementById('filter-origem').value = 'all';
-    document.getElementById('filter-destino').value = 'all';
+    document.getElementById('filter-passageiro').value = 'all';
     document.getElementById('filter-status').value = 'all';
     aplicarFiltros();
   }
@@ -498,13 +499,13 @@
   function atualizarEstatisticas(dados){
     const total = dados.length;
     const horas = dados.reduce((s,i)=> s + (parseFloat(i.horas_voadas || 0) || 0), 0);
-    const passageirosUnicos = new Set(dados.map(d => d.passageiro)).size;
-    const destinosUnicos = new Set(dados.map(d => d.destino)).size;
+    const passageiros = new Set(dados.map(d => d.passageiro)).size;
+    const destinos = new Set(dados.map(d => d.destino)).size;
 
     document.getElementById('card-voos').textContent = total.toLocaleString('pt-BR');
     document.getElementById('card-horas').textContent = `${Math.floor(horas)}h ${Math.round((horas-Math.floor(horas))*60)}m`;
-    document.getElementById('card-passageiros').textContent = passageirosUnicos.toLocaleString('pt-BR');
-    document.getElementById('card-destinos').textContent = destinosUnicos.toLocaleString('pt-BR');
+    document.getElementById('card-passageiros').textContent = passageiros.toLocaleString('pt-BR');
+    document.getElementById('card-destinos').textContent = destinos.toLocaleString('pt-BR');
     document.getElementById('voos-count').textContent = `${total} voos`;
   }
 
@@ -591,10 +592,10 @@
   // -------------------------
   function exportarParaCSV(){
     if(!dadosFiltrados || dadosFiltrados.length === 0){ mostrarNotificacao('Nenhum dado para exportar','warning'); return; }
-    const headers = ['data','origem','destino','passageiro','status_voo','horas_voadas'];
+    const headers = ['data','origem','destino','passageiro','situacao_voo','horas_voadas'];
     const rows = [headers.join(',')];
     dadosFiltrados.forEach(v => {
-      const r = [v.data,v.origem,v.destino,v.passageiro,v.status_voo,(v.horas_voadas || 0)];
+      const r = [v.data,v.origem,v.destino,v.passageiro,v.situacao_voo,(v.horas_voadas || 0)];
       rows.push(r.map(cell => {
         const s = (cell===null||cell===undefined)?'':cell.toString();
         return (s.includes(',')||s.includes('"'))?`"${s.replace(/"/g,'""')}"`:s;
@@ -628,12 +629,12 @@
   function gerarAnalise(){
     const ano = document.getElementById('analise-ano').value;
     const destino = document.getElementById('analise-destino').value;
-    const status = document.getElementById('analise-status').value;
+    const passageiro = document.getElementById('analise-passageiro').value;
 
     let dados = [...dadosCache.voos];
     if(ano && ano !== 'all') dados = dados.filter(d => d.ano === ano);
     if(destino && destino !== 'all') dados = dados.filter(d => d.destino === destino);
-    if(status && status !== 'all') dados = dados.filter(d => (d.status_voo||'') === status);
+    if(passageiro && passageiro !== 'all') dados = dados.filter(d => (d.passageiro||'') === passageiro);
 
     const map = {};
     dados.forEach(v => {
