@@ -1202,6 +1202,7 @@
         
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
+        </script>
         hideLoading();
         updateStatus('offline', 'Erro ao carregar dados');
         
@@ -1214,7 +1215,7 @@
     async function carregarDadosPorAno(ano) {
       try {
         // URL direta para o arquivo CSV no GitHub
-        const csvUrl = `${GITHUB_RAW_URL}/${GITHUB_REPO}/main/${GITHUB_DATA_PATH}/${ano}.csv`;
+        const csvUrl = `${GITHUB_RAW_URL}/${GITHUB_REPO}/main/${GITHUB_DATA_PATH}/voos_${ano}.csv`;
         
         console.log(`Carregando dados de: ${csvUrl}`);
         
