@@ -9,7 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-  <!-- Plotly (versão explícita) -->
+  <!-- Plotly (versão explícita para evitar warning) -->
   <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
   <!-- Tippy.js para tooltips -->
   <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -24,152 +24,182 @@
       --accent-red:#B93C42;
       --accent-bright:#DB233F;
       --background-light:#EEEFF5;
-      --secondary-green:#2E8B57;
-      --palette-1:#29435A;
-      --palette-2:#2E5984;
-      --palette-3:#6A5ACD;
-      --palette-4:#2E8B57;
-      --palette-5:#DB233F;
-      --palette-6:#E58A6E;
-      --palette-7:#4F9EC4;
-      --palette-8:#98D1C2;
+      --success-green:#2E8B57;
+      --muted:#6c757d;
     }
-    body{font-family:Segoe UI, Tahoma, Arial, sans-serif;background:var(--background-light);padding-bottom:40px;}
-    .main-header{background:linear-gradient(135deg,var(--primary-darker) 0%,var(--primary-dark) 100%);color:#fff;padding:22px 0;margin-bottom:24px;border-bottom:4px solid var(--accent-red);box-shadow:0 6px 20px rgba(0,0,0,0.12)}
-    .logo{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--accent-red),var(--accent-bright));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,0.12)}
-    .header-title{font-size:26px;margin:0;font-weight:800}
-    .header-subtitle{font-size:14px;opacity:0.9;margin-top:6px}
-    .filter-container{background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 4px 18px rgba(0,0,0,0.06);border-left:5px solid var(--accent-red)}
-    .chart-container{background:#fff;border-radius:12px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,0.06);min-height:220px}
-    .card-stats{background:#fff;border-radius:12px;padding:16px;box-shadow:0 4px 10px rgba(0,0,0,0.06);text-align:center}
-    .card-stats .value{font-weight:800;font-size:22px;color:var(--accent-red)}
-    .table-container{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.06)}
-    .table-header{background:linear-gradient(135deg,var(--primary-dark),var(--primary-darker));color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
-    .table-badge{background:var(--accent-red);color:#fff;padding:6px 12px;border-radius:18px;font-weight:700}
-    .btn-primary-custom{background:linear-gradient(90deg,var(--accent-red),var(--accent-bright));border:none;color:#fff;padding:10px 16px;border-radius:8px}
-    .btn-secondary-custom{background:#fff;border:2px solid var(--primary-dark);color:var(--primary-dark);padding:8px 14px;border-radius:8px}
-    .update-status{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:20px;background:rgba(255,255,255,0.9);color:var(--primary-dark)}
-    .update-status.online{color:var(--secondary-green);background:rgba(46,139,87,0.08)}
-    .loading-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.85);z-index:9999;display:none}
-    @media (max-width:992px){.row.g-3>.col-md-3{margin-bottom:10px}}
+    body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--background-light); padding-bottom:40px;}
+    .main-header{background:linear-gradient(135deg,var(--primary-darker),var(--primary-dark)); color:#fff; padding:22px 0; margin-bottom:22px; border-bottom:4px solid var(--accent-red); box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+    .logo{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--accent-red),var(--accent-bright));color:white;font-weight:800;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+    .header-title{font-size:22px;margin:0;font-weight:800;}
+    .header-subtitle{margin:4px 0 0 0;opacity:0.9;font-size:13px;}
+    .update-status{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:18px;background:rgba(255,255,255,0.9);color:var(--primary-dark);}
+    .update-status.online{color:var(--success-green);background:rgba(46,139,87,0.08);}
+    .filter-card{background:white;border-radius:12px;padding:16px;box-shadow:0 4px 18px rgba(0,0,0,0.06);margin-bottom:12px;}
+    .chart-card{background:white;border-radius:12px;padding:14px;box-shadow:0 4px 18px rgba(0,0,0,0.06);margin-bottom:12px;min-height:220px;}
+    .table-card{background:white;border-radius:12px;padding:0;box-shadow:0 4px 18px rgba(0,0,0,0.06);margin-bottom:18px;}
+    .card-stats{background:white;border-radius:12px;padding:14px;box-shadow:0 4px 12px rgba(0,0,0,0.06);text-align:center;}
+    .card-stats .value{font-size:24px;font-weight:800;color:var(--accent-red);margin-top:6px;}
+    .btn-primary-custom{background:linear-gradient(90deg,var(--accent-red),var(--accent-bright));color:white;border:none;padding:8px 14px;border-radius:10px;font-weight:700;}
+    .btn-secondary-custom{background:white;border:2px solid var(--primary-dark);color:var(--primary-dark);padding:8px 14px;border-radius:10px;font-weight:700;}
+    .table thead th{background:#f8f9fa;font-weight:700;color:var(--primary-dark);}
+    .badge-count{background:var(--accent-red);color:white;padding:6px 12px;border-radius:16px;font-weight:700;}
+    @media (max-width:992px){ .desktop-hide{display:none!important;} }
   </style>
 </head>
 <body>
-  <!-- Loading -->
-  <div id="loadingOverlay" class="loading-overlay">
-    <div style="display:flex;gap:12px;align-items:center">
-      <div style="width:48px;height:48px;border:5px solid rgba(0,0,0,0.08);border-top-color:var(--accent-red);border-radius:50%;animation:spin 1s linear infinite"></div>
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" style="position:fixed;inset:0;background:rgba(255,255,255,0.92);z-index:9999;display:none;align-items:center;justify-content:center;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:48px;height:48px;border:5px solid rgba(0,0,0,0.08);border-top-color:var(--accent-red);border-radius:50%;animation:spin 1s linear infinite;"></div>
       <div><strong id="loadingText">Carregando dados do GitHub...</strong></div>
     </div>
   </div>
-  <style>@keyframes spin{100%{transform:rotate(360deg)}}</style>
+  <style>@keyframes spin{100%{transform:rotate(360deg);}}</style>
 
   <!-- Header -->
   <header class="main-header">
-    <div class="container d-flex justify-content-between align-items-center">
-      <div style="display:flex;gap:16px;align-items:center">
+    <div class="container d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
         <div class="logo"><i class="fas fa-plane"></i></div>
         <div>
           <div class="header-title">Painel de Voos Oficiais</div>
           <div class="header-subtitle">Governo do Estado de Minas Gerais — Transparência de Voos Oficiais</div>
         </div>
       </div>
-      <div><div id="updateStatus" class="update-status"><i class="fas fa-circle"></i> <span id="updateStatusText">Iniciando</span></div></div>
+      <div class="text-end">
+        <div id="updateStatus" class="update-status"><i class="fas fa-circle"></i> <span id="updateStatusText">Preparando</span></div>
+      </div>
     </div>
   </header>
 
-  <!-- Main -->
   <main class="container">
-    <!-- Tabs (kept simple) -->
+    <!-- Top tabs -->
     <div class="mb-3">
-      <ul class="nav nav-tabs" id="mainTabs" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" data-target="#tab-overview" type="button">Visão Geral</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" data-target="#tab-destinos" type="button">Análise por Destino</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" data-target="#tab-download" type="button">Download de Dados</button></li>
+      <ul class="nav nav-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" data-target="#tab-overview"><i class="fas fa-chart-pie me-1"></i> Visão Geral</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-target="#tab-destinos"><i class="fas fa-map-marker-alt me-1"></i> Análise por Destino</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-target="#tab-download"><i class="fas fa-download me-1"></i> Download de Dados</a></li>
       </ul>
     </div>
 
     <!-- VISÃO GERAL -->
     <section id="tab-overview" class="tab-pane active">
-      <div class="filter-container">
+      <div class="filter-card mb-3">
         <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">Ano</label>
-            <select id="filter-ano" class="form-select"><option value="all">Carregando...</option></select>
+          <div class="col-md-2">
+            <label class="form-label small">Ano</label>
+            <select id="filter-ano" class="form-select"><option value="2025">2025</option><option value="2021">2021</option><option value="all">Todos os anos</option></select>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Origem</label>
+          <div class="col-md-2">
+            <label class="form-label small">Origem</label>
             <select id="filter-origem" class="form-select"><option value="all">Todas as origens</option></select>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Destino</label>
+          <div class="col-md-2">
+            <label class="form-label small">Destino</label>
             <select id="filter-destino" class="form-select"><option value="all">Todos os destinos</option></select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Passageiro</label>
-            <select id="filter-passageiro" class="form-select"><option value="all">Todos</option></select>
+            <label class="form-label small">Passageiro</label>
+            <select id="filter-passageiro" class="form-select"><option value="all">Todos os passageiros</option></select>
           </div>
-        </div>
-        <div class="mt-3 d-flex gap-2">
-          <button id="btn-apply" class="btn-primary-custom"><i class="fas fa-filter me-2"></i> Aplicar Filtros</button>
-          <button id="btn-clear" class="btn-secondary-custom"><i class="fas fa-redo me-2"></i> Limpar Filtros</button>
+          <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
+            <!-- action buttons row (aplicar/limpar/exportar/imprimir/compartilhar) -->
+            <div class="d-flex gap-2 w-100 justify-content-end flex-wrap">
+              <button id="btn-apply" class="btn-primary-custom"><i class="fas fa-filter me-1"></i> Aplicar</button>
+              <button id="btn-clear" class="btn-secondary-custom"><i class="fas fa-undo me-1"></i> Limpar</button>
+              <button id="exportCSV" class="btn btn-outline-primary"><i class="fas fa-file-csv me-1"></i> Exportar CSV</button>
+              <button id="exportExcel" class="btn btn-outline-success"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
+              <button id="btn-print" class="btn btn-outline-secondary"><i class="fas fa-print me-1"></i> Imprimir</button>
+              <div class="btn-group ms-1">
+                <button id="shareBtn" class="btn btn-outline-info"><i class="fas fa-share-alt me-1"></i> Compartilhar</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- stats -->
       <div class="row g-3 mb-3">
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-plane fa-2x" style="color:var(--accent-red)"></i><div class="value" id="card-voos">—</div><div class="small">Total de Voos</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-clock fa-2x" style="color:var(--palette-2)"></i><div class="value" id="card-horas">—</div><div class="small">Horas Voadas</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-users fa-2x" style="color:var(--secondary-green)"></i><div class="value" id="card-passageiros">—</div><div class="small">Passageiros Únicos</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-map-marker-alt fa-2x" style="color:var(--palette-3)"></i><div class="value" id="card-destinos">—</div><div class="small">Destinos Únicos</div></div></div>
+        <div class="col-md-3">
+          <div class="card-stats">
+            <i class="fas fa-plane fa-2x" style="color:var(--accent-red)"></i>
+            <div class="value" id="card-voos">—</div>
+            <div class="small text-muted">Total de Voos</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-stats">
+            <i class="fas fa-clock fa-2x" style="color:#2E5984"></i>
+            <div class="value" id="card-horas">—</div>
+            <div class="small text-muted">Horas Voadas</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-stats">
+            <i class="fas fa-users fa-2x" style="color:#2E8B57"></i>
+            <div class="value" id="card-passageiros">—</div>
+            <div class="small text-muted">Total de Passageiros</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card-stats">
+            <i class="fas fa-map-marker-alt fa-2x" style="color:#6A5ACD"></i>
+            <div class="value" id="card-destinos">—</div>
+            <div class="small text-muted">Total de Destinos</div>
+          </div>
+        </div>
       </div>
 
-      <div class="row g-3 mb-3">
+      <!-- charts -->
+      <div class="row g-3">
         <div class="col-md-6">
-          <div class="chart-container">
+          <div class="chart-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <strong>Distribuição por Destinos (pizza)</strong>
-              <small class="text-muted">Top 10 destinos</small>
+              <div><strong>Top 10 Destinos (pizza)</strong></div>
+              <div class="small text-muted">Fonte: GitHub</div>
             </div>
-            <div id="chart-destino-pie" style="width:100%;height:260px;"></div>
+            <div id="chart-pie" style="height:260px;"></div>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="chart-container">
+          <div class="chart-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <strong>Distribuição por Mês (barras)</strong>
-              <small class="text-muted">Mês / número de voos</small>
+              <div><strong>Distribuição por Mês</strong></div>
+              <div class="small text-muted">Fonte: GitHub</div>
             </div>
-            <div id="chart-mes-bar" style="width:100%;height:260px;"></div>
+            <div id="chart-month" style="height:260px;"></div>
           </div>
         </div>
       </div>
 
-      <div class="table-container mb-4">
-        <div class="table-header">
+      <!-- table -->
+      <div class="table-card mt-3">
+        <div class="d-flex justify-content-between align-items-center p-3" style="border-bottom:1px solid #f1f1f1;">
           <div><strong>Detalhamento de Voos</strong></div>
           <div class="d-flex align-items-center gap-2">
-            <span style="background:linear-gradient(90deg,var(--secondary-green),#2e8b47);color:#fff;padding:6px 12px;border-radius:18px;font-weight:700">Ano: <span id="table-year">—</span></span>
-            <span class="table-badge" id="voos-count">0 voos</span>
+            <div class="small">Ano: <span id="table-year">2025</span></div>
+            <div class="badge-count" id="voos-count">0 voos</div>
           </div>
         </div>
         <div class="table-responsive p-3">
-          <table class="table table-hover mb-0">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Data</th>
-                <th>n_db</th>
+                <th>Nº Voo</th>
                 <th>Origem</th>
                 <th>Destino</th>
-                <th>Qtd. Passageiros</th>
+                <th>Qtd Passageiros</th>
                 <th>Situação do Voo</th>
                 <th>Horas Voadas</th>
               </tr>
             </thead>
-            <tbody id="voos-table-body"><tr><td colspan="7" class="text-center">Carregando...</td></tr></tbody>
+            <tbody id="voos-table-body">
+              <tr><td colspan="7" class="text-center">Carregando dados...</td></tr>
+            </tbody>
           </table>
         </div>
-        <div class="p-3 d-flex justify-content-between align-items-center border-top">
+        <div class="p-3 d-flex justify-content-between align-items-center" style="border-top:1px solid #f1f1f1;">
           <div id="pagination-info" class="text-muted">Mostrando 0 de 0 voos</div>
           <div class="d-flex gap-2">
             <button id="btn-prev" class="btn btn-sm btn-outline-primary" disabled>Anterior</button>
@@ -179,580 +209,698 @@
       </div>
     </section>
 
-    <!-- DESTINOS -->
-    <section id="tab-destinos" class="tab-pane" style="display:none">
-      <div class="filter-container">
+    <!-- ANÁLISE POR DESTINO -->
+    <section id="tab-destinos" class="tab-pane" style="display:none;">
+      <div class="filter-card mb-3">
         <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Ano</label>
-            <select id="analise-ano" class="form-select"></select>
+          <div class="col-md-3">
+            <label class="form-label small">Ano</label>
+            <select id="analise-ano" class="form-select"><option value="2025">2025</option><option value="2021">2021</option><option value="all">Todos</option></select>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Destino</label>
+            <label class="form-label small">Destino</label>
             <select id="analise-destino" class="form-select"><option value="all">Todos os destinos</option></select>
           </div>
-          <div class="col-md-4">
-            <label class="form-label">Passageiro</label>
+          <div class="col-md-3">
+            <label class="form-label small">Passageiro</label>
             <select id="analise-passageiro" class="form-select"><option value="all">Todos</option></select>
           </div>
+          <div class="col-md-2 d-flex align-items-end justify-content-end">
+            <button id="btn-analisar" class="btn-primary-custom"><i class="fas fa-chart-bar me-1"></i> Gerar Análise</button>
+          </div>
         </div>
-        <div class="mt-3"><button id="btn-analisar" class="btn-primary-custom"><i class="fas fa-chart-bar me-2"></i>Gerar Análise</button></div>
       </div>
 
-      <div class="card-stats-grid mb-3 row g-3">
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-plane fa-2x" style="color:var(--accent-red)"></i><div class="value" id="analise-total">—</div><div class="small">Voos (únicos)</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-percentage fa-2x" style="color:var(--secondary-green)"></i><div class="value" id="analise-sucesso">—</div><div class="small">Taxa de Realização</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-clock fa-2x" style="color:var(--palette-2)"></i><div class="value" id="analise-horas">—</div><div class="small">Horas Totais</div></div></div>
-        <div class="col-md-3"><div class="card-stats"><i class="fas fa-users fa-2x" style="color:var(--palette-3)"></i><div class="value" id="analise-passageiros">—</div><div class="small">Passageiros Únicos</div></div></div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-3"><div class="card-stats"><i class="fas fa-plane fa-2x" style="color:var(--accent-red)"></i><div class="value" id="analise-total">—</div><div class="small text-muted">Voos para o Destino</div></div></div>
+        <div class="col-md-3"><div class="card-stats"><i class="fas fa-percentage fa-2x" style="color:var(--success-green)"></i><div class="value" id="analise-sucesso">—</div><div class="small text-muted">Taxa de Realização</div></div></div>
+        <div class="col-md-3"><div class="card-stats"><i class="fas fa-clock fa-2x" style="color:#2E5984"></i><div class="value" id="analise-horas">—</div><div class="small text-muted">Horas Totais</div></div></div>
+        <div class="col-md-3"><div class="card-stats"><i class="fas fa-user-friends fa-2x" style="color:#6A5ACD"></i><div class="value" id="analise-passageiros">—</div><div class="small text-muted">Passageiros Únicos</div></div></div>
       </div>
 
-      <div class="table-container">
-        <div class="table-header"><strong>Resumo por Destino</strong><div></div></div>
+      <div class="table-card">
+        <div class="d-flex justify-content-between align-items-center p-3" style="border-bottom:1px solid #f1f1f1;">
+          <div><strong>Destinos</strong></div>
+          <div class="small text-muted">Resultados por destino</div>
+        </div>
         <div class="table-responsive p-3">
-          <table class="table table-hover mb-0">
+          <table class="table table-hover">
             <thead>
-              <tr><th>Destino</th><th>Total de Voos</th><th>Horas Totais</th><th>Qtd. Passageiros</th><th>Percentual de Voos</th></tr>
+              <tr>
+                <th>Destino</th>
+                <th>Total de Voos</th>
+                <th>Horas Totais</th>
+                <th>Qtd Passageiros</th>
+                <th>Percentual de Voos</th>
+              </tr>
             </thead>
-            <tbody id="analise-table-body"><tr><td colspan="5" class="text-center">Selecione filtros e clique em "Gerar Análise"</td></tr></tbody>
+            <tbody id="analise-table-body">
+              <tr><td colspan="5" class="text-center">Selecione filtros e clique em "Gerar Análise"</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
     </section>
 
     <!-- DOWNLOAD -->
-    <section id="tab-download" class="tab-pane" style="display:none">
-      <div class="table-container p-4">
-        <div class="table-header"><strong>DataSet Completo</strong><div><span class="table-badge">Dados Abertos</span></div></div>
-        <div class="p-3">
-          <div class="row">
-            <div class="col-md-6">
-              <h5>Arquivos encontrados (GitHub)</h5>
-              <div id="arquivos-lista" class="list-group"></div>
+    <section id="tab-download" class="tab-pane" style="display:none;">
+      <div class="table-card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div><strong>Download de Dados</strong></div>
+          <div><span class="badge-count">Dados Abertos</span></div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <h6>Arquivos no repositório</h6>
+            <div id="arquivos-lista" class="list-group"></div>
+            <div class="mt-3">
+              <a class="btn btn-outline-dark" href="https://dados.mg.gov.br" target="_blank"><i class="fas fa-external-link-alt me-1"></i> Portal de Dados Abertos</a>
             </div>
-            <div class="col-md-6">
-              <h5>Exportar dados filtrados</h5>
-              <p class="text-muted">Baixe os dados atualmente filtrados</p>
-              <div class="d-grid">
-                <button id="exportCSV" class="btn btn-outline-primary"><i class="fas fa-file-csv me-2"></i>Exportar CSV</button>
+          </div>
+          <div class="col-md-6">
+            <h6>Exportar dados filtrados</h6>
+            <p class="text-muted">Baixe os dados atuais filtrados pelo painel (CSV).</p>
+            <div class="d-grid gap-2">
+              <button id="downloadFiltered" class="btn btn-primary"><i class="fas fa-download me-1"></i> Baixar dados filtrados (CSV)</button>
+              <div class="mt-3">
+                <h6>Metadados (estrutura dos campos)</h6>
+                <table class="table table-sm table-bordered">
+                  <thead><tr><th>Campo</th><th>Descrição</th></tr></thead>
+                  <tbody>
+                    <tr><td>historico</td><td>Histórico / observações</td></tr>
+                    <tr><td>solicitante</td><td>Pessoa que solicitou</td></tr>
+                    <tr><td>orgao_solicitante</td><td>Órgão solicitante</td></tr>
+                    <tr><td>situacao_voo</td><td>Situação informada pelo sistema</td></tr>
+                    <tr><td>horas_voadas</td><td>Horas voadas (decimal)</td></tr>
+                    <tr><td>aeronave</td><td>Identificação da aeronave</td></tr>
+                    <tr><td>n_db</td><td>Número do voo / DB</td></tr>
+                    <tr><td>base</td><td>Base</td></tr>
+                    <tr><td>data</td><td>Data do voo (YYYY-MM-DD)</td></tr>
+                    <tr><td>orgao_responsavel</td><td>Órgão responsável</td></tr>
+                    <tr><td>origem</td><td>Aeroporto de origem (código)</td></tr>
+                    <tr><td>destino</td><td>Aeroporto de destino (código)</td></tr>
+                    <tr><td>passageiro</td><td>Nome do passageiro</td></tr>
+                    <tr><td>cargo_funcao</td><td>Cargo / função</td></tr>
+                    <tr><td>orgao_passageiro</td><td>Órgão do passageiro</td></tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </section>
 
   </main>
 
-  <footer class="text-center mt-4 mb-4">
-    <div class="container">
-      <p><i class="fas fa-database"></i> Dados do <a href="https://github.com/transparencia-mg/voos_oficiais_governador" target="_blank">GitHub / transparencia-mg</a></p>
-      <p style="font-size:0.85rem;">© Governo de Minas Gerais — Painel de Voos Oficiais</p>
-    </div>
+  <footer class="container text-center mt-4 mb-4">
+    <small>© 2025 Governo de Minas Gerais — Dados: <a href="https://github.com/transparencia-mg/voos_oficiais_governador" target="_blank">GitHub / transparencia-mg</a></small>
   </footer>
 
   <!-- SCRIPTS -->
   <script>
-  // ----------------------------
-  // Configurações
-  // ----------------------------
+  // -----------------------------
+  // CONFIGURAÇÃO
+  // -----------------------------
   const GITHUB_API_CONTENTS = 'https://api.github.com/repos/transparencia-mg/voos_oficiais_governador/contents/docs/data/normalized';
-  const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/transparencia-mg/voos_oficiais_governador/main/docs/data/normalized';
-  const FILENAME_REGEX = /^voos_(\d{4})\.csv$/i; // OPÇÃO A: exato voos_YYYY.csv
+  const GITHUB_RAW = 'https://raw.githubusercontent.com/transparencia-mg/voos_oficiais_governador/main/docs/data/normalized';
+  // procurar arquivos no formato voos_YYYY.csv (OPÇÃO A)
+  const FILE_PATTERN = /^voos_(\d{4})\.csv$/i;
 
-  // Campos finais que queremos manter (normalizados)
-  const EXPECTED_COLUMNS = [
-    'historico','solicitante','orgao_solicitante','situacao_voo','horas_voadas','aeronave','n_db','base','data','orgao_responsavel','origem','destino','passageiro','cargo_funcao','orgao_passageiro'
+  // colunas que iremos manter (nomes normalizados)
+  const VALID_COLUMNS = [
+    'historico','solicitante','orgao_solicitante','situacao_voo','horas_voadas',
+    'aeronave','n_db','base','data','orgao_responsavel','origem','destino',
+    'passageiro','cargo_funcao','orgao_passageiro'
   ];
 
-  // Estado
-  let dadosCache = { voos: [], anos: [], origens: [], destinos: [], passageiros: [], files: [] };
-  let dadosFiltrados = [];
-  let uniqueFlightsIndex = {}; // para contar voos únicos
+  // estado
+  let allRows = [];      // todas as linhas processadas (raw)
+  let groupedFlights = {}; // agrupamento por voo (key)
+  let filteredFlights = []; // voos (agrupados) após filtro
   let currentPage = 1;
   const pageSize = 50;
 
-  // Paleta de cores (para Plotly)
-  const COLORS = ['var(--palette-5)','var(--palette-2)','var(--palette-3)','var(--palette-4)','var(--palette-6)','var(--palette-7)','var(--palette-8)','#C55','#7FB3D5','#9ACD32'];
-
-  // ----------------------------
-  // Util: limpar BOM e normalizar cabecalhos
-  // ----------------------------
-  function limparBOM(s){ return s ? s.replace(/^\uFEFF/, '') : s; }
-  function normalizeHeader(h){
-    if(!h) return '';
-    let s = limparBOM(String(h)).trim();
-    // remover acentos
-    s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    s = s.replace(/[^\w]+/g, '_').replace(/^_|_$/g,'').toLowerCase();
-    return s;
+  // -----------------------------
+  // UTIL: mostrar/ocultar loading e status
+  // -----------------------------
+  function showLoading(msg='Carregando...'){
+    document.getElementById('loadingText').textContent = msg;
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    updateStatus('updating', msg);
+  }
+  function hideLoading(){ document.getElementById('loadingOverlay').style.display = 'none'; }
+  function updateStatus(cls, text){
+    const el = document.getElementById('updateStatus'); const txt = document.getElementById('updateStatusText');
+    el.className = 'update-status ' + (cls || '');
+    txt.textContent = text || '';
+  }
+  function notify(msg, type='info'){
+    const n = document.createElement('div'); n.className = 'alert alert-' + (type==='info'?'primary':type) + ' alert-dismissible';
+    n.style.position='fixed'; n.style.right='20px'; n.style.top='20px'; n.style.zIndex=20000;
+    n.innerHTML = msg + ' <button class="btn-close" onclick="this.parentElement.remove()"></button>';
+    document.body.appendChild(n);
+    setTimeout(()=>{ if(n.parentNode) n.remove(); },6000);
   }
 
-  // ----------------------------
-  // UI util
-  // ----------------------------
-  function showLoading(text='Carregando...'){ document.getElementById('loadingText').textContent = text; document.getElementById('loadingOverlay').style.display='flex'; updateStatus('updating', text); }
-  function hideLoading(){ document.getElementById('loadingOverlay').style.display='none'; }
-  function updateStatus(status, text){ const el = document.getElementById('updateStatus'); el.className = `update-status ${status}`; document.getElementById('updateStatusText').textContent = text; }
-  function mostrarNotificacao(msg,type='info'){ const d=document.createElement('div'); d.className = `alert alert-${type}`; d.style.position='fixed'; d.style.right='20px'; d.style.top='20px'; d.style.zIndex=10000; d.innerHTML = msg + ' <button class="btn-close" onclick="this.parentElement.remove()"></button>'; document.body.appendChild(d); setTimeout(()=>d.remove(),6000); }
+  // -----------------------------
+  // Normalização de headers e limpeza BOM
+  // -----------------------------
+  function limparBOM(s){ return s ? s.replace(/^\uFEFF/, '') : s; }
+  function normalizeKey(k){
+    if(!k) return '';
+    k = limparBOM(k).trim();
+    k = k.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    k = k.replace(/[^\w]+/g,'_').replace(/^_|_$/g,'').toLowerCase();
+    return k;
+  }
 
-  // ----------------------------
-  // Buscar lista de arquivos via GitHub Contents API (public repo -> CORS ok)
-  // ----------------------------
-  async function listarArquivosNoRepo(){
+  // -----------------------------
+  // Ler lista de arquivos do repo (API GitHub) e carregar aqueles que casam com voos_YYYY.csv
+  // -----------------------------
+  async function fetchFilesList(){
     try{
-      showLoading('Buscando lista de arquivos no GitHub...');
-      updateStatus('updating','Verificando arquivos no repositório');
       const res = await fetch(GITHUB_API_CONTENTS);
-      if(!res.ok) throw new Error('Erro listagem: ' + res.status);
-      const items = await res.json();
-      // Filtrar por nome exato voos_YYYY.csv (OPÇÃO A)
-      const files = items
-        .filter(it => it.type === 'file' && FILENAME_REGEX.test(it.name))
-        .map(it => ({ name: it.name, download_url: it.download_url, year: (it.name.match(FILENAME_REGEX)||[])[1] }));
-      // ordenar do mais novo para o mais antigo
-      files.sort((a,b) => (b.year||'').localeCompare(a.year||''));
-      dadosCache.files = files;
+      if(!res.ok) throw new Error('Erro ao listar arquivos: ' + res.status);
+      const data = await res.json();
+      const files = data.filter(f => FILE_PATTERN.test(f.name)).map(f => f.name).sort().reverse();
       return files;
     }catch(err){
-      console.error('Erro listarArquivosNoRepo', err);
-      mostrarNotificacao('Erro ao listar arquivos no GitHub: ' + err.message,'danger');
-      return [];
-    }finally{
-      hideLoading();
+      console.error('Erro fetchFilesList', err);
+      // fallback: tentar lista manual comum
+      return ['voos_2025.csv','voos_2021.csv'];
     }
   }
 
-  // ----------------------------
-  // Parse CSV com PapaParse (com transformHeader)
-  // ----------------------------
-  function parseCSV(text){
-    return new Promise((resolve,reject)=>{
-      Papa.parse(text, {
+  // -----------------------------
+  // Carregar e parsear CSV via PapaParse (transformHeader para normalizar)
+  // -----------------------------
+  function parseCSV(csvText){
+    return new Promise((resolve, reject) => {
+      Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: h => normalizeHeader(h),
-        complete: results => resolve(results.data),
-        error: err => reject(err)
+        transformHeader: h => normalizeKey(h),
+        complete: r => resolve(r.data),
+        error: e => reject(e)
       });
     });
   }
 
-  // ----------------------------
-  // Processar e manter APENAS colunas desejadas
-  // ----------------------------
-  function processarLinhas(rawRows, inferredYear=''){
-    // rawRows já têm cabeçalhos normalizados por parseCSV
-    const mapped = rawRows.map(r => {
-      const row = {};
-      // mapear somente as colunas esperadas; se faltar, deixar vazia
-      EXPECTED_COLUMNS.forEach(col => {
-        const alt = col.replace(/_/g,'_'); // already normalized
-        row[col] = (r[col] !== undefined && r[col] !== null) ? String(r[col]).trim() : '';
-      });
-      // Normalizar horas (virgula -> ponto)
-      let hv = row['horas_voadas'] || '';
-      hv = hv.toString().replace(',', '.').replace(/\s+/g,'');
-      row.horas_voadas = (hv === '' ? 0 : parseFloat(hv)) || 0;
-      // n_db (número do voo) — manter como string
-      row.n_db = (row.n_db || '').toString().trim();
-      // data raw
-      row.data = row.data || '';
-      // origin/destino/passageiro
-      row.origem = (row.origem || '').toString().trim();
-      row.destino = (row.destino || '').toString().trim();
-      row.passageiro = (row.passageiro || '').toString().trim();
-      // situacao_voo (usar como está)
-      row.situacao_voo = (row.situacao_voo || '').toString().trim();
-      // adiciona ano se possível
-      const m = (row.data || '').match(/(\d{4})/);
-      row.ano = m ? m[1] : inferredYear || '';
-      return row;
-    });
-    // filtrar linhas com data/origem/destino (exigido)
-    return mapped.filter(r => r.data && r.origem && r.destino);
+  // -----------------------------
+  // Processar linhas: manter só colunas válidas e mapear
+  // -----------------------------
+  function mapRowKeepColumns(row){
+    // row já tem headers normalizados
+    const r = {};
+    for(const key of VALID_COLUMNS){
+      r[key] = row[key] !== undefined ? (row[key] === null ? '' : String(row[key]).trim()) : '';
+    }
+    // padronizar horas_voadas -> número decimal (ponto)
+    r.horas_voadas = parseFloat((r.horas_voadas || '').toString().replace(',','.')) || 0;
+
+    // garantir data como string
+    r.data = r.data || '';
+
+    // situacao_voo: se vazio, inferir a partir de horas_voadas
+    if(!r.situacao_voo || r.situacao_voo.trim()===''){
+      r.situacao_voo = (r.horas_voadas && r.horas_voadas > 0) ? 'REALIZADO' : 'CANCELADO';
+    } else {
+      r.situacao_voo = r.situacao_voo.toString().trim();
+    }
+
+    return r;
   }
 
-  // ----------------------------
-  // Carregar TODOS os arquivos encontrados e agregar
-  // ----------------------------
-  async function carregarTodosArquivos(){
-    showLoading('Carregando arquivos CSV...');
-    updateStatus('updating','Carregando dados do repositório');
-    try{
-      const files = await listarArquivosNoRepo();
-      if(!files || files.length === 0){
-        updateStatus('offline','Nenhum arquivo voos_YYYY.csv encontrado');
-        mostrarNotificacao('Nenhum arquivo voos_YYYY.csv encontrado em /docs/data/normalized','warning');
-        return;
-      }
-      // popular lista de downloads UI
-      renderArquivoLista(files);
+  // -----------------------------
+  // Identificador único de voo (para contar voos únicos)
+  //    usa n_db quando disponível, senão data|origem|destino|aeronave
+  // -----------------------------
+  function flightKey(row){
+    if(row.n_db && row.n_db.trim() !== '') return `${row.n_db.trim()}|${row.data}|${row.aeronave || ''}`.toUpperCase();
+    return `${row.data}|${row.origem}|${row.destino}|${row.aeronave || ''}`.toUpperCase();
+  }
 
-      const allRows = [];
-      for(const f of files){
-        try{
-          const raw = await fetch(f.download_url);
-          if(!raw.ok){ console.warn('falha ao baixar', f.name, raw.status); continue; }
-          const text = await raw.text();
-          const parsed = await parseCSV(text);
-          const processed = processarLinhas(parsed, f.year);
-          // atribuir ano se faltou
-          processed.forEach(p => { if(!p.ano) p.ano = f.year; });
-          allRows.push(...processed);
-        }catch(e){
-          console.error('erro fetch/process', f.name, e);
-        }
-      }
+  // -----------------------------
+  // Carregar todos os arquivos detectados
+  // -----------------------------
+  async function loadAllData(){
+    showLoading('Detectando arquivos no GitHub...');
+    updateStatus('updating','Detectando arquivos...');
+    const files = await fetchFilesList();
+    const loaded = [];
+    document.getElementById('arquivos-lista').innerHTML = '<div class="text-muted small">Verificando arquivos...</div>';
 
-      dadosCache.voos = allRows;
-      // atualizar meta
-      dadosCache.anos = Array.from(new Set(allRows.map(x=>x.ano).filter(Boolean))).sort().reverse();
-      dadosCache.origens = Array.from(new Set(allRows.map(x=>x.origem).filter(Boolean))).sort();
-      dadosCache.destinos = Array.from(new Set(allRows.map(x=>x.destino).filter(Boolean))).sort();
-      dadosCache.passageiros = Array.from(new Set(allRows.map(x=>x.passageiro).filter(Boolean))).sort();
-      updateStatus('online', `Dados carregados (${allRows.length} registros)`);
-      // inicializar selects e view
-      atualizarSelects();
-      aplicarFiltros(); // aplica padrão
-    }catch(err){
-      console.error('Erro carregarTodosArquivos', err);
-      updateStatus('offline','Erro ao carregar dados');
-      mostrarNotificacao('Erro ao carregar dados: ' + err.message,'danger');
-    }finally{
-      hideLoading();
+    for(const fname of files){
+      const url = `${GITHUB_RAW}/${fname}`;
+      try{
+        showLoading('Carregando ' + fname + ' ...');
+        const r = await fetch(url);
+        if(!r.ok){ console.warn('Arquivo nao carregado', fname, r.status); continue; }
+        const txt = await r.text();
+        const parsed = await parseCSV(txt);
+        // mapear e filtrar apenas colunas válidas
+        parsed.forEach(p => {
+          const keep = mapRowKeepColumns(p);
+          // incluir origem/destino/passageiro/data obrigatórios
+          if(keep.data && keep.origem && keep.destino){
+            // extrair ano
+            const m = keep.data.match(/(\d{4})/);
+            keep.ano = m ? m[1] : (fname.match(/(\d{4})/) ? fname.match(/(\d{4})/)[1] : '');
+            // guardar raw original? (já perdemos cabeçalhos originais mas ok)
+            loaded.push(keep);
+          }
+        });
+      }catch(err){
+        console.error('Erro carregando', fname, err);
+      }
+    }
+
+    allRows = loaded;
+    hideLoading();
+    if(allRows.length === 0){
+      updateStatus('offline','Nenhum registro carregado');
+      notify('Nenhum registro carregado — verifique os CSVs no repositório.', 'warning');
+    } else {
+      updateStatus('online','Dados carregados');
+    }
+
+    // popular selects e processar agrupamento
+    populateSelects();
+    buildFlightGroups();
+    applyFilters(); // load initial view
+    renderFilesList(files);
+  }
+
+  // -----------------------------
+  // Exibir lista de arquivos (Download tab)
+  // -----------------------------
+  function renderFilesList(files){
+    const container = document.getElementById('arquivos-lista');
+    container.innerHTML = '';
+    if(!files || files.length===0){
+      container.innerHTML = '<div class="text-muted small">Nenhum arquivo encontrado.</div>';
+      return;
+    }
+    files.forEach(f=>{
+      const item = document.createElement('div'); item.className='list-group-item d-flex justify-content-between align-items-center';
+      item.innerHTML = `<div><strong>${f}</strong><div class="small text-muted">Arquivo CSV</div></div>
+        <div><a class="btn btn-sm btn-outline-primary" href="${GITHUB_RAW}/${f}" target="_blank"><i class="fas fa-download me-1"></i> Baixar</a></div>`;
+      container.appendChild(item);
+    });
+  }
+
+  // -----------------------------
+  // Popular selects filtro (anos, origens, destinos, passageiros)
+  // -----------------------------
+  function populateSelects(){
+    const anos = Array.from(new Set(allRows.map(r=>r.ano).filter(Boolean))).sort().reverse();
+    const origens = Array.from(new Set(allRows.map(r=>r.origem).filter(Boolean))).sort();
+    const destinos = Array.from(new Set(allRows.map(r=>r.destino).filter(Boolean))).sort();
+    const passageiros = Array.from(new Set(allRows.map(r=>r.passageiro).filter(Boolean))).sort();
+
+    // anos
+    const sAno = document.getElementById('filter-ano');
+    const analiseAno = document.getElementById('analise-ano');
+    sAno.innerHTML = '';
+    analiseAno.innerHTML = '';
+    (anos.length?anos:['2025','2021']).forEach(a=>{
+      const o = document.createElement('option'); o.value=a; o.textContent=a; sAno.appendChild(o);
+      const o2 = document.createElement('option'); o2.value=a; o2.textContent=a; analiseAno.appendChild(o2);
+    });
+    // adicionar Todos
+    const optAll1 = document.createElement('option'); optAll1.value='all'; optAll1.textContent='Todos os anos'; sAno.appendChild(optAll1);
+    const optAll2 = document.createElement('option'); optAll2.value='all'; optAll2.textContent='Todos'; analiseAno.appendChild(optAll2);
+
+    // origens
+    const sOrig = document.getElementById('filter-origem'); sOrig.innerHTML='<option value="all">Todas as origens</option>';
+    origens.forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; sOrig.appendChild(opt); });
+
+    // destinos
+    const sDest = document.getElementById('filter-destino'); sDest.innerHTML='<option value="all">Todos os destinos</option>';
+    destinos.forEach(d=>{ const opt=document.createElement('option'); opt.value=d; opt.textContent=d; sDest.appendChild(opt); });
+    // analise destino
+    const aDest = document.getElementById('analise-destino'); aDest.innerHTML='<option value="all">Todos os destinos</option>';
+    destinos.forEach(d=>{ const opt=document.createElement('option'); opt.value=d; opt.textContent=d; aDest.appendChild(opt); });
+
+    // passageiros
+    const sPass = document.getElementById('filter-passageiro'); sPass.innerHTML='<option value="all">Todos os passageiros</option>';
+    const aPass = document.getElementById('analise-passageiro'); aPass.innerHTML='<option value="all">Todos</option>';
+    passageiros.forEach(p=>{ const opt = document.createElement('option'); opt.value=p; opt.textContent=p; sPass.appendChild(opt); aPass.appendChild(opt.cloneNode(true)); });
+  }
+
+  // -----------------------------
+  // Agrupar linhas por voo (flightKey) e calcular quantidade de passageiros por voo
+  // groupedFlights: { flightKey: { key, n_db, data, origem, destino, aeronave, situacao_voo, horas_voadas_total, passageiros:Set(), rows:[] } }
+  // -----------------------------
+  function buildFlightGroups(){
+    groupedFlights = {};
+    for(const row of allRows){
+      const key = flightKey(row);
+      if(!groupedFlights[key]){
+        groupedFlights[key] = {
+          key,
+          n_db: row.n_db || '',
+          data: row.data || '',
+          origem: row.origem || '',
+          destino: row.destino || '',
+          aeronave: row.aeronave || '',
+          situacao_voo: row.situacao_voo || '',
+          horas_voadas_total: 0,
+          passageiros: new Set(),
+          rows: []
+        };
+      }
+      groupedFlights[key].rows.push(row);
+      groupedFlights[key].horas_voadas_total += (parseFloat(row.horas_voadas) || 0);
+      if(row.passageiro) groupedFlights[key].passageiros.add(row.passageiro);
     }
   }
 
-  // ----------------------------
-  // Atualizar selects (anos, origens, destinos, passageiros)
-  // ----------------------------
-  function atualizarSelects(){
-    // anos
-    const selAno = document.getElementById('filter-ano');
-    const analiseAno = document.getElementById('analise-ano');
-    selAno.innerHTML = ''; analiseAno.innerHTML = '';
-    const anos = dadosCache.anos.length ? dadosCache.anos : ['2025','2021'];
-    anos.forEach(a => {
-      const opt = document.createElement('option'); opt.value = a; opt.textContent = a; selAno.appendChild(opt);
-      const opt2 = document.createElement('option'); opt2.value = a; opt2.textContent = a; analiseAno.appendChild(opt2);
-    });
-    // adicionar opção "Todos"
-    const oAll = document.createElement('option'); oAll.value='all'; oAll.textContent='Todos os anos'; selAno.appendChild(oAll);
-    const aAll = document.createElement('option'); aAll.value='all'; aAll.textContent='Todos'; analiseAno.appendChild(aAll);
-    // selecionar padrão = maior ano
-    if(dadosCache.anos.length) selAno.value = dadosCache.anos[0];
-    analiseAno.value = selAno.value;
-
-    // origens
-    const selOrig = document.getElementById('filter-origem');
-    selOrig.innerHTML = '<option value="all">Todas as origens</option>';
-    dadosCache.origens.forEach(o => { const opt = document.createElement('option'); opt.value = o; opt.textContent = o; selOrig.appendChild(opt); });
-
-    // destinos
-    const selDest = document.getElementById('filter-destino');
-    selDest.innerHTML = '<option value="all">Todos os destinos</option>';
-    const analiseDest = document.getElementById('analise-destino'); analiseDest.innerHTML = '<option value="all">Todos os destinos</option>';
-    dadosCache.destinos.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; selDest.appendChild(opt); analiseDest.appendChild(opt.cloneNode(true)); });
-
-    // passageiros
-    const selPass = document.getElementById('filter-passageiro'); selPass.innerHTML = '<option value="all">Todos</option>';
-    const analisePass = document.getElementById('analise-passageiro'); analisePass.innerHTML = '<option value="all">Todos</option>';
-    dadosCache.passageiros.forEach(p => { const opt = document.createElement('option'); opt.value = p; opt.textContent = p; selPass.appendChild(opt); analisePass.appendChild(opt.cloneNode(true)); });
-  }
-
-  // ----------------------------
-  // Render arquivo lista (download links)
-  // ----------------------------
-  function renderArquivoLista(files){
-    const container = document.getElementById('arquivos-lista');
-    container.innerHTML = '';
-    files.forEach(f => {
-      const div = document.createElement('div'); div.className='list-group-item d-flex justify-content-between align-items-center';
-      div.innerHTML = `<div><strong>${f.name}</strong><div class="small text-muted">Ano: ${f.year}</div></div>
-        <div><a class="btn btn-sm btn-outline-primary" href="${f.download_url}" target="_blank"><i class="fas fa-download"></i> Baixar</a></div>`;
-      container.appendChild(div);
-    });
-  }
-
-  // ----------------------------
-  // Aplicar filtros e atualizar view
-  // ----------------------------
-  function aplicarFiltros(){
+  // -----------------------------
+  // Aplicar filtros (visão geral)
+  // -----------------------------
+  function applyFilters(){
     const ano = document.getElementById('filter-ano').value;
     const origem = document.getElementById('filter-origem').value;
     const destino = document.getElementById('filter-destino').value;
     const passageiro = document.getElementById('filter-passageiro').value;
 
-    let dados = [...dadosCache.voos];
-    if(ano && ano !== 'all') dados = dados.filter(d => d.ano === ano);
-    if(origem && origem !== 'all') dados = dados.filter(d => d.origem === origem);
-    if(destino && destino !== 'all') dados = dados.filter(d => d.destino === destino);
-    if(passageiro && passageiro !== 'all') dados = dados.filter(d => d.passageiro === passageiro);
+    // transformar groupedFlights em array de voos
+    const flights = Object.values(groupedFlights).map(f => ({
+      key: f.key,
+      n_db: f.n_db,
+      data: f.data,
+      origem: f.origem,
+      destino: f.destino,
+      situacao_voo: f.situacao_voo,
+      horas_voadas: f.horas_voadas_total,
+      passageiros_count: f.passageiros.size,
+      passageiros_list: Array.from(f.passageiros)
+    }));
 
-    // ordenar por data decrescente
-    dados.sort((a,b)=> (b.data||'').localeCompare(a.data||''));
+    let list = flights;
 
-    dadosFiltrados = dados;
+    if(ano && ano !== 'all') list = list.filter(f => (f.data || '').indexOf(ano) !== -1);
+    if(origem && origem !== 'all') list = list.filter(f => f.origem === origem);
+    if(destino && destino !== 'all') list = list.filter(f => f.destino === destino);
+    if(passageiro && passageiro !== 'all') list = list.filter(f => f.passageiros_list.includes(passageiro));
+
+    // ordenar por data desc
+    list.sort((a,b) => (b.data || '').localeCompare(a.data || ''));
+
+    filteredFlights = list;
     currentPage = 1;
-    atualizarEstatisticas(dados);
-    atualizarGraficos(dados);
-    atualizarTabela();
-    atualizarPaginacao();
-    document.getElementById('table-year').textContent = (ano === 'all' ? 'Todos' : (ano || '—'));
-    document.getElementById('voos-count').textContent = `${dados.length} registros`;
+    renderOverview();
+    renderTablePage();
   }
 
-  function limparFiltros(){
-    document.getElementById('filter-ano').value = (dadosCache.anos.length?dadosCache.anos[0]:'all');
-    document.getElementById('filter-origem').value = 'all';
-    document.getElementById('filter-destino').value = 'all';
-    document.getElementById('filter-passageiro').value = 'all';
-    aplicarFiltros();
-  }
+  // -----------------------------
+  // Render overview (stats + charts)
+  // -----------------------------
+  function renderOverview(){
+    // stats
+    const totalVoos = filteredFlights.length;
+    const totalHoras = filteredFlights.reduce((s,f)=>s + (parseFloat(f.horas_voadas)||0),0);
+    const totalPass = new Set(filteredFlights.flatMap(f=>f.passageiros_list)).size;
+    const totalDest = new Set(filteredFlights.map(f=>f.destino)).size;
 
-  // ----------------------------
-  // Estatísticas, Gráficos e Tabela
-  // ----------------------------
-  function atualizarEstatisticas(dados){
-    // calcular voos únicos: agrupar por key = data|n_db|origem|destino
-    const flightKeys = new Set();
-    dados.forEach(r => {
-      const key = `${r.data}||${r.n_db}||${r.origem}||${r.destino}`;
-      flightKeys.add(key);
-    });
-    const totalVoosUnicos = flightKeys.size;
-    // horas totais somando horas_voadas por linha (se houver múltiplas linhas para o mesmo voo por vários passageiros, soma também)
-    const totalHoras = dados.reduce((s,i)=> s + (parseFloat(i.horas_voadas)||0), 0);
-    const passageirosUnicos = new Set(dados.map(d=>d.passageiro)).size;
-    const destinosUnicos = new Set(dados.map(d=>d.destino)).size;
-
-    document.getElementById('card-voos').textContent = totalVoosUnicos.toLocaleString('pt-BR');
+    document.getElementById('card-voos').textContent = totalVoos.toLocaleString('pt-BR');
     document.getElementById('card-horas').textContent = formatHoras(totalHoras);
-    document.getElementById('card-passageiros').textContent = passageirosUnicos.toLocaleString('pt-BR');
-    document.getElementById('card-destinos').textContent = destinosUnicos.toLocaleString('pt-BR');
-  }
+    document.getElementById('card-passageiros').textContent = totalPass.toLocaleString('pt-BR');
+    document.getElementById('card-destinos').textContent = totalDest.toLocaleString('pt-BR');
+    document.getElementById('voos-count').textContent = `${totalVoos} voos`;
 
-  function atualizarGraficos(dados){
-    // PIE: top 10 destinos (contar voos únicos por destino)
-    const destinoFlightMap = {}; // destino -> set de flightKeys
-    dados.forEach(r=>{
-      const flightKey = `${r.data}||${r.n_db}||${r.origem}||${r.destino}`;
-      if(!destinoFlightMap[r.destino]) destinoFlightMap[r.destino] = new Set();
-      destinoFlightMap[r.destino].add(flightKey);
-    });
-    const destinoCounts = Object.entries(destinoFlightMap).map(([dest, set])=> ({dest, count:set.size}));
-    destinoCounts.sort((a,b)=>b.count - a.count);
-    const top10 = destinoCounts.slice(0,10);
-    const pieLabels = top10.map(d=>d.dest);
-    const pieValues = top10.map(d=>d.count);
-    const pieColors = COLORS.slice(0, pieLabels.length);
-    Plotly.newPlot('chart-destino-pie', [{
+    // charts
+    // pie TOP 10 destinos (by number of flights unique)
+    const destCounts = {};
+    filteredFlights.forEach(f => { destCounts[f.destino] = (destCounts[f.destino]||0) + 1; });
+    const destEntries = Object.entries(destCounts).map(([k,v])=>({k,v})).sort((a,b)=>b.v-a.v).slice(0,10);
+    const pieLabels = destEntries.map(d=>d.k);
+    const pieValues = destEntries.map(d=>d.v);
+
+    // choose palette (consistent)
+    const palette = [
+      '#2E5984','#B93C42','#2E8B57','#6A5ACD','#E87A2C','#1F77B4','#9467BD','#8C564B','#7F7F7F','#17BECF'
+    ];
+
+    Plotly.newPlot('chart-pie',[{
       labels: pieLabels,
       values: pieValues,
       type: 'pie',
-      marker:{colors: pieColors},
-      textinfo: 'label+percent',
-      hovertemplate: '%{label}: %{value} voos (%{percent})<extra></extra>'
-    }], {paper_bgcolor:'transparent',plot_bgcolor:'transparent',margin:{t:10,b:30}}, {displayModeBar:false});
+      marker:{colors: palette.slice(0,pieLabels.length)},
+      textinfo:'label+percent',
+      insidetextorientation:'radial'
+    }],{margin:{t:10,b:10}}, {responsive:true});
 
-    // BAR: por mês (contar voos únicos por mês)
-    const monthMap = {}; // yyyy-mm -> set flightKeys
-    dados.forEach(r=>{
-      // extrair yyyy-mm
-      const m = (r.data || '').match(/(\d{4})-(\d{2})/);
-      const ym = m ? `${m[1]}-${m[2]}` : r.data;
-      const key = `${r.data}||${r.n_db}||${r.origem}||${r.destino}`;
-      if(!monthMap[ym]) monthMap[ym] = new Set();
-      monthMap[ym].add(key);
+    // month bar chart (by month from data field)
+    const monthCounts = {}; // 'YYYY-MM' -> count
+    filteredFlights.forEach(f=>{
+      const m = (f.data || '').match(/^(\d{4})-(\d{2})/);
+      const key = m ? `${m[1]}-${m[2]}` : 'unknown';
+      monthCounts[key] = (monthCounts[key]||0) + 1;
     });
-    // ordenar meses por chave
-    const months = Object.keys(monthMap).sort();
-    const monthCounts = months.map(m => monthMap[m].size);
-    const barColors = months.map((_,i)=> COLORS[i % COLORS.length]);
-    Plotly.newPlot('chart-mes-bar', [{
+    const months = Object.keys(monthCounts).sort();
+    const monthValues = months.map(m=>monthCounts[m]);
+    Plotly.newPlot('chart-month',[{
       x: months,
-      y: monthCounts,
+      y: monthValues,
       type: 'bar',
-      marker:{color: barColors},
-      hovertemplate: '%{x}: %{y} voos<extra></extra>'
-    }], {paper_bgcolor:'transparent',plot_bgcolor:'transparent',margin:{t:10,b:80}}, {displayModeBar:false});
+      marker:{color: palette}
+    }],{margin:{t:10,b:80}}, {responsive:true});
   }
 
-  function atualizarTabela(){
-    const start = (currentPage - 1) * pageSize;
-    const page = dadosFiltrados.slice(start, start + pageSize);
+  // -----------------------------
+  // Render tabela (pagina atual)
+  // -----------------------------
+  function renderTablePage(){
+    const start = (currentPage-1)*pageSize;
+    const page = filteredFlights.slice(start, start+pageSize);
     const tbody = document.getElementById('voos-table-body');
-    if(!page || page.length === 0){
+    if(!page || page.length===0){
       tbody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum voo encontrado com os filtros aplicados</td></tr>';
+      document.getElementById('pagination-info').textContent = `Mostrando 0 de 0 voos`;
+      document.getElementById('btn-prev').disabled = true;
+      document.getElementById('btn-next').disabled = true;
       return;
     }
     let html = '';
-    // precisamos contar quantos passageiros tem por voo único (group by flightKey)
-    const flightsMap = {}; // flightKey -> {data, n_db, origem, destino, passageiros:set, situacao_voo, horas_voadas (take max/sum?)}
-    page.forEach(row=>{
-      const key = `${row.data}||${row.n_db}||${row.origem}||${row.destino}`;
-      if(!flightsMap[key]) flightsMap[key] = {data: row.data, n_db: row.n_db, origem: row.origem, destino: row.destino, passageiros: new Set(), situacao_voo: row.situacao_voo, horas_voadas: 0};
-      if(row.passageiro) flightsMap[key].passageiros.add(row.passageiro);
-      // sumarizar horas_voadas (use sum)
-      flightsMap[key].horas_voadas += (parseFloat(row.horas_voadas) || 0);
-      // preferir situacao_voo se informado
-      if(row.situacao_voo) flightsMap[key].situacao_voo = row.situacao_voo;
-    });
-    // iterate flightsMap
-    Object.values(flightsMap).forEach(f=>{
+    page.forEach(f=>{
       html += `<tr>
         <td>${escapeHtml(formatDate(f.data))}</td>
-        <td>${escapeHtml(f.n_db)}</td>
+        <td>${escapeHtml(f.n_db || '')}</td>
         <td>${escapeHtml(f.origem)}</td>
         <td>${escapeHtml(f.destino)}</td>
-        <td>${f.passageiros.size}</td>
-        <td>${escapeHtml(f.situacao_voo || 'NÃO INFORMADO')}</td>
-        <td>${formatHoras(f.horas_voadas)}</td>
+        <td>${escapeHtml(String(f.passageiros_count || f.passageiros_list.length || 0))}</td>
+        <td>${escapeHtml(f.situacao_voo || '')}</td>
+        <td>${escapeHtml(formatHoras(f.horas_voadas))}</td>
       </tr>`;
     });
     tbody.innerHTML = html;
-  }
 
-  function atualizarPaginacao(){
-    const totalItems = dadosFiltrados.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const startItem = totalItems === 0 ? 0 : (currentPage-1)*pageSize + 1;
-    const endItem = Math.min(currentPage*pageSize, totalItems);
-    document.getElementById('pagination-info').textContent = `Mostrando ${startItem}-${endItem} de ${totalItems} registros (linhas)`;
+    // pagination info
+    const total = filteredFlights.length;
+    const startItem = total===0?0:(start+1);
+    const endItem = Math.min(start+pageSize, total);
+    document.getElementById('pagination-info').textContent = `Mostrando ${startItem}-${endItem} de ${total} voos`;
     document.getElementById('btn-prev').disabled = currentPage <= 1;
-    document.getElementById('btn-next').disabled = currentPage >= totalPages;
+    document.getElementById('btn-next').disabled = endItem >= total;
   }
 
-  function mudarPagina(dir){
-    const totalItems = dadosFiltrados.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-    const np = currentPage + dir;
-    if(np >= 1 && np <= totalPages){ currentPage = np; atualizarTabela(); atualizarPaginacao(); }
-  }
+  function prevPage(){ if(currentPage>1){ currentPage--; renderTablePage(); } }
+  function nextPage(){ const totalPages = Math.ceil(filteredFlights.length / pageSize); if(currentPage < totalPages){ currentPage++; renderTablePage(); } }
 
-  // ----------------------------
-  // Análise por destino (agrupa por destino, mas calcula voos únicos)
-  // ----------------------------
+  // -----------------------------
+  // ANÁLISE POR DESTINO (gera a tabela agregada por destino)
+  // Regras: contar voos únicos (já agrupados), somar horas, contar passageiros únicos
+  // Percentual de voos: (voos deste destino / total voos selecionados) * 100
+  // -----------------------------
   function gerarAnalise(){
     const ano = document.getElementById('analise-ano').value;
     const destinoFilter = document.getElementById('analise-destino').value;
-    const passageiroFilter = document.getElementById('analise-passageiro').value;
+    const passageiro = document.getElementById('analise-passageiro').value;
 
-    let rows = [...dadosCache.voos];
-    if(ano && ano !== 'all') rows = rows.filter(r => r.ano === ano);
-    if(destinoFilter && destinoFilter !== 'all') rows = rows.filter(r => r.destino === destinoFilter);
-    if(passageiroFilter && passageiroFilter !== 'all') rows = rows.filter(r => r.passageiro === passageiroFilter);
+    // considerar somente voos que atendem filtros (reaproveitar groupedFlights -> flights)
+    const flights = Object.values(groupedFlights).map(f => ({
+      key: f.key,
+      data: f.data,
+      ano: (f.data||'').match(/(\d{4})/) ? (f.data||'').match(/(\d{4})/)[1] : '',
+      origem: f.origem,
+      destino: f.destino,
+      horas: f.horas_voadas_total,
+      passageiros: Array.from(f.passageiros),
+      passageiros_count: f.passageiros.size
+    }));
 
-    // map dest -> set of flightKeys and passengers and horas
+    let list = flights;
+    if(ano && ano !== 'all') list = list.filter(f => f.ano === ano);
+    if(destinoFilter && destinoFilter !== 'all') list = list.filter(f => f.destino === destinoFilter);
+    if(passageiro && passageiro !== 'all') list = list.filter(f => f.passageiros.includes(passageiro));
+
+    // agrupar por destino
     const map = {};
-    rows.forEach(r=>{
-      const key = `${r.data}||${r.n_db}||${r.origem}||${r.destino}`;
-      if(!map[r.destino]) map[r.destino] = {destino: r.destino, flightKeys: new Set(), horas: 0, passageiros: new Set()};
-      map[r.destino].flightKeys.add(key);
-      map[r.destino].horas += (parseFloat(r.horas_voadas) || 0);
-      if(r.passageiro) map[r.destino].passageiros.add(r.passageiro);
+    list.forEach(f=>{
+      if(!map[f.destino]) map[f.destino] = { destino: f.destino, total:0, horas:0, passageirosSet: new Set() };
+      map[f.destino].total += 1;
+      map[f.destino].horas += parseFloat(f.horas) || 0;
+      f.passageiros.forEach(p => { if(p) map[f.destino].passageirosSet.add(p); });
     });
 
-    const arr = Object.values(map).map(x => ({ destino: x.destino, totalVoos: x.flightKeys.size, horas: x.horas, passageiros: x.passageiros.size }));
-    arr.sort((a,b)=> b.totalVoos - a.totalVoos);
+    const arr = Object.values(map).map(v=>({
+      destino: v.destino,
+      total: v.total,
+      horas: v.horas,
+      passageiros: v.passageirosSet.size
+    })).sort((a,b)=>b.total - a.total);
 
-    // calcular percentual de voos (relativo ao total de voos únicos no conjunto filtrado)
-    const totalVoosGeral = arr.reduce((s,i)=>s+i.totalVoos,0) || 0;
-    // preencher tabela
+    // total voos para calculo de percentual
+    const totalVoos = arr.reduce((s,i)=>s+i.total,0) || 0;
+
+    // render tabela
     const tbody = document.getElementById('analise-table-body');
-    if(arr.length === 0){ tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum dado</td></tr>'; return; }
-    let html = '';
-    arr.forEach(a => {
-      const pct = totalVoosGeral>0 ? ((a.totalVoos / totalVoosGeral) * 100).toFixed(1) + '%' : '0.0%';
-      html += `<tr>
-        <td>${escapeHtml(a.destino)}</td>
-        <td>${a.totalVoos}</td>
-        <td>${formatHoras(a.horas)}</td>
-        <td>${a.passageiros}</td>
-        <td>${pct}</td>
-      </tr>`;
-    });
-    tbody.innerHTML = html;
-    // estatísticas superiores
-    document.getElementById('analise-total').textContent = totalVoosGeral.toLocaleString('pt-BR');
-    const totalHoras = arr.reduce((s,i)=>s + (i.horas||0),0);
-    document.getElementById('analise-horas').textContent = formatHoras(totalHoras);
-    const totalPass = new Set(rows.map(r=>r.passageiro)).size;
-    document.getElementById('analise-passageiros').textContent = totalPass.toLocaleString('pt-BR');
+    if(arr.length === 0){
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum dado</td></tr>';
+    } else {
+      let html = '';
+      // limitar a 10 se quiser, mas você pediu todos; vamos exibir todos (se quiser limite, slice(0,10))
+      arr.forEach(a=>{
+        const perc = totalVoos > 0 ? ((a.total / totalVoos) * 100).toFixed(1) : '0.0';
+        html += `<tr>
+          <td>${escapeHtml(a.destino)}</td>
+          <td>${a.total}</td>
+          <td>${escapeHtml(formatHoras(a.horas))}</td>
+          <td>${a.passageiros}</td>
+          <td>${perc}%</td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    // estatisticas gerais (agregadas)
+    const horasTotais = arr.reduce((s,i)=>s + (i.horas||0),0);
+    const passageirosUnicos = new Set(list.flatMap(f => f.passageiros)).size;
+    document.getElementById('analise-total').textContent = totalVoos.toLocaleString('pt-BR');
+    document.getElementById('analise-horas').textContent = formatHoras(horasTotais);
+    document.getElementById('analise-passageiros').textContent = passageirosUnicos.toLocaleString('pt-BR');
     document.getElementById('analise-sucesso').textContent = '—';
   }
 
-  // ----------------------------
-  // Export CSV (dadosFiltrados)
-  // ----------------------------
-  function exportarParaCSV(){
-    if(!dadosFiltrados || dadosFiltrados.length === 0){ mostrarNotificacao('Nenhum dado para exportar','warning'); return; }
-    // exportar linhas filtradas (raw rows)
-    const headers = EXPECTED_COLUMNS;
+  // -----------------------------
+  // Export filtered flights (csv) — gera CSV com as colunas principais
+  // -----------------------------
+  function exportFilteredCSV(){
+    if(!filteredFlights || filteredFlights.length === 0){ notify('Nenhum registro para exportar','warning'); return; }
+    const headers = ['data','n_db','origem','destino','qtd_passageiros','situacao_voo','horas_voadas'];
     const rows = [headers.join(',')];
-    dadosFiltrados.forEach(r=>{
-      const line = headers.map(h=>{
-        const v = r[h] === undefined || r[h] === null ? '' : String(r[h]);
-        return (v.includes(',')||v.includes('"')) ? `"${v.replace(/"/g,'""')}"` : v;
-      }).join(',');
-      rows.push(line);
+    filteredFlights.forEach(f=>{
+      const line = [
+        f.data,
+        f.n_db || '',
+        f.origem,
+        f.destino,
+        f.passageiros_list.length || 0,
+        f.situacao_voo || '',
+        (f.horas_voadas || 0)
+      ];
+      rows.push(line.map(cell => { const s = (cell===null||cell===undefined)?'':String(cell); return (s.includes(',')||s.includes('"'))?`"${s.replace(/"/g,'""')}"`:s; }).join(','));
     });
     const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `voos_filtrados_${new Date().toISOString().slice(0,10)}.csv`; a.style.display='none'; document.body.appendChild(a); a.click(); a.remove();
-    mostrarNotificacao(`Exportado ${dadosFiltrados.length} linhas para CSV`,'success');
+    const link = document.createElement('a'); const url = URL.createObjectURL(blob);
+    link.href = url; link.download = `voos_filtrados_${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+    notify(`Exportado ${filteredFlights.length} voos (CSV)`, 'success');
   }
 
-  // ----------------------------
-  // Helpers de formatação
-  // ----------------------------
+  // -----------------------------
+  // Export Excel (simples: baixar CSV com extensão .xlsx para abrir no Excel) — nota: opção simples
+  // -----------------------------
+  function exportFilteredExcel(){
+    if(!filteredFlights || filteredFlights.length === 0){ notify('Nenhum registro para exportar','warning'); return; }
+    // reutiliza CSV mas altera nome ext
+    const headers = ['data','n_db','origem','destino','qtd_passageiros','situacao_voo','horas_voadas'];
+    const rows = [headers.join(',')];
+    filteredFlights.forEach(f=>{
+      const line = [
+        f.data,
+        f.n_db || '',
+        f.origem,
+        f.destino,
+        f.passageiros_list.length || 0,
+        f.situacao_voo || '',
+        (f.horas_voadas || 0)
+      ];
+      rows.push(line.map(cell => { const s = (cell===null||cell===undefined)?'':String(cell); return (s.includes(',')||s.includes('"'))?`"${s.replace(/"/g,'""')}"`:s; }).join(','));
+    });
+    const blob = new Blob([rows.join('\n')], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;' });
+    const link = document.createElement('a'); const url = URL.createObjectURL(blob);
+    link.href = url; link.download = `voos_filtrados_${new Date().toISOString().slice(0,10)}.xlsx`; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+    notify(`Exportado ${filteredFlights.length} voos (Excel)`, 'success');
+  }
+
+  // -----------------------------
+  // Helpers: formatDate, formatHoras, escapeHtml
+  // -----------------------------
   function formatDate(d){
     if(!d) return '';
-    // tenta ISO
-    const dt = new Date(d);
-    if(!isNaN(dt.getTime())) return dt.toLocaleDateString('pt-BR');
+    const iso = new Date(d);
+    if(!isNaN(iso.getTime())) return iso.toLocaleDateString('pt-BR');
     const m = d.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if(m) return `${m[3]}/${m[2]}/${m[1]}`;
     return d;
   }
   function formatHoras(h){
-    if(h === null || h === undefined || isNaN(h)) return '—';
+    if(h === null || h === undefined || isNaN(h)) return '0h 0m';
     const hi = Math.floor(h);
     const min = Math.round((h - hi) * 60);
-    return `${hi}h${min>0 ? ' '+min+'m' : ''}`;
+    return `${hi}h ${min}m`;
   }
-  function escapeHtml(s){ if(s === null || s === undefined) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+  function escapeHtml(s){ if(s===null||s===undefined) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-  // ----------------------------
-  // Event listeners e inicializacao
-  // ----------------------------
+  // -----------------------------
+  // Event bindings and init
+  // -----------------------------
   document.addEventListener('DOMContentLoaded', () => {
-    // Tabs
+    // tabs
     document.querySelectorAll('.nav-link').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
         document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
         btn.classList.add('active');
-        document.querySelectorAll('.tab-pane').forEach(tp=>tp.style.display='none');
+        document.querySelectorAll('.tab-pane').forEach(t=>t.style.display='none');
         const target = btn.getAttribute('data-target');
         document.querySelector(target).style.display = 'block';
       });
     });
 
-    // Botões
-    document.getElementById('btn-apply').addEventListener('click', aplicarFiltros);
-    document.getElementById('btn-clear').addEventListener('click', limparFiltros);
-    document.getElementById('btn-prev').addEventListener('click', ()=>mudarPagina(-1));
-    document.getElementById('btn-next').addEventListener('click', ()=>mudarPagina(1));
-    document.getElementById('exportCSV').addEventListener('click', exportarParaCSV);
+    // bind buttons
+    document.getElementById('btn-apply').addEventListener('click', applyFilters);
+    document.getElementById('btn-clear').addEventListener('click', ()=>{
+      document.getElementById('filter-ano').value = '2025';
+      document.getElementById('filter-origem').value = 'all';
+      document.getElementById('filter-destino').value = 'all';
+      document.getElementById('filter-passageiro').value = 'all';
+      applyFilters();
+    });
+    document.getElementById('btn-prev').addEventListener('click', prevPage);
+    document.getElementById('btn-next').addEventListener('click', nextPage);
+    document.getElementById('exportCSV').addEventListener('click', exportFilteredCSV);
+    document.getElementById('exportExcel').addEventListener('click', exportFilteredExcel);
+    document.getElementById('btn-print').addEventListener('click', ()=>window.print());
+    document.getElementById('downloadFiltered').addEventListener('click', exportFilteredCSV);
     document.getElementById('btn-analisar').addEventListener('click', gerarAnalise);
 
-    // iniciar carregamento de arquivos
-    carregarTodosArquivos();
+    // share
+    document.getElementById('shareBtn').addEventListener('click', ()=>{
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent('Painel de Voos Oficiais - Governo de Minas Gerais');
+      window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=400');
+    });
+
+    // carregar dados
+    loadAllData();
   });
 
-  // ----------------------------
-  // Fim
-  // ----------------------------
   </script>
 </body>
 </html>
