@@ -1,0 +1,82 @@
+:root {
+  --primary-dark: #29435A;
+  --primary-darker: #132837;
+  --accent-red: #B93C42;
+  --accent-bright: #DB233F;
+  --background-light: #EEEFF5;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-light);
+  margin: 0;
+  padding-bottom: 30px;
+}
+
+/* Header */
+.dashboard-header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-darker) 100%);
+  color: white;
+  padding: 22px 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Logo */
+.logo {
+  width: 54px;
+  height: 54px;
+  background: var(--accent-red);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 18px;
+}
+
+/* Cards */
+.summary-card {
+  text-align: center;
+  padding: 22px 12px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  border-top: 5px solid var(--accent-red);
+}
+
+.summary-card h3 { margin: 0; color: var(--primary-dark); font-size: 2rem; }
+.summary-card p { margin: 6px 0 0; color: var(--primary-darker); }
+
+.card-dash {
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Buttons */
+.btn-primary-dash {
+  background: linear-gradient(to right, var(--accent-red), var(--accent-bright));
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Table */
+.dash-table {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* Small util */
+.icon-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+}
