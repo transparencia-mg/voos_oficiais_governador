@@ -1,6 +1,0 @@
-python - <<'PY'
-import glob, json
-files = sorted([f.replace("\\\\","/") for f in glob.glob("docs/data/normalized/voos_*.csv")])
-print("Encontrados:", files)
-open("docs/files.json","w",encoding="utf8").write(json.dumps(files, ensure_ascii=False, indent=2))
-PY
