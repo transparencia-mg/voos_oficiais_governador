@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Voos Oficiais — Dashboard</title>
+
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <!-- PapaParse para CSV robusto -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+  <!-- estilo -->
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo">MG</div>
+        <div>
+          <h1>Voos Oficiais — Governo de MG</h1>
+          <div class="subtitle">Dashboard público de voos oficiais</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-download-base" class="btn-primary">Download Base</button>
+        <a id="link-open-raw" class="link-raw" target="_blank">Dados abertos (raw)</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-grid">
+    <!-- filtros -->
+    <section class="card filters" id="filters">
+      <div class="filters-row">
+        <select id="filter-ano"><option value="all">Todos os anos</option></select>
+        <select id="filter-origem"><option value="all">Todas as origens</option></select>
+        <select id="filter-destino"><option value="all">Todos os destinos</option></select>
+        <select id="filter-orgao"><option value="all">Todos os órgãos</option></select>
+        <select id="filter-situacao"><option value="all">Todas as situações</option><option value="REALIZADO">REALIZADO</option><option value="CANCELADA">CANCELADA</option></select>
+        <button id="btn-apply" class="btn-primary">Aplicar</button>
+        <button id="btn-clear" class="btn-ghost">Limpar</button>
+      </div>
+    </section>
+
+    <!-- cards resumo -->
+    <section class="card summary-row" id="summary-row">
+      <div class="summary-card"><div class="big" id="card-voos">—</div><div class="label">Voos (DB únicos)</div></div>
+      <div class="summary-card"><div class="big" id="card-horas">—</div><div class="label">Horas voadas</div></div>
+      <div class="summary-card"><div class="big" id="card-pass">—</div><div class="label">Passageiros</div></div>
+      <div class="summary-card"><div class="big" id="card-destinos">—</div><div class="label">Destinos</div></div>
+    </section>
+
+    <!-- gráficos -->
+    <section class="card" style="grid-column: 1 / span 6;">
+      <div id="chart-destinos" style="height:420px;"></div>
+    </section>
+
+    <section class="card" style="grid-column: 7 / span 6;">
+      <div id="chart-horas" style="height:420px;"></div>
+    </section>
+
+    <!-- tabela -->
+    <section class="card" style="grid-column: 1 / span 12;">
+      <h3>Detalhamento de Registros (uma linha por passageiro)</h3>
+      <div id="table-container" class="table-wrapper"></div>
+      <div class="table-actions">
+        <button id="btn-export-csv" class="btn-primary">Exportar CSV</button>
+        <button id="btn-export-xlsx" class="btn-ghost" id="btn-xlsx">Exportar Excel (XLSX)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    Dados abertos — atualizados via repositório GitHub.
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
