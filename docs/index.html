@@ -85,7 +85,8 @@
     <!-- VISÃO GERAL -->
     <section id="tab-overview" class="tab-pane active">
       <div class="filter-card mb-3">
-        <div class="row g-3">
+        <div class="row g-3 align-items-end">
+          <!-- Filtros -->
           <div class="col-md-2">
             <label class="form-label small">Ano</label>
             <select id="filter-ano" class="form-select"><option value="2025">2025</option><option value="2021">2021</option><option value="all">Todos os anos</option></select>
@@ -102,18 +103,24 @@
             <label class="form-label small">Passageiro</label>
             <select id="filter-passageiro" class="form-select"><option value="all">Todos os passageiros</option></select>
           </div>
-        </div>  
-          <div class="col-md-3 d-flex align-items-end justify-content-end gap-2">
-            <!-- action buttons row (aplicar/limpar/exportar/imprimir/compartilhar) -->
-            <div class="d-flex gap-2 w-100 justify-content-end flex-wrap">
+          
+          <!-- Botões de ação - Aplicar e Limpar -->
+          <div class="col-md-3">
+            <div class="d-grid gap-2">
               <button id="btn-apply" class="btn-primary-custom"><i class="fas fa-filter me-1"></i> Aplicar</button>
               <button id="btn-clear" class="btn-secondary-custom"><i class="fas fa-undo me-1"></i> Limpar</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Linha separada para botões de exportação -->
+        <div class="row g-2 mt-3">
+          <div class="col-md-12">
+            <div class="d-flex flex-wrap gap-2 justify-content-end">
               <button id="exportCSV" class="btn btn-outline-primary"><i class="fas fa-file-csv me-1"></i> Exportar CSV</button>
               <button id="exportExcel" class="btn btn-outline-success"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
               <button id="btn-print" class="btn btn-outline-secondary"><i class="fas fa-print me-1"></i> Imprimir</button>
-              <div class="btn-group ms-1">
-                <button id="shareBtn" class="btn btn-outline-info"><i class="fas fa-share-alt me-1"></i> Compartilhar</button>
-              </div>
+              <button id="shareBtn" class="btn btn-outline-info"><i class="fas fa-share-alt me-1"></i> Compartilhar</button>
             </div>
           </div>
         </div>
@@ -213,7 +220,7 @@
     <!-- ANÁLISE POR DESTINO -->
     <section id="tab-destinos" class="tab-pane" style="display:none;">
       <div class="filter-card mb-3">
-        <div class="row g-3">
+        <div class="row g-3 align-items-end">
           <div class="col-md-3">
             <label class="form-label small">Ano</label>
             <select id="analise-ano" class="form-select"><option value="2025">2025</option><option value="2021">2021</option><option value="all">Todos</option></select>
@@ -226,8 +233,10 @@
             <label class="form-label small">Passageiro</label>
             <select id="analise-passageiro" class="form-select"><option value="all">Todos</option></select>
           </div>
-          <div class="col-md-2 d-flex align-items-end justify-content-end">
-            <button id="btn-analisar" class="btn-primary-custom"><i class="fas fa-chart-bar me-1"></i> Gerar Análise</button>
+          <div class="col-md-2">
+            <div class="d-grid">
+              <button id="btn-analisar" class="btn-primary-custom"><i class="fas fa-chart-bar me-1"></i> Gerar Análise</button>
+            </div>
           </div>
         </div>
       </div>
